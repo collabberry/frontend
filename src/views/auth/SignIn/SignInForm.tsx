@@ -40,23 +40,23 @@ const SignInForm = (props: SignInFormProps) => {
 
   const [message, setMessage] = useTimeOutMessage();
 
-  const { signIn } = useAuth();
+  // const { signIn } = useAuth();
 
-  const onSignIn = async (
-    values: SignInFormSchema,
-    setSubmitting: (isSubmitting: boolean) => void
-  ) => {
-    const { userName, password } = values;
-    setSubmitting(true);
+  // const onSignIn = async (
+  //   values: SignInFormSchema,
+  //   setSubmitting: (isSubmitting: boolean) => void
+  // ) => {
+  //   const { userName, password } = values;
+  //   setSubmitting(true);
 
-    const result = await signIn({ userName, password });
+  //   // const result = await signIn({ userName, password });
 
-    if (result?.status === "failed") {
-      setMessage(result.message);
-    }
+  //   if (result?.status === "failed") {
+  //     setMessage(result.message);
+  //   }
 
-    setSubmitting(false);
-  };
+  //   setSubmitting(false);
+  // };
 
   return (
     <div className={className}>
@@ -74,7 +74,8 @@ const SignInForm = (props: SignInFormProps) => {
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting }) => {
           if (!disableSubmit) {
-            onSignIn(values, setSubmitting);
+            setSubmitting(false);
+            // onSignIn(values, setSubmitting);
           } else {
             setSubmitting(false);
           }

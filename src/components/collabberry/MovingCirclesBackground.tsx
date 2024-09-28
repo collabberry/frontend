@@ -15,10 +15,7 @@ const MovingCirclesBackground: React.FC = () => {
   const positions = useMemo(() => generateRandomPositions(12), []);
 
   return (
-    <div
-      className="relative w-full h-full bg-[#1C4043] overflow-hidden z-index-0"
-      style={{ filter: "blur(2px)" }}
-    >
+    <div className="relative w-full h-full bg-[#1C4043] overflow-hidden z-index-0">
       {[...Array(12)].map((_, i) => (
         <motion.div
           key={i}

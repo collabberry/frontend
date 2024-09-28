@@ -8,19 +8,21 @@ import PrivacyPolicy from "@/components/collabberry/PrivacyPolicy";
 import Container from "@/components/shared/Container";
 import { boolean } from "yup";
 import MovingCirclesBackground from "@/components/collabberry/MovingCirclesBackground";
+import useAuth from "@/utils/hooks/useAuth";
+import useTimeOutMessage from "@/utils/hooks/useTimeOutMessage";
+import { ActionLink } from "@/components/shared";
 
 const SignIn = () => {
   const [isPrivacyPolicyOpen, setIsPrivacyPolicyOpen] = useState(false);
   const openPrivacyPolicy = () => setIsPrivacyPolicyOpen(true);
   const closePrivacyPolicy = () => setIsPrivacyPolicyOpen(false);
-
   const [isTermsAndConditionsOpen, setIsTermsAndConditionsOpen] =
     useState(false);
   const openTermsAndConditions = () => setIsTermsAndConditionsOpen(true);
   const closeTermsAndConditions = () => setIsTermsAndConditionsOpen(false);
 
   const [isChecked, setIsChecked] = useState(true);
-
+  const signUpUrl = "/sign-up";
   const onCheckboxChange = (e: boolean) => {
     setIsChecked(e);
   };
@@ -56,6 +58,7 @@ const SignIn = () => {
         <div className="flex justify-center mb-8">
           <CustomConnectButton disabled={!isChecked} />
         </div>
+
         <div className="flex items-start">
           <Checkbox checked={isChecked} onChange={onCheckboxChange} />
           <div className="text-sm flex flex-row space-x-1">

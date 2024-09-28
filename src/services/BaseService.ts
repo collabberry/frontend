@@ -30,6 +30,7 @@ BaseService.interceptors.request.use(
                 REQUEST_HEADER_AUTH_KEY
             ] = `${TOKEN_TYPE}${accessToken}`
         }
+        config.headers['Content-Type'] = 'application/json';
 
         return config
     },
@@ -38,17 +39,17 @@ BaseService.interceptors.request.use(
     }
 )
 
-BaseService.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        const { response } = error
+// BaseService.interceptors.response.use(
+//     (response) => response,
+//     (error) => {
+//         const { response } = error
 
-        if (response && unauthorizedCode.includes(response.status)) {
-            store.dispatch(signOutSuccess())
-        }
+//         if (response && unauthorizedCode.includes(response.status)) {
+//             store.dispatch(signOutSuccess())
+//         }
 
-        return Promise.reject(error)
-    }
-)
+//         return Promise.reject(error)
+//     }
+// )
 
 export default BaseService

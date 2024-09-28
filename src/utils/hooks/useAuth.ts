@@ -1,132 +1,153 @@
-import { apiSignIn, apiSignOut, apiSignUp } from '@/services/AuthService'
 import {
-    setUser,
-    signInSuccess,
-    signOutSuccess,
-    useAppSelector,
-    useAppDispatch,
-} from '@/store'
-import appConfig from '@/configs/app.config'
-import { REDIRECT_URL_KEY } from '@/constants/app.constant'
-import { useNavigate } from 'react-router-dom'
-import useQuery from './useQuery'
-import type { SignInCredential, SignUpCredential } from '@/@types/auth'
+  apiGetUser,
+  apiSignIn,
+  apiSignOut,
+  apiSignUp,
+} from "@/services/AuthService";
+import {
+  setUser,
+  signInSuccess,
+  walletConnected,
+  signOutSuccess,
+  useAppSelector,
+  useAppDispatch,
+} from "@/store";
+import appConfig from "@/configs/app.config";
+import { REDIRECT_URL_KEY } from "@/constants/app.constant";
+import { useNavigate } from "react-router-dom";
+import useQuery from "./useQuery";
+import type { SignInCredential, SignUpCredential } from "@/@types/auth";
+import { useAccount, useDisconnect } from "wagmi";
+import { useEffect } from "react";
 
-type Status = 'success' | 'failed'
+type Status = "success" | "failed";
 
 function useAuth() {
-    const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { disconnectAsync } = useDisconnect();
+  const { isDisconnected } = useAccount();
 
-    const navigate = useNavigate()
+  const query = useQuery();
 
-    const query = useQuery()
+  const { token, signedIn } = useAppSelector((state) => state.auth.session);
 
-    const { token, signedIn } = useAppSelector((state) => state.auth.session)
+  const signInWithWallet = async (
+    token: string
+  ): Promise<
+    | {
+        status: Status;
+        message: string;
+      }
+    | undefined
+  > => {
+    try {
+      if (token) {
+        dispatch(walletConnected(token));
+        let response: any = await apiGetUser();
+        debugger;
+        let user = response?.data || {};
+        console.log(response, user, "response");
 
-    const signIn = async (
-        values: SignInCredential
-    ): Promise<
-        | {
-              status: Status
-              message: string
-          }
-        | undefined
-    > => {
-        try {
-            const resp = await apiSignIn(values)
-            if (resp.data) {
-                const { token } = resp.data
-                dispatch(signInSuccess(token))
-                if (resp.data.user) {
-                    dispatch(
-                        setUser(
-                            resp.data.user || {
-                                avatar: '',
-                                userName: 'Anonymous',
-                                authority: ['USER'],
-                                email: '',
-                            }
-                        )
-                    )
-                }
-                const redirectUrl = query.get(REDIRECT_URL_KEY)
-                navigate(
-                    redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath
-                )
-                return {
-                    status: 'success',
-                    message: '',
-                }
-            }
-            // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-        } catch (errors: any) {
-            return {
-                status: 'failed',
-                message: errors?.response?.data?.message || errors.toString(),
-            }
+        const redirectUrl = query.get(REDIRECT_URL_KEY);
+        let url = redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath;
+
+        if (!user) {
+          user.username = "Anonymous";
+          user.email = "";
+          user.profilePic = "";
+          url = appConfig.notRegisteredEntryPath;
+        } else {
+          dispatch(signInSuccess(token));
         }
-    }
-
-    const signUp = async (values: SignUpCredential) => {
-        try {
-            const resp = await apiSignUp(values)
-            if (resp.data) {
-                const { token } = resp.data
-                dispatch(signInSuccess(token))
-                if (resp.data.user) {
-                    dispatch(
-                        setUser(
-                            resp.data.user || {
-                                avatar: '',
-                                userName: 'Anonymous',
-                                authority: ['USER'],
-                                email: '',
-                            }
-                        )
-                    )
-                }
-                const redirectUrl = query.get(REDIRECT_URL_KEY)
-                navigate(
-                    redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath
-                )
-                return {
-                    status: 'success',
-                    message: '',
-                }
-            }
-            // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-        } catch (errors: any) {
-            return {
-                status: 'failed',
-                message: errors?.response?.data?.message || errors.toString(),
-            }
-        }
-    }
-
-    const handleSignOut = () => {
-        dispatch(signOutSuccess())
         dispatch(
-            setUser({
-                avatar: '',
-                userName: '',
-                email: '',
-                authority: [],
-            })
-        )
-        navigate(appConfig.unAuthenticatedEntryPath)
+          setUser({
+            avatar: user.profilePic,
+            userName: user.username,
+            authority: ["USER"],
+            email: user.email,
+          })
+        );
+        navigate(url);
+        return {
+          status: "success",
+          message: "",
+        };
+      }
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    } catch (errors: any) {
+      return {
+        status: "failed",
+        message: errors?.response?.data?.message || errors.toString(),
+      };
     }
+  };
 
-    const signOut = async () => {
-        await apiSignOut()
-        handleSignOut()
+  const signUp = async (values: SignUpCredential) => {
+    try {
+      const resp = await apiSignUp(values);
+      if (resp.data) {
+        const { token } = resp.data;
+        dispatch(signInSuccess(token));
+        if (resp.data.user) {
+          dispatch(
+            setUser(
+              resp.data.user || {
+                avatar: "",
+                userName: "Anonymous",
+                authority: ["USER"],
+                email: "",
+              }
+            )
+          );
+        }
+        const redirectUrl = query.get(REDIRECT_URL_KEY);
+        navigate(redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath);
+        return {
+          status: "success",
+          message: "",
+        };
+      }
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    } catch (errors: any) {
+      return {
+        status: "failed",
+        message: errors?.response?.data?.message || errors.toString(),
+      };
     }
+  };
 
-    return {
-        authenticated: token && signedIn,
-        signIn,
-        signUp,
-        signOut,
+  const handleSignOut = () => {
+    dispatch(signOutSuccess());
+    dispatch(
+      setUser({
+        avatar: "",
+        userName: "",
+        email: "",
+        authority: [],
+      })
+    );
+    navigate(appConfig.unAuthenticatedEntryPath);
+  };
+
+  useEffect(() => {
+    if (isDisconnected) {
+      handleSignOut();
     }
+  }, [isDisconnected]);
+
+  const signOut = async () => {
+    await disconnectAsync();
+    handleSignOut();
+  };
+
+  return {
+    authenticated: token && signedIn,
+    walletConnected: token,
+    signInWithWallet,
+    signUp,
+    signOut,
+  };
 }
 
-export default useAuth
+export default useAuth;

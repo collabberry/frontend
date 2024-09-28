@@ -13,6 +13,12 @@ export type SignInResponse = {
     }
 }
 
+export type UserResponse = {
+    username: string
+    profilePic: string
+    email: string
+}
+
 export type SignUpResponse = SignInResponse
 
 export type SignUpCredential = {
@@ -20,6 +26,11 @@ export type SignUpCredential = {
     email: string
     password: string
 }
+
+export type RegisterCredential = {
+    username: string;
+    email: string;
+  };
 
 export type ForgotPassword = {
     email: string
