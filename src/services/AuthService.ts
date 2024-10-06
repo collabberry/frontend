@@ -1,48 +1,72 @@
-import ApiService from './ApiService'
+import ApiService from "./ApiService";
 import type {
-    SignInCredential,
-    SignUpCredential,
-    ForgotPassword,
-    ResetPassword,
-    SignInResponse,
-    SignUpResponse,
-} from '@/@types/auth'
+  SignInCredential,
+  SignUpCredential,
+  ForgotPassword,
+  ResetPassword,
+  SignInResponse,
+  SignUpResponse,
+  UserResponse,
+  RegisterCredential,
+  OrganizatonData,
+} from "@/@types/auth";
 
 export async function apiSignIn(data: SignInCredential) {
-    return ApiService.fetchData<SignInResponse>({
-        url: '/sign-in',
-        method: 'post',
-        data,
-    })
+  return ApiService.fetchData<SignInResponse>({
+    url: "/sign-in",
+    method: "post",
+    data,
+  });
+}
+
+export async function apiGetUser() {
+  try {
+    return ApiService.fetchData<UserResponse>({
+      url: "/users/me",
+      method: "get",
+    });
+  } catch (error) {
+    return {
+      data: {},
+    };
+  }
+}
+
+export async function apiRegisterAccount(data: RegisterCredential) {
+  return ApiService.fetchData<any>({
+    url: "/users",
+    method: "post",
+    data,
+  });
 }
 
 export async function apiSignUp(data: SignUpCredential) {
-    return ApiService.fetchData<SignUpResponse>({
-        url: '/sign-up',
-        method: 'post',
-        data,
-    })
+  return ApiService.fetchData<SignUpResponse>({
+    url: "/sign-up",
+    method: "post",
+    data,
+  });
 }
 
 export async function apiSignOut() {
-    return ApiService.fetchData({
-        url: '/sign-out',
-        method: 'post',
-    })
+  return ApiService.fetchData({
+    url: "/sign-out",
+    method: "post",
+  });
 }
 
 export async function apiForgotPassword(data: ForgotPassword) {
-    return ApiService.fetchData({
-        url: '/forgot-password',
-        method: 'post',
-        data,
-    })
+  return ApiService.fetchData({
+    url: "/forgot-password",
+    method: "post",
+    data,
+  });
 }
 
 export async function apiResetPassword(data: ResetPassword) {
-    return ApiService.fetchData({
-        url: '/reset-password',
-        method: 'post',
-        data,
-    })
+  return ApiService.fetchData({
+    url: "/reset-password",
+    method: "post",
+    data,
+  });
 }

@@ -1,30 +1,43 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { SLICE_BASE_NAME } from './constants'
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { SLICE_BASE_NAME } from "./constants";
 
 export interface SessionState {
-    signedIn: boolean
-    token: string | null
+  status: "authenticated" | "unauthenticated";
+  signedIn: boolean;
+  token: string | null;
 }
 
 const initialState: SessionState = {
-    signedIn: false,
-    token: null,
-}
+  status: "unauthenticated",
+  signedIn: false,
+  token: null,
+};
 
 const sessionSlice = createSlice({
-    name: `${SLICE_BASE_NAME}/session`,
-    initialState,
-    reducers: {
-        signInSuccess(state, action: PayloadAction<string>) {
-            state.signedIn = true
-            state.token = action.payload
-        },
-        signOutSuccess(state) {
-            state.signedIn = false
-            state.token = null
-        },
+  name: `${SLICE_BASE_NAME}/session`,
+  initialState,
+  reducers: {
+    walletConnected(state, action: PayloadAction<string>) {
+      state.status = "authenticated";
+      state.token = action.payload;
     },
-})
+    signInSuccess(state, action: PayloadAction<string>) {
+      state.status = "authenticated";
+      state.signedIn = true;
+      state.token = action.payload;
+    },
+    signUpSuccess(state, action: PayloadAction<boolean>) {
+      state.status = "authenticated";
+      state.signedIn = action.payload;
+    },
+    signOutSuccess(state) {
+      state.status = "unauthenticated";
+      state.signedIn = false;
+      state.token = null;
+    },
+  },
+});
 
-export const { signInSuccess, signOutSuccess } = sessionSlice.actions
-export default sessionSlice.reducer
+export const { signInSuccess, signOutSuccess, walletConnected, signUpSuccess} =
+  sessionSlice.actions;
+export default sessionSlice.reducer;

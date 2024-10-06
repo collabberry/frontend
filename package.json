@@ -18,8 +18,11 @@
     "@fullcalendar/interaction": "^6.1.8",
     "@fullcalendar/react": "^6.1.8",
     "@fullcalendar/timegrid": "^6.1.8",
+    "@rainbow-me/rainbowkit": "^2.1.6",
+    "@rainbow-me/rainbowkit-siwe-next-auth": "^0.4.1",
     "@reduxjs/toolkit": "^1.9.3",
     "@tanstack/match-sorter-utils": "^8.8.4",
+    "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-table": "^8.8.5",
     "@visx/pattern": "^3.0.0",
     "apexcharts": "^3.37.3",
@@ -29,6 +32,7 @@
     "d3-fetch": "^3.0.1",
     "d3-scale": "^4.0.2",
     "dayjs": "^1.11.7",
+    "ethers": "^6.13.2",
     "formik": "^2.2.9",
     "framer-motion": "^10.8.5",
     "history": "^5.3.0",
@@ -57,7 +61,11 @@
     "react-syntax-highlighter": "^15.5.0",
     "react-tooltip": "^5.11.1",
     "redux-persist": "^6.0.0",
+    "siwe": "^2.3.2",
     "twin.macro": "^3.4.0",
+    "viem": "^2.21.14",
+    "vite-plugin-node-polyfills": "^0.22.0",
+    "wagmi": "^2.12.13",
     "yup": "^1.1.1"
   },
   "devDependencies": {
@@ -97,7 +105,7 @@
     "rollup-plugin-polyfill-node": "^0.12.0",
     "rollup-plugin-postcss": "^4.0.2",
     "tailwindcss": "^3.4.0",
-    "typescript": "^4.9.3",
+    "typescript": "^5.6.2",
     "vite": "^5.0.10",
     "vite-plugin-dynamic-import": "^1.5.0"
   }

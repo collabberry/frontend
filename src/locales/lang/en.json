@@ -1,20 +1,21 @@
 {
-    "nav": {
-        "home": "Home",
-        "singleMenuItem": "Single menu item",
-        "collapseMenu": {
-            "collapseMenu": "Collapse menu item",
-            "item1": "Collapse menu item 1",
-            "item2": "Collapse menu item 2"
-        },
-        "groupMenu": {
-            "groupMenu": "Group menu",
-            "single": "Group single menu item",
-            "collapse": {
-                "collapse": "Group collapse menu",
-                "item1": "Group collapse menu item 1",
-                "item2": "Group collapse menu item 2"
-            }
-        }
+  "nav": {
+    "admin": {
+      "admin": "Admin",
+      "dashboard": "Dashboard",
+      "assessment": "Assessment",
+      "scores": "My Scores"
+    },
+    "collapseMenu": {
+      "collapseMenu": "Collapse menu item",
+      "item1": "Collapse menu item 1",
+      "item2": "Collapse menu item 2"
+    },
+    "org": {
+      "org": "Organization",
+      "settings": "Settings",
+      "rounds": "Rounds",
+      "team": "Team"
     }
+  }
 }

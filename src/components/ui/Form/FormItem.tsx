@@ -52,7 +52,11 @@ const FormItem = forwardRef<HTMLDivElement, FormItemProps>((props, ref) => {
                           label && 'ltr:pr-2 rtl:pl-2'
                       }`
                     : 'ltr:pr-2 rtl:pl-2'
+                 
             case LAYOUT.VERTICAL:
+                if (label && extra) {
+                    return 'mb-0';
+                }
                 return `mb-2`
             case LAYOUT.INLINE:
                 return `h-${CONTROL_SIZES[formItemLabelHeight]} ${
@@ -99,9 +103,10 @@ const FormItem = forwardRef<HTMLDivElement, FormItemProps>((props, ref) => {
                     <span className="text-red-500 ltr:mr-1 rtl:ml-1">*</span>
                 )}
                 {label}
-                {extra && <span>{extra}</span>}
+             
                 {label && formItemLayout !== 'vertical' && ':'}
             </label>
+            {extra && <span className='mb-1'>{extra}</span>}
             <div
                 className={
                     formItemLayout === LAYOUT.HORIZONTAL

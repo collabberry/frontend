@@ -1,57 +1,44 @@
-import { lazy } from 'react'
-import authRoute from './authRoute'
-import type { Routes } from '@/@types/routes'
+import { lazy } from "react";
+import authRoute from "./authRoute";
+import type { Routes } from "@/@types/routes";
 
-export const publicRoutes: Routes = [...authRoute]
+export const publicRoutes: Routes = [...authRoute];
 
 export const protectedRoutes = [
-    {
-        key: 'home',
-        path: '/home',
-        component: lazy(() => import('@/views/Home')),
-        authority: [],
-    },
-    /** Example purpose only, please remove */
-    {
-        key: 'singleMenuItem',
-        path: '/single-menu-view',
-        component: lazy(() => import('@/views/demo/SingleMenuView')),
-        authority: [],
-    },
-    {
-        key: 'collapseMenu.item1',
-        path: '/collapse-menu-item-view-1',
-        component: lazy(() => import('@/views/demo/CollapseMenuItemView1')),
-        authority: [],
-    },
-    {
-        key: 'collapseMenu.item2',
-        path: '/collapse-menu-item-view-2',
-        component: lazy(() => import('@/views/demo/CollapseMenuItemView2')),
-        authority: [],
-    },
-    {
-        key: 'groupMenu.single',
-        path: '/group-single-menu-item-view',
-        component: lazy(() =>
-            import('@/views/demo/GroupSingleMenuItemView')
-        ),
-        authority: [],
-    },
-    {
-        key: 'groupMenu.collapse.item1',
-        path: '/group-collapse-menu-item-view-1',
-        component: lazy(() =>
-            import('@/views/demo/GroupCollapseMenuItemView1')
-        ),
-        authority: [],
-    },
-    {
-        key: 'groupMenu.collapse.item2',
-        path: '/group-collapse-menu-item-view-2',
-        component: lazy(() =>
-            import('@/views/demo/GroupCollapseMenuItemView2')
-        ),
-        authority: [],
-    },
-]
+  {
+    key: "admin.dashboard",
+    path: "/dashboard",
+    component: lazy(() => import("@/views/main/Dashboard")),
+    authority: [],
+  },
+  {
+    key: "admin.assessment",
+    path: "/assessment",
+    component: lazy(() => import("@/views/main/Assessment")),
+    authority: [],
+  },
+  {
+    key: "admin.scores",
+    path: "/scores",
+    component: lazy(() => import("@/views/main/Scores")),
+    authority: [],
+  },
+  {
+    key: "org.team",
+    path: "/team",
+    component: lazy(() => import("@/views/main/Team")),
+    authority: [],
+  },
+  {
+    key: "org.settings",
+    path: "/settings",
+    component: lazy(() => import("@/views/main/Settings")),
+    authority: [],
+  },
+  {
+    key: "org.rounds",
+    path: "/rounds",
+    component: lazy(() => import("@/views/main/Rounds")),
+    authority: [],
+  },
+];

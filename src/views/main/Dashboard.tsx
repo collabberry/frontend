@@ -1,0 +1,187 @@
+import Card from "@/components/ui/Card";
+import {
+  apiCreateOrganization,
+  apiGetOrganizationById,
+  apiEditOrganization,
+  apiGetInvitationToken,
+  apiGetContributorAgreement,
+  apiCreateContributorAgreement,
+} from "@/services/OrgService";
+import { RootState } from "@/store";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { apiGetUser } from "@/services/AuthService";
+import { stat } from "fs";
+import { get } from "lodash";
+import useAuth from "@/utils/hooks/useAuth";
+import InfoCard from "@/components/collabberry/ui-components/InfoCard";
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { FiFileText } from "react-icons/fi";
+import { FiSettings } from "react-icons/fi";
+import { FiUserPlus } from "react-icons/fi";
+import { FiPieChart } from "react-icons/fi";
+import { FiCheckCircle } from "react-icons/fi";
+import { FiDollarSign } from "react-icons/fi";
+
+const Dashboard = () => {
+  const state = useSelector((state: RootState) => state);
+  const organization = useSelector((state: RootState) => state.auth.org);
+
+
+  const navigate = useNavigate();
+
+  const contributorsCardAction = () => {
+    navigate("/team");
+  };
+
+  const settingsCardAction = () => {
+    navigate("/settings");
+  };
+
+  const inviteCardAction = () => {
+    // TODO: Implement invite functionality
+  };
+
+  const assessmentCardAction = () => {
+    //TODO: Implement assessment functionality
+  };
+
+  const numberOfContributors = useMemo(() => {
+    return organization?.contributors?.length || 0;
+  }, [organization]);
+
+  const numberOfContributorsWithAgreements = useMemo(() => {
+    return (
+      organization?.contributors?.filter(
+        (contributor) =>
+          contributor.agreement && Object.keys(contributor.agreement).length > 0
+      ).length || 0
+    );
+  }, [organization]);
+
+  // TODO: Replace hardcoded values with actual data
+  const currentRound = 1;
+  const fiatPerRound = 1000;
+  const pointsPerRound = 32000;
+  const treasury = 18000;
+  const runway = 7;
+
+  const numberOfContributorsWithAssessments = useMemo(() => {
+    return 3; // Hardcoded value for now
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center h-screen px-4">
+      <div className="w-full max-w-4xl mb-6">
+        <h1 className="text-4xl font-bold mb-4">Steps to Complete</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <InfoCard
+            footerAction={
+              numberOfContributorsWithAgreements < numberOfContributors
+                ? contributorsCardAction
+                : undefined
+            }
+            footerButtonTitle="Add all agreements"
+            HeaderIcon={
+              <FiFileText style={{ height: "100%", width: "100%" }} />
+            }
+            cardContent={
+              <>
+                <strong>{numberOfContributorsWithAgreements}</strong> out of{" "}
+                <strong>{numberOfContributors}</strong> members of your
+                organisation have added agreements
+              </>
+            }
+          />
+          <InfoCard
+            footerAction={settingsCardAction}
+            footerButtonTitle="Settings"
+            HeaderIcon={
+              <FiSettings style={{ height: "100%", width: "100%" }} />
+            }
+            cardContent={<>Set up your organisation’s compensation cycle</>}
+          />
+          <InfoCard
+            footerAction={inviteCardAction}
+            footerButtonTitle="Invite Members"
+            HeaderIcon={
+              <FiUserPlus style={{ height: "100%", width: "100%" }} />
+            }
+            cardContent={<>Add more people to your organisation</>}
+          />
+        </div>
+      </div>
+      <div className="w-full max-w-4xl">
+        <h1 className="text-4xl font-bold mb-4">Admin Dashboard</h1>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <InfoCard
+            footerAction={
+              numberOfContributorsWithAssessments < numberOfContributors
+                ? assessmentCardAction
+                : undefined
+            }
+            footerButtonTitle="Remind all"
+            HeaderIcon={
+              <FiPieChart style={{ height: "100%", width: "100%" }} />
+            }
+            cardContent={
+              <>
+                <strong>{numberOfContributorsWithAssessments}</strong> out of{" "}
+                <strong>{numberOfContributors}</strong> members have completed
+                the assessment
+              </>
+            }
+          />
+          <InfoCard
+            HeaderIcon={
+              <FiCheckCircle style={{ height: "100%", width: "100%" }} />
+            }
+            cardContent={
+              <div>
+                <p>Round {currentRound} total distributed</p>
+                <p className="text-lg font-bold">
+                  TP{" "}
+                  {pointsPerRound.toLocaleString("en-US", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
+                <p className="text-lg font-bold">
+                  ${" "}
+                  {fiatPerRound.toLocaleString("en-US", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
+              </div>
+            }
+          />
+          <InfoCard
+            HeaderIcon={
+              <FiDollarSign style={{ height: "100%", width: "100%" }} />
+            }
+            cardContent={
+              <div>
+                <p>Treasury</p>
+                <p className="text-lg font-bold">
+                  ${" "}
+                  {treasury.toLocaleString("en-US", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
+                <p>Runway</p>
+                <p className="text-lg font-bold">{runway} months</p>
+              </div>
+            }
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
