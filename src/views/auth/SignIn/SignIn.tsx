@@ -7,10 +7,12 @@ import TermsAndConditions from "@/components/collabberry/TermsAndConditions";
 import PrivacyPolicy from "@/components/collabberry/PrivacyPolicy";
 import Container from "@/components/shared/Container";
 import { boolean } from "yup";
-import MovingCirclesBackground from "@/components/collabberry/MovingCirclesBackground";
+import MovingCirclesBackground from "@/components/collabberry/ui-components/MovingCirclesBackground";
 import useAuth from "@/utils/hooks/useAuth";
 import useTimeOutMessage from "@/utils/hooks/useTimeOutMessage";
 import { ActionLink } from "@/components/shared";
+import PulsingCirclesBackground from "@/components/collabberry/ui-components/PulsingCirclesBackground";
+import { useEffect } from "react";
 
 const SignIn = () => {
   const [isPrivacyPolicyOpen, setIsPrivacyPolicyOpen] = useState(false);
@@ -20,12 +22,16 @@ const SignIn = () => {
     useState(false);
   const openTermsAndConditions = () => setIsTermsAndConditionsOpen(true);
   const closeTermsAndConditions = () => setIsTermsAndConditionsOpen(false);
+  const { authenticated, walletConnected } = useAuth();
+
 
   const [isChecked, setIsChecked] = useState(true);
   const signUpUrl = "/sign-up";
   const onCheckboxChange = (e: boolean) => {
     setIsChecked(e);
   };
+
+
 
   return (
     <>
@@ -46,7 +52,8 @@ const SignIn = () => {
       )}
 
       <div className="absolute inset-0 z-0">
-        <MovingCirclesBackground />
+        {/* <MovingCirclesBackground /> */}
+        <PulsingCirclesBackground />
       </div>
       <Card
         className="relative z-10 min-w-[320px] md:min-w-[450px]"
@@ -55,6 +62,7 @@ const SignIn = () => {
         <div className="mb-8">
           <h3 className="mb-1">Welcome to the land of berries!</h3>
         </div>
+
         <div className="flex justify-center mb-8">
           <CustomConnectButton disabled={!isChecked} />
         </div>

@@ -8,6 +8,7 @@ import type {
   SignUpResponse,
   UserResponse,
   RegisterCredential,
+  OrganizatonData,
 } from "@/@types/auth";
 
 export async function apiSignIn(data: SignInCredential) {

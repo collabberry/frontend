@@ -32,6 +32,16 @@ export type RegisterCredential = {
     email: string;
   };
 
+  export type OrganizatonData = {
+    id?: string;
+    par?: number;
+    startDate?: string;
+    cycle?: number;
+    name: string;
+    logo?: string;
+  };
+
+
 export type ForgotPassword = {
     email: string
 }

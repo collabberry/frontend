@@ -48,7 +48,6 @@ function App() {
     return createAuthenticationAdapter({
       getNonce: async () => {
         const { address } = getAccount(config);
-        console.log("address", address);
         const response = await fetch(`${base_url}/api/users/auth/nonce`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

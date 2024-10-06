@@ -11,6 +11,7 @@ import {
   signOutSuccess,
   useAppSelector,
   useAppDispatch,
+  setOrganization,
 } from "@/store";
 import appConfig from "@/configs/app.config";
 import { REDIRECT_URL_KEY } from "@/constants/app.constant";
@@ -19,8 +20,10 @@ import useQuery from "./useQuery";
 import type { SignInCredential, SignUpCredential } from "@/@types/auth";
 import { useAccount, useDisconnect } from "wagmi";
 import { useEffect } from "react";
+import { apiGetOrganizationById } from "@/services/OrgService";
 
 type Status = "success" | "failed";
+
 
 function useAuth() {
   const dispatch = useAppDispatch();
@@ -31,27 +34,25 @@ function useAuth() {
   const query = useQuery();
 
   const { token, signedIn } = useAppSelector((state) => state.auth.session);
+  
+
 
   const signInWithWallet = async (
     token: string
   ): Promise<
     | {
-        status: Status;
-        message: string;
-      }
+      status: Status;
+      message: string;
+    }
     | undefined
   > => {
     try {
       if (token) {
         dispatch(walletConnected(token));
         let response: any = await apiGetUser();
-        debugger;
         let user = response?.data || {};
-        console.log(response, user, "response");
-
         const redirectUrl = query.get(REDIRECT_URL_KEY);
         let url = redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath;
-
         if (!user) {
           user.username = "Anonymous";
           user.email = "";
@@ -59,15 +60,24 @@ function useAuth() {
           url = appConfig.notRegisteredEntryPath;
         } else {
           dispatch(signInSuccess(token));
+          
         }
+        const orgResponse = await apiGetOrganizationById(user.organization.id);
         dispatch(
           setUser({
             avatar: user.profilePic,
             userName: user.username,
             authority: ["USER"],
             email: user.email,
+            id: user.id,
           })
         );
+
+        dispatch(
+          setOrganization({
+            ...orgResponse.data,
+          })
+        )
         navigate(url);
         return {
           status: "success",
@@ -83,32 +93,20 @@ function useAuth() {
     }
   };
 
-  const signUp = async (values: SignUpCredential) => {
+  const getOrganizationData = async (orgId: string) => {
     try {
-      const resp = await apiSignUp(values);
-      if (resp.data) {
-        const { token } = resp.data;
-        dispatch(signInSuccess(token));
-        if (resp.data.user) {
-          dispatch(
-            setUser(
-              resp.data.user || {
-                avatar: "",
-                userName: "Anonymous",
-                authority: ["USER"],
-                email: "",
-              }
-            )
-          );
-        }
-        const redirectUrl = query.get(REDIRECT_URL_KEY);
-        navigate(redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath);
+      const response = await apiGetOrganizationById(orgId); // Assuming apiGetUser fetches organization details as well
+      if (response.data) {
         return {
           status: "success",
-          message: "",
+          organization: response.data,
+        };
+      } else {
+        return {
+          status: "failed",
+          message: "Organization not found",
         };
       }
-      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     } catch (errors: any) {
       return {
         status: "failed",
@@ -116,6 +114,43 @@ function useAuth() {
       };
     }
   };
+
+
+
+  // const signUp = async (values: SignUpCredential) => {
+  //   try {
+  //     const resp = await apiSignUp(values);
+  //     if (resp.data) {
+  //       const { token } = resp.data;
+  //       dispatch(signInSuccess(token));
+  //       if (resp.data.user) {
+  //         dispatch(
+  //           setUser(
+  //             resp.data.user || {
+  //               avatar: "",
+  //               userName: "Anonymous",
+  //               authority: ["USER"],
+  //               email: "",
+  //               id: ""
+  //             }
+  //           )
+  //         );
+  //       }
+  //       const redirectUrl = query.get(REDIRECT_URL_KEY);
+  //       navigate(redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath);
+  //       return {
+  //         status: "success",
+  //         message: "",
+  //       };
+  //     }
+  //     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  //   } catch (errors: any) {
+  //     return {
+  //       status: "failed",
+  //       message: errors?.response?.data?.message || errors.toString(),
+  //     };
+  //   }
+  // };
 
   const handleSignOut = () => {
     dispatch(signOutSuccess());
@@ -125,6 +160,7 @@ function useAuth() {
         userName: "",
         email: "",
         authority: [],
+        id: "",
       })
     );
     navigate(appConfig.unAuthenticatedEntryPath);
@@ -145,8 +181,8 @@ function useAuth() {
     authenticated: token && signedIn,
     walletConnected: token,
     signInWithWallet,
-    signUp,
     signOut,
+    getOrganizationData
   };
 }
 

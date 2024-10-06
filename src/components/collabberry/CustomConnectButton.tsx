@@ -3,10 +3,14 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 interface CustomConnectButtonProps {
   disabled?: boolean;
   imageUrl?: string;
+  signInMode?: boolean;
+  userName?: string;
 }
 export const CustomConnectButton: React.FC<CustomConnectButtonProps> = ({
   disabled = false,
+  signInMode = false,
   imageUrl,
+  userName,
 }) => {
   return (
     <ConnectButton.Custom>
@@ -62,43 +66,65 @@ export const CustomConnectButton: React.FC<CustomConnectButtonProps> = ({
                   </button>
                 );
               }
-              return (
-                <div style={{ display: "flex", gap: 12 }}>
-                  <button
-                    onClick={openChainModal}
-                    style={{ display: "flex", alignItems: "center" }}
-                    type="button"
-                  >
-                    {chain.hasIcon && (
+              if (connected && !signInMode) {
+                return (
+                  <div style={{ display: "flex", gap: 12 }}>
+                    {/* <button
+                      onClick={openChainModal}
+                      style={{ display: "flex", alignItems: "center" }}
+                      type="button"
+                    >
+                      {chain.hasIcon && (
+                        <div
+                          style={{
+                            background: chain.iconBackground,
+                            width: 12,
+                            height: 12,
+                            borderRadius: 999,
+                            overflow: "hidden",
+                            marginRight: 4,
+                          }}
+                        >
+                          {chain.iconUrl && (
+                            <img
+                              alt={chain.name ?? "Chain icon"}
+                              src={chain.iconUrl}
+                              style={{ width: 12, height: 12 }}
+                            />
+                          )}
+                        </div>
+                      )}
+                      {chain.name}
+                    </button> */}
+                    <div onClick={openAccountModal} className="cursor-pointer ">
                       <div
                         style={{
-                          background: chain.iconBackground,
-                          width: 12,
-                          height: 12,
-                          borderRadius: 999,
-                          overflow: "hidden",
-                          marginRight: 4,
+                          display: "flex",
+                          flexDirection: "row",
+                          alignItems: "center",
                         }}
                       >
-                        {chain.iconUrl && (
+                        {imageUrl && (
                           <img
-                            alt={chain.name ?? "Chain icon"}
-                            src={chain.iconUrl}
-                            style={{ width: 12, height: 12 }}
+                            src={imageUrl}
+                            alt="User Avatar"
+                            style={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: "50%",
+                              marginRight: 8,
+                            }}
                           />
                         )}
+                        <div className="flex flex-col items-start">
+                          {userName && <p className="font-bold">{userName}</p>}
+                          <p>{account.displayName}</p>
+                        </div>
                       </div>
-                    )}
-                    {chain.name}
-                  </button>
-                  <button onClick={openAccountModal} type="button">
-                    {account.displayName}
-                    {/* {account.displayBalance
-                      ? ` (${account.displayBalance})`
-                      : ""} */}
-                  </button>
-                </div>
-              );
+                    </div>
+                  </div>
+                );
+              }
             })()}
           </div>
         );

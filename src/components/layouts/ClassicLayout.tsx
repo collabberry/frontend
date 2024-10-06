@@ -5,6 +5,7 @@ import MobileNav from '@/components/template/MobileNav'
 import UserDropdown from '@/components/template/UserDropdown'
 import SideNav from '@/components/template/SideNav'
 import View from '@/views'
+import UserAccount from '../collabberry/ui-components/UserAccount'
 
 const HeaderActionsStart = () => {
     return (
@@ -18,8 +19,9 @@ const HeaderActionsStart = () => {
 const HeaderActionsEnd = () => {
     return (
         <>
-            <SidePanel />
-            <UserDropdown hoverable={false} />
+            {/* <SidePanel /> */}
+            {/* <UserDropdown hoverable={false} /> */}
+            <UserAccount />
         </>
     )
 }
