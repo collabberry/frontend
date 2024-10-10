@@ -48,8 +48,8 @@ export const CustomConnectButton: React.FC<CustomConnectButtonProps> = ({
                   <button
                     className={`${
                       disabled
-                        ? "bg-purple-400 text-purple-700 cursor-not-allowed"
-                        : "bg-purple-500 hover:bg-purple-700 text-white"
+                        ? "bg-berrylavender-500 text-berrylavender-700 cursor-not-allowed"
+                        : "bg-berrylavender-400 hover:bg-berrylavender-700 text-offWhite"
                     } font-bold py-2 px-4 rounded`}
                     disabled={disabled}
                     onClick={openConnectModal}

@@ -1,5 +1,5 @@
-import MovingCirclesBackground from "@/components/collabberry/ui-components/MovingCirclesBackground";
-import PulsingCirclesBackground from "@/components/collabberry/ui-components/PulsingCirclesBackground";
+import MovingCirclesBackground from "@/components/collabberry/custom-components/MovingCirclesBackground";
+import PulsingCirclesBackground from "@/components/collabberry/custom-components/PulsingCirclesBackground";
 import {
   Button,
   FormContainer,
@@ -17,7 +17,7 @@ import { FcImageFile, FcInfo } from "react-icons/fc";
 import * as Yup from "yup";
 import { useEffect } from "react";
 import { Formik, Form, Field, useFormik, useFormikContext } from "formik";
-import AvatarImage from "./AvatarUpload";
+import AvatarImage from "../../../components/collabberry/custom-components/AvatarUpload";
 import { useNavigate } from "react-router-dom";
 import { RegisterCredential } from "@/@types/auth";
 import { setAgreement, setOrganization, setUser, signUpSuccess } from "@/store";
@@ -27,9 +27,10 @@ import {
   apiGetContributorAgreement,
   apiGetOrganizationById,
 } from "@/services/OrgService";
-import CustomRangeSlider from "@/components/collabberry/ui-components/CustomRangeSlider";
+import CustomRangeSlider from "@/components/collabberry/custom-components/CustomRangeSlider";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { placeholderAvatars } from "@/components/collabberry/helpers/Avatars";
 
 const ValidationStepsSchema = Yup.object().shape({
   step1: Yup.object().shape({
@@ -125,10 +126,14 @@ const SignUp = () => {
           let response: any = await apiGetUser();
           let user = response?.data || {};
           if (user) {
+            const mockAvatar =
+              placeholderAvatars[
+                Math.floor(Math.random() * placeholderAvatars.length)
+              ];
             dispatch(
               setUser({
                 id: user.id,
-                avatar: "",
+                avatar: mockAvatar,
                 userName: response.data.username,
                 authority: ["USER"],
                 email: response.data.email,

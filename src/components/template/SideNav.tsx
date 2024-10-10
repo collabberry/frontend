@@ -92,8 +92,8 @@ const SideNav = () => {
                             type={sideNavCollapse ? 'streamline' : 'full'}
                             className={
                                 sideNavCollapse
-                                    ? SIDE_NAV_CONTENT_GUTTER
-                                    : LOGO_X_GUTTER
+                                    ? `${SIDE_NAV_CONTENT_GUTTER} py-2`
+                                    : `${LOGO_X_GUTTER} py-2`
                             }
                         />
                     </div>

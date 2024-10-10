@@ -17,13 +17,12 @@ import appConfig from "@/configs/app.config";
 import { REDIRECT_URL_KEY } from "@/constants/app.constant";
 import { useNavigate } from "react-router-dom";
 import useQuery from "./useQuery";
-import type { SignInCredential, SignUpCredential } from "@/@types/auth";
 import { useAccount, useDisconnect } from "wagmi";
 import { useEffect } from "react";
 import { apiGetOrganizationById } from "@/services/OrgService";
+import { placeholderAvatars } from "@/components/collabberry/helpers/Avatars";
 
 type Status = "success" | "failed";
-
 
 function useAuth() {
   const dispatch = useAppDispatch();
@@ -34,16 +33,14 @@ function useAuth() {
   const query = useQuery();
 
   const { token, signedIn } = useAppSelector((state) => state.auth.session);
-  
-
 
   const signInWithWallet = async (
     token: string
   ): Promise<
     | {
-      status: Status;
-      message: string;
-    }
+        status: Status;
+        message: string;
+      }
     | undefined
   > => {
     try {
@@ -60,12 +57,19 @@ function useAuth() {
           url = appConfig.notRegisteredEntryPath;
         } else {
           dispatch(signInSuccess(token));
-          
         }
         const orgResponse = await apiGetOrganizationById(user.organization.id);
+        const mockAvatar =
+          placeholderAvatars[
+            Math.floor(Math.random() * placeholderAvatars.length)
+          ];
+        const mockLogo =
+          placeholderAvatars[
+            Math.floor(Math.random() * placeholderAvatars.length)
+          ];
         dispatch(
           setUser({
-            avatar: user.profilePic,
+            avatar: user.profilePic || mockAvatar,
             userName: user.username,
             authority: ["USER"],
             email: user.email,
@@ -76,8 +80,9 @@ function useAuth() {
         dispatch(
           setOrganization({
             ...orgResponse.data,
+            logo: orgResponse.data.logo || mockLogo,
           })
-        )
+        );
         navigate(url);
         return {
           status: "success",
@@ -114,8 +119,6 @@ function useAuth() {
       };
     }
   };
-
-
 
   // const signUp = async (values: SignUpCredential) => {
   //   try {
@@ -182,7 +185,7 @@ function useAuth() {
     walletConnected: token,
     signInWithWallet,
     signOut,
-    getOrganizationData
+    getOrganizationData,
   };
 }
 
