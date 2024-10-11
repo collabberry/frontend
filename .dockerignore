@@ -1,0 +1,27 @@
+# Ignore Dockerfile
+Dockerfile
+
+# Ignore node_modules
+node_modules
+
+# Ignore build output
+dist
+build
+
+# Ignore logs
+*.log
+
+# Ignore environment variables
+.env
+
+# Ignore temporary files
+*.tmp
+*.swp
+
+# Ignore IDE specific files
+.vscode
+.idea
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
