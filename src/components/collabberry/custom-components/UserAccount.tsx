@@ -1,7 +1,8 @@
 import React from "react";
-import { CustomConnectButton } from "../CustomConnectButton";
+import { CustomConnectButton } from "./CustomConnectButton";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { placeholderAvatars } from "../helpers/Avatars";
 
 interface UserAccountProps {}
 
@@ -9,9 +10,7 @@ const UserAccount: React.FC<UserAccountProps> = ({}) => {
   const user = useSelector((state: RootState) => state.auth.user);
   const { avatar, email, userName } = user;
 
-  const mockAvatar = "https://avatar.iran.liara.run/public/59";
-
-  return <CustomConnectButton userName={userName} imageUrl={mockAvatar} />;
+  return <CustomConnectButton userName={userName} imageUrl={avatar} />;
 };
 
 export default UserAccount;

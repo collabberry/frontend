@@ -5,8 +5,8 @@ import SideNavToggle from "@/components/template/SideNavToggle";
 import MobileNav from "@/components/template/MobileNav";
 import SideNav from "@/components/template/SideNav";
 import View from "@/views";
-import { CustomConnectButton } from "../collabberry/CustomConnectButton";
-import UserAccount from "../collabberry/ui-components/UserAccount";
+import { CustomConnectButton } from "../collabberry/custom-components/CustomConnectButton";
+import UserAccount from "../collabberry/custom-components/UserAccount";
 
 const HeaderActionsStart = () => {
   return (
@@ -20,8 +20,7 @@ const HeaderActionsStart = () => {
 const HeaderActionsEnd = () => {
   return (
     <>
-      {/* <SidePanel />
-            <UserDropdown hoverable={false} /> */}
+    
       <UserAccount />
     </>
   );

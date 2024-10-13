@@ -1,17 +1,17 @@
 import { useState } from "react";
 import Card from "@/components/ui/Card";
 import Checkbox from "@/components/ui/Checkbox/Checkbox";
-import { CustomConnectButton } from "@/components/collabberry/CustomConnectButton";
+import { CustomConnectButton } from "@/components/collabberry/custom-components/CustomConnectButton";
 import Dialog from "@/components/ui/Dialog";
 import TermsAndConditions from "@/components/collabberry/TermsAndConditions";
 import PrivacyPolicy from "@/components/collabberry/PrivacyPolicy";
 import Container from "@/components/shared/Container";
 import { boolean } from "yup";
-import MovingCirclesBackground from "@/components/collabberry/ui-components/MovingCirclesBackground";
+import MovingCirclesBackground from "@/components/collabberry/custom-components/MovingCirclesBackground";
 import useAuth from "@/utils/hooks/useAuth";
 import useTimeOutMessage from "@/utils/hooks/useTimeOutMessage";
 import { ActionLink } from "@/components/shared";
-import PulsingCirclesBackground from "@/components/collabberry/ui-components/PulsingCirclesBackground";
+import PulsingCirclesBackground from "@/components/collabberry/custom-components/PulsingCirclesBackground";
 import { useEffect } from "react";
 
 const SignIn = () => {

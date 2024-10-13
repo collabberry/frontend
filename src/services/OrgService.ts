@@ -1,6 +1,6 @@
 import ApiService from "./ApiService";
 import type {
-    OrganizatonData,
+    OrganizationData,
 } from "@/@types/auth";
 
 export async function apiGetInvitationToken() {
@@ -34,7 +34,7 @@ export async function apiGetOrganizationById(id: string) {
     });
 }
 
-export async function apiCreateOrganization(data: OrganizatonData) {
+export async function apiCreateOrganization(data: OrganizationData) {
     return ApiService.fetchData<any>({
         url: "/orgs",
         method: "post",
@@ -42,7 +42,7 @@ export async function apiCreateOrganization(data: OrganizatonData) {
     });
 }
 
-export async function apiEditOrganization(data: OrganizatonData) {
+export async function apiEditOrganization(data: OrganizationData) {
     return ApiService.fetchData<any>({
         url: "/orgs",
         method: "put",

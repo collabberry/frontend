@@ -1,51 +1,50 @@
 export type SignInCredential = {
-    userName: string
-    password: string
-}
+  userName: string;
+  password: string;
+};
 
 export type SignInResponse = {
-    token: string
-    user: {
-        userName: string
-        authority: string[]
-        avatar: string
-        email: string
-    }
-}
-
-export type UserResponse = {
-    username: string
-    profilePic: string
-    email: string
-}
-
-export type SignUpResponse = SignInResponse
-
-export type SignUpCredential = {
-    userName: string
-    email: string
-    password: string
-}
-
-export type RegisterCredential = {
-    username: string;
+  token: string;
+  user: {
+    userName: string;
+    authority: string[];
+    avatar: string;
     email: string;
   };
+};
 
-  export type OrganizatonData = {
-    id?: string;
-    par?: number;
-    startDate?: string;
-    cycle?: number;
-    name: string;
-    logo?: string;
-  };
+export type UserResponse = {
+  username: string;
+  profilePic: string;
+  email: string;
+};
 
+export type SignUpResponse = SignInResponse;
+
+export type SignUpCredential = {
+  userName: string;
+  email: string;
+  password: string;
+};
+
+export type RegisterCredential = {
+  username: string;
+  email: string;
+};
+
+export type OrganizationData = {
+  id?: string;
+  par?: number;
+  startDate?: string;
+  cycle?: number;
+  name: string;
+  logo?: string;
+};
 
 export type ForgotPassword = {
-    email: string
-}
+  email: string;
+};
 
 export type ResetPassword = {
-    password: string
-}
+  password: string;
+};

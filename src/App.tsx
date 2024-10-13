@@ -19,8 +19,6 @@ import { mainnet, polygon, optimism, arbitrum, base } from "wagmi/chains";
 import { useAppSelector } from "./store";
 import { useNavigate } from "react-router-dom";
 
-const environment = process.env.NODE_ENV;
-
 export const config = getDefaultConfig({
   appName: "Collabberry",
   projectId: "dd33813752fd2f608af1325845cc6abc",
@@ -36,7 +34,7 @@ export const config = getDefaultConfig({
 //   mockServer({ environment });
 // }
 
-const base_url = "http://16.171.142.20";
+const base_url = import.meta.env.VITE_APP_BASE_URL as string;
 
 function App() {
   const { signInWithWallet } = useAuth();
