@@ -1,5 +1,9 @@
 FROM node:20-alpine AS build
 
+# Set up build arguments
+ARG VITE_APP_BASE_URL
+ENV VITE_APP_BASE_URL=$VITE_APP_BASE_URL
+
 # Install build dependencies
 RUN apk add --no-cache python3 make g++
 

@@ -13,7 +13,11 @@ services:
   frontend-app:
     <<: *common
     container_name: frontend-app
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_APP_BASE_URL=http://16.171.142.20
     ports:
       - 4100:4100
 
