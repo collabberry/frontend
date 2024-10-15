@@ -2,7 +2,7 @@ name: Docker Build and AWS Deploy
 
 on:
   push:
-    branches: [ "add-ci-pipeline" ]
+    branches: [ "main" ]
 
 jobs:
   build-and-push:
