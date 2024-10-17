@@ -46,6 +46,7 @@ function useAuth() {
     try {
       if (token) {
         dispatch(walletConnected(token));
+        debugger;
         let response: any = await apiGetUser();
         let user = response?.data || {};
         const redirectUrl = query.get(REDIRECT_URL_KEY);
@@ -53,36 +54,32 @@ function useAuth() {
         if (!user) {
           user.username = "Anonymous";
           user.email = "";
-          user.profilePic = "";
+          user.profilePicture = "";
           url = appConfig.notRegisteredEntryPath;
         } else {
           dispatch(signInSuccess(token));
         }
-        const orgResponse = await apiGetOrganizationById(user.organization.id);
-        const mockAvatar =
-          placeholderAvatars[
-            Math.floor(Math.random() * placeholderAvatars.length)
-          ];
-        const mockLogo =
-          placeholderAvatars[
-            Math.floor(Math.random() * placeholderAvatars.length)
-          ];
         dispatch(
           setUser({
-            avatar: user.profilePic || mockAvatar,
+            profilePicture: user.profilePicture,
             userName: user.username,
             authority: ["USER"],
             email: user.email,
             id: user.id,
           })
         );
+        if (user?.organization?.id) {
+          const orgResponse = await apiGetOrganizationById(
+            user.organization.id
+          );
+          dispatch(
+            setOrganization({
+              ...orgResponse.data,
+              logo: orgResponse.data.logo,
+            })
+          );
+        }
 
-        dispatch(
-          setOrganization({
-            ...orgResponse.data,
-            logo: orgResponse.data.logo || mockLogo,
-          })
-        );
         navigate(url);
         return {
           status: "success",
@@ -159,7 +156,7 @@ function useAuth() {
     dispatch(signOutSuccess());
     dispatch(
       setUser({
-        avatar: "",
+        profilePicture: "",
         userName: "",
         email: "",
         authority: [],

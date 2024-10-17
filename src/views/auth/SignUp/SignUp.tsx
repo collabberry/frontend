@@ -77,11 +77,11 @@ const initialValues = {
   step1: {
     username: "",
     email: "",
-    image: "",
+    image: null,
   },
   step2: {
     name: "",
-    logo: "",
+    logo: null,
   },
   step3: {
     roleName: "",
@@ -111,6 +111,7 @@ const SignUp = () => {
     const data: RegisterCredential = {
       username,
       email,
+      profilePicture: image,
     };
     try {
       const response = await apiRegisterAccount(data);
@@ -126,14 +127,10 @@ const SignUp = () => {
           let response: any = await apiGetUser();
           let user = response?.data || {};
           if (user) {
-            const mockAvatar =
-              placeholderAvatars[
-                Math.floor(Math.random() * placeholderAvatars.length)
-              ];
             dispatch(
               setUser({
                 id: user.id,
-                avatar: mockAvatar,
+                profilePicture: user.profilePicture,
                 userName: response.data.username,
                 authority: ["USER"],
                 email: response.data.email,
@@ -158,7 +155,7 @@ const SignUp = () => {
     const { name, logo } = formik.values.step2;
     const data = {
       name,
-      logo,
+      logo: logo || undefined,
     };
 
     try {

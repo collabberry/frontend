@@ -30,8 +30,9 @@ BaseService.interceptors.request.use(
                 REQUEST_HEADER_AUTH_KEY
             ] = `${TOKEN_TYPE}${accessToken}`
         }
-        config.headers['Content-Type'] = 'application/json';
-
+        if (!config.headers['Content-Type']) {
+            config.headers['Content-Type'] = 'application/json'
+        }
         return config
     },
     (error) => {

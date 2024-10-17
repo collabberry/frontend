@@ -43,15 +43,11 @@ const Team: React.FC = () => {
       cell: (props) => {
         const data = props.row.original;
         const value = props.getValue() as string;
-        const mockAvatar =
-          placeholderAvatars[
-            Math.floor(Math.random() * placeholderAvatars.length)
-          ];
         return (
           <div className="flex flex-row items-center justify-start">
             <Avatar
               className="mr-2 rounded-full"
-              src={data.avatar || mockAvatar}
+              src={data.profilePicture}
             />
             <span>{value}</span>
           </div>
@@ -126,10 +122,6 @@ const Team: React.FC = () => {
       cell: (props) => {
         const contributor = props.row.original;
         const agreement = contributor.agreement;
-        const mockAvatar =
-          placeholderAvatars[
-            Math.floor(Math.random() * placeholderAvatars.length)
-          ];
         return (
           <div>
             {agreement && Object.keys(agreement).length > 0 ? (

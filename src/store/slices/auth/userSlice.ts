@@ -4,7 +4,7 @@ import { placeholderAvatars } from "@/components/collabberry/helpers/Avatars";
 
 export type UserState = {
   id: string;
-  avatar?: string;
+  profilePicture?: string;
   userName?: string;
   email?: string;
   authority?: string[];
@@ -12,7 +12,7 @@ export type UserState = {
 
 
 const initialState: UserState = {
-  avatar: "",
+  profilePicture: "",
   id: "",
   userName: "",
   email: "",
@@ -24,7 +24,7 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser(state, action: PayloadAction<UserState>) {
-      state.avatar = action.payload?.avatar;
+      state.profilePicture = action.payload?.profilePicture;
       state.email = action.payload?.email;
       state.userName = action.payload?.userName;
       state.authority = action.payload?.authority;

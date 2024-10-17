@@ -30,6 +30,7 @@ export type SignUpCredential = {
 export type RegisterCredential = {
   username: string;
   email: string;
+  profilePicture: File | null;
 };
 
 export type OrganizationData = {

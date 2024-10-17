@@ -21,9 +21,13 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ setFieldValue, field, value
 
     const onFileUpload = (files: File[]) => {
         if (files.length > 0) {
-            const fileUrl = URL.createObjectURL(files[0]);
-            setAvatarImg(fileUrl);
-            setFieldValue(field, fileUrl);
+            const fileToUpload = files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatarImg(reader.result as string);
+            };
+            reader.readAsDataURL(fileToUpload);
+            setFieldValue(field, fileToUpload);
         }
     };
 

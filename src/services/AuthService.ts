@@ -8,7 +8,6 @@ import type {
   SignUpResponse,
   UserResponse,
   RegisterCredential,
-  OrganizatonData,
 } from "@/@types/auth";
 
 export async function apiSignIn(data: SignInCredential) {
@@ -33,10 +32,16 @@ export async function apiGetUser() {
 }
 
 export async function apiRegisterAccount(data: RegisterCredential) {
+  const formData = new FormData();
+  Object.keys(data).forEach((key) => {
+    formData.append(key, (data as any)[key]);
+  });
+
   return ApiService.fetchData<any>({
     url: "/users",
     method: "post",
-    data,
+    data: formData,
+    headers: { "Content-Type": "multipart/form-data" },
   });
 }
 

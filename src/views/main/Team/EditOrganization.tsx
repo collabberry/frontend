@@ -37,7 +37,7 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
   const formik = useFormik({
     initialValues: {
       name: initialData?.name || "",
-      logo: initialData?.logo || "",
+      logo: initialData?.logo || null,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {

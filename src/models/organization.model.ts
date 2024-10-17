@@ -11,7 +11,7 @@ export interface Contributor {
     walletAddress: string;
     username: string;
     agreement?: Agreement;
-    avatar?: string;
+    profilePicture?: string;
 }
 
 export interface Organization {
