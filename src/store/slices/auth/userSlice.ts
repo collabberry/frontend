@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { SLICE_BASE_NAME } from "./constants";
-import { placeholderAvatars } from "@/components/collabberry/helpers/Avatars";
 
 export type UserState = {
   id: string;
@@ -23,6 +22,13 @@ const userSlice = createSlice({
   name: `${SLICE_BASE_NAME}/user`,
   initialState,
   reducers: {
+    resetUser(state) {
+      state.profilePicture = initialState.profilePicture;
+      state.email = initialState.email;
+      state.userName = initialState.userName;
+      state.authority = initialState.authority;
+      state.id = initialState.id;
+    },
     setUser(state, action: PayloadAction<UserState>) {
       state.profilePicture = action.payload?.profilePicture;
       state.email = action.payload?.email;
@@ -33,5 +39,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser } = userSlice.actions;
+export const { setUser, resetUser } = userSlice.actions;
 export default userSlice.reducer;

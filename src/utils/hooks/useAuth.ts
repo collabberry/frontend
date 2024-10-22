@@ -12,6 +12,11 @@ import {
   useAppSelector,
   useAppDispatch,
   setOrganization,
+  setInvitationToken,
+  resetUser,
+  resetOrganization,
+  resetInvitationToken,
+  setRounds,
 } from "@/store";
 import appConfig from "@/configs/app.config";
 import { REDIRECT_URL_KEY } from "@/constants/app.constant";
@@ -19,8 +24,10 @@ import { useNavigate } from "react-router-dom";
 import useQuery from "./useQuery";
 import { useAccount, useDisconnect } from "wagmi";
 import { useEffect } from "react";
-import { apiGetOrganizationById } from "@/services/OrgService";
-import { placeholderAvatars } from "@/components/collabberry/helpers/Avatars";
+import {
+  apiGetCurrentRound,
+  apiGetOrganizationById,
+} from "@/services/OrgService";
 
 type Status = "success" | "failed";
 
@@ -46,7 +53,6 @@ function useAuth() {
     try {
       if (token) {
         dispatch(walletConnected(token));
-        debugger;
         let response: any = await apiGetUser();
         let user = response?.data || {};
         const redirectUrl = query.get(REDIRECT_URL_KEY);
@@ -78,6 +84,14 @@ function useAuth() {
               logo: orgResponse.data.logo,
             })
           );
+          const roundResponse = await apiGetCurrentRound(user.organization.id);
+          if (roundResponse.data) {
+            dispatch(
+              setRounds({
+                currentRound: roundResponse.data,
+              })
+            );
+          }
         }
 
         navigate(url);
@@ -154,15 +168,9 @@ function useAuth() {
 
   const handleSignOut = () => {
     dispatch(signOutSuccess());
-    dispatch(
-      setUser({
-        profilePicture: "",
-        userName: "",
-        email: "",
-        authority: [],
-        id: "",
-      })
-    );
+    dispatch(resetUser());
+    dispatch(resetOrganization());
+    dispatch(resetInvitationToken());
     navigate(appConfig.unAuthenticatedEntryPath);
   };
 

@@ -30,7 +30,6 @@ import {
 import CustomRangeSlider from "@/components/collabberry/custom-components/CustomRangeSlider";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { placeholderAvatars } from "@/components/collabberry/helpers/Avatars";
 
 const ValidationStepsSchema = Yup.object().shape({
   step1: Yup.object().shape({
@@ -93,8 +92,9 @@ const initialValues = {
 };
 
 const SignUp = () => {
-  const user = useSelector((state: any) => state.auth.user);
 
+
+  const user = useSelector((state: any) => state.auth.user);
   const dispatch = useDispatch();
   const formik = useFormik({
     onSubmit: () => {},
@@ -566,6 +566,3 @@ const SignUp = () => {
 };
 
 export default SignUp;
-function dispatch(arg0: any) {
-  throw new Error("Function not implemented.");
-}

@@ -7,26 +7,38 @@ import { RootState } from "@/store";
 import { useState } from "react";
 import OrganizationCard from "./OrganizationCard";
 import { Avatar, Button, Dialog } from "@/components/ui";
-import { placeholderAvatars } from "@/components/collabberry/helpers/Avatars";
 import { useLocation } from "react-router-dom";
 import EditOrganizationForm from "./EditOrganization";
 import AddAgreementForm from "./AddAgreement";
 import { set } from "lodash";
+import ViewAgreement from "./ViewAgreement";
+import { apiGetContributorAgreement } from "@/services/OrgService";
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
-
   const location = useLocation();
   const fromDashboard = location.state && location.state.from === "dashboard";
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAgreementDialogOpen, setIsAgreementDialogOpen] = useState(false);
+  const [isViewAgreementDialogOpen, setIsViewAgreementDialogOpen] =
+    useState(false);
   const [selectedContributor, setSelectedContributor] = useState(
     {} as Contributor
   );
+  // const viewAgreement = async (contributor: Contributor) => {
+  //   if (contributor && Object.keys(contributor).length > 0) {
+  //     const agreement = await apiGetContributorAgreement(contributor.id);
+  //     setSelectedAgreement(agreement);
+  //     setIsViewAgreementDialogOpen(true);
+  //   }
+  // };
 
-  const viewAgreement = () => {
-    // TODO: Logic to view the agreement
+  const viewAgreement = (contributor: Contributor) => {
+    if (contributor && Object.keys(contributor).length > 0) {
+      setSelectedContributor(contributor);
+      setIsViewAgreementDialogOpen(true);
+    }
   };
 
   const addAgreement = (contributor: Contributor) => {
@@ -34,6 +46,11 @@ const Team: React.FC = () => {
       setSelectedContributor(contributor);
       setIsAgreementDialogOpen(true);
     }
+  };
+
+  const handleViewAgreementDialogClose = () => {
+    setIsViewAgreementDialogOpen(false);
+    setSelectedContributor({} as Contributor);
   };
 
   const columns: ColumnDef<Contributor>[] = [
@@ -45,10 +62,7 @@ const Team: React.FC = () => {
         const value = props.getValue() as string;
         return (
           <div className="flex flex-row items-center justify-start">
-            <Avatar
-              className="mr-2 rounded-full"
-              src={data.profilePicture}
-            />
+            <Avatar className="mr-2 rounded-full" src={data.profilePicture} />
             <span>{value}</span>
           </div>
         );
@@ -121,11 +135,11 @@ const Team: React.FC = () => {
       id: "agreement",
       cell: (props) => {
         const contributor = props.row.original;
-        const agreement = contributor.agreement;
+        const agreement = contributor?.agreement;
         return (
           <div>
             {agreement && Object.keys(agreement).length > 0 ? (
-              <Button size="sm" onClick={viewAgreement}>
+              <Button size="sm" onClick={() => viewAgreement(contributor)}>
                 View Agreement
               </Button>
             ) : (
@@ -169,12 +183,25 @@ const Team: React.FC = () => {
         >
           <AddAgreementForm
             contributor={selectedContributor}
-            onSubmit={handleAgreementDialogClose}
+            handleClose={handleAgreementDialogClose}
+          />
+        </Dialog>
+      )}
+
+      {isViewAgreementDialogOpen && (
+        <Dialog
+          width={600}
+          isOpen={isViewAgreementDialogOpen}
+          onClose={handleViewAgreementDialogClose}
+        >
+          <ViewAgreement
+            contributor={selectedContributor}
+            handleClose={handleViewAgreementDialogClose}
           />
         </Dialog>
       )}
       <div className="mb-4">
-        <div className="text-4xl font-bold ">Organization</div>
+        <div className="text-4xl font-bold">Organization</div>
       </div>
 
       <div className="mb-4">

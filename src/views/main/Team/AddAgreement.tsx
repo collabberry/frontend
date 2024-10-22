@@ -56,12 +56,12 @@ const validationSchema = Yup.object().shape({
 
 interface AddAgreementFormProps {
   contributor: Contributor;
-  onSubmit: () => void;
+  handleClose: () => void;
 }
 
 const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
   contributor,
-  onSubmit,
+  handleClose,
 }) => {
   const dispatch = useDispatch();
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -110,11 +110,11 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
         }
         handleSuccess(`Agreement for ${contributor.username} has been added`);
         formik.setSubmitting(false);
-        onSubmit();
+        handleClose();
       } catch (error: any) {
         handleError(error.response.data.message);
         formik.setSubmitting(false);
-        onSubmit();
+        handleClose();
       }
     },
   });
@@ -238,7 +238,13 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
             </div>
           )} */}
       </FormContainer>
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-end mt-4 gap-4">
+        <Button
+          type="button"
+          onClick={() => handleClose()}
+        >
+          Cancel
+        </Button>
         <Button
           type="submit"
           onClick={() => formik.handleSubmit()}

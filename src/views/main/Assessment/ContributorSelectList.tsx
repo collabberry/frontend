@@ -27,7 +27,6 @@ const ContributorSelectList: React.FC = () => {
     const selectedContributorObj = (contributors || []).filter((contributor) =>
       selectedContributors.includes(contributor.id)
     );
-    console.log("Selected Contributors: ", selectedContributorObj);
   };
 
   return (

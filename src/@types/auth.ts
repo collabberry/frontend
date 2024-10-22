@@ -42,6 +42,14 @@ export type OrganizationData = {
   logo?: string;
 };
 
+export type Assessment = {
+  contributorId: string;
+  cultureScore: number;
+  workScore: number;
+  feedbackPositive: string;
+  feedbackNegative: string;
+};
+
 export type ForgotPassword = {
   email: string;
 };

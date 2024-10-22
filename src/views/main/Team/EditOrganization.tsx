@@ -7,7 +7,7 @@ import {
   apiEditOrganization,
   apiGetOrganizationById,
 } from "@/services/OrgService";
-import { setOrganization } from "@/store";
+import { OrgState, setOrganization } from "@/store";
 import { useDispatch } from "react-redux";
 import {
   handleError,
@@ -15,6 +15,8 @@ import {
   openToastNotification,
 } from "@/components/collabberry/helpers/ToastNotifications";
 import { on } from "events";
+import { start } from "repl";
+import { Organization } from "@/models/Organization.model";
 
 const validationSchema = Yup.object().shape({
   logo: Yup.mixed().required("Logo is required"),
@@ -24,7 +26,7 @@ const validationSchema = Yup.object().shape({
 });
 
 interface EditOrganizationFormProps {
-  initialData: any;
+  initialData: OrgState;
   onSubmit: () => void;
 }
 
@@ -37,19 +39,27 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
   const formik = useFormik({
     initialValues: {
       name: initialData?.name || "",
-      logo: initialData?.logo || null,
+      logo: initialData?.logo || undefined,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      const { contributors, ...restInitialData } = initialData;
+      const today = new Date();
+      if (today) {
+        today.setHours(0, 0, 0, 0);
+        const offset = -today.getTimezoneOffset();
+        today.setMinutes(today.getMinutes() + offset);
+      }
+      const dateString = today ? today.toISOString() : null;
+
+      const { contributors, nextRoundDate, ...restInitialData } = initialData;
       const body = {
         ...restInitialData,
         ...values,
+        startDate: initialData.startDate || dateString || undefined,
       };
       try {
         const response = await apiEditOrganization(body);
         const { data } = response;
-
         if (data) {
           try {
             const orgResponse = await apiGetOrganizationById(data.id);
@@ -81,7 +91,7 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
           <AvatarImage
             setFieldValue={formik.setFieldValue}
             field="logo"
-            value={formik.values.logo}
+            value={formik.values.logo || null}
           />
         </FormItem>
         <FormItem label="Organization Name">

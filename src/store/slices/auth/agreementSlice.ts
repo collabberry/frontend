@@ -21,17 +21,24 @@ const agreementSlice = createSlice({
   name: `${SLICE_BASE_NAME}/agreement`,
   initialState,
   reducers: {
+    resetAgreement(state) {
+      state.marketRate = initialState.marketRate;
+      state.roleName = initialState.roleName;
+      state.responsibilities = initialState.responsibilities;
+      state.fiatRequested = initialState.fiatRequested;
+      state.commitment = initialState.commitment;
+    },
     setAgreement(state, action: PayloadAction<AgreementState>) {
-        state.marketRate = action.payload?.marketRate;
-        state.roleName = action.payload?.roleName;
-        state.responsibilities = action.payload?.responsibilities;
-        state.fiatRequested = action.payload?.fiatRequested;
-        state.commitment = action.payload?.commitment;
+      state.marketRate = action.payload?.marketRate;
+      state.roleName = action.payload?.roleName;
+      state.responsibilities = action.payload?.responsibilities;
+      state.fiatRequested = action.payload?.fiatRequested;
+      state.commitment = action.payload?.commitment;
     },
   },
 });
 
-export const { setAgreement } = agreementSlice.actions;
+export const { setAgreement, resetAgreement } = agreementSlice.actions;
 export const getAgreement = (state: { agreement: AgreementState }) =>
   state.agreement;
 export default agreementSlice.reducer;

@@ -20,6 +20,7 @@ import VerticalRadio from "@/components/collabberry/custom-components/VerticalRa
 import { useFormik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
+import { Cycle } from "@/components/collabberry/utils/collabberry-constants";
 
 const validationSchema = Yup.object().shape({
   startDate: Yup.mixed().required("Start date is required"),
@@ -39,7 +40,7 @@ const Settings: React.FC<any> = () => {
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      const { contributors, ...restOrganization } = organization;
+      const { contributors, nextRoundDate, ...restOrganization } = organization;
       const body = {
         ...restOrganization,
         ...values,
@@ -79,10 +80,10 @@ const Settings: React.FC<any> = () => {
                 field="cycle"
                 value={formik.values.cycle ?? null}
                 options={[
-                  { label: "Weekly", value: 1 },
-                  { label: "Biweekly", value: 2 },
-                  { label: "Monthly", value: 3 },
-                  { label: "Quarterly", value: 4 },
+                  { label: "Weekly", value: Cycle.Weekly },
+                  { label: "Biweekly", value: Cycle.Biweekly },
+                  { label: "Monthly", value: Cycle.Monthly },
+                  { label: "Quarterly", value: Cycle.Quarterly },
                 ]}
               />
             </FormItem>
