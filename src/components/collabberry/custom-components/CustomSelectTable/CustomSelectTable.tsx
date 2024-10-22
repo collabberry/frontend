@@ -13,6 +13,8 @@ import { Button, Checkbox, CheckboxProps, Select } from "@/components/ui";
 type CustomSelectTableProps<T> = {
   data: T[];
   columns: ColumnDef<T>[];
+  onSubmit: (data: any) => void;
+  disabled?: boolean;
 };
 
 type Option = {
@@ -51,6 +53,8 @@ function IndeterminateCheckbox({
 const CustomSelectTable = <T,>({
   data,
   columns,
+  onSubmit,
+  disabled = false,
 }: CustomSelectTableProps<T>) => {
   const shouldShowPagination = data.length >= 10;
   const totalData = data.length;
@@ -70,16 +74,19 @@ const CustomSelectTable = <T,>({
       {
         id: "select",
         header: ({ table }) => (
-          <Button
-            color="primary"
-            className="min-w-[130px]"
-            onClick={() => {
-              const isAllSelected = table.getIsAllRowsSelected();
-              table.toggleAllRowsSelected(!isAllSelected);
-            }}
-          >
-            {table.getIsAllRowsSelected() ? "Clear" : "Select All"}
-          </Button>
+          <div className="flex justify-end">
+            <Button
+              color="primary"
+              className="min-w-[130px]"
+              disabled={disabled}
+              onClick={() => {
+                const isAllSelected = table.getIsAllRowsSelected();
+                table.toggleAllRowsSelected(!isAllSelected);
+              }}
+            >
+              {table.getIsAllRowsSelected() ? "Clear" : "Select All"}
+            </Button>
+          </div>
 
           //   <div className="flex flex-row gap-2">
           //     <div>Select All</div>
@@ -93,7 +100,7 @@ const CustomSelectTable = <T,>({
           //   </div>
         ),
         cell: ({ row }) => (
-          <div className="px-1">
+          <div className="px-1 flex justify-end">
             <IndeterminateCheckbox
               {...{
                 checked: row.getIsSelected(),
@@ -114,7 +121,10 @@ const CustomSelectTable = <T,>({
     state: {
       rowSelection,
     },
-    enableRowSelection: true,
+    enableRowSelection: (row) => {
+      if (disabled) return false;
+      return !row.original.disabled;
+    },
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -131,7 +141,12 @@ const CustomSelectTable = <T,>({
   return (
     <>
       <Table>
-        <THead>
+        <THead
+          className="!bg-transparent"
+          style={{
+            border: "none",
+          }}
+        >
           {table.getHeaderGroups().map((headerGroup) => (
             <Tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
@@ -158,21 +173,36 @@ const CustomSelectTable = <T,>({
             </Tr>
           ))}
         </THead>
-        <TBody>
+        <TBody
+          style={{
+            border: "none",
+          }}
+        >
           {table.getRowModel().rows.map((row) => {
             return (
-              <Tr key={row.id}>
-                {row.getVisibleCells().map((cell) => {
+                <Tr
+                  key={row.id}
+                  style={{
+                  border: "none",
+                  cursor: row.getCanSelect() ? "pointer" : "default",
+                  }}
+                  className={`${
+                  row.getIsSelected() ? "bg-berrylavender-100" : row.getCanSelect() ? "" : "non-hoverable bg-gray-50 opacity-50"
+                  }`}
+                  onClick={() => {
+                  if (row.getCanSelect()) {
+                    row.toggleSelected();
+                  }
+                  }}
+                >
+                  {row.getVisibleCells().map((cell) => {
                   return (
                     <Td key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </Td>
                   );
-                })}
-              </Tr>
+                  })}
+                </Tr>
             );
           })}
         </TBody>
@@ -199,6 +229,20 @@ const CustomSelectTable = <T,>({
           </div>
         </div>
       )}
+      <div className="flex justify-end mt-4">
+        <Button
+          color="primary"
+          disabled={table.getSelectedRowModel().rows.length === 0 || disabled}
+          onClick={() => {
+            const data = table
+              .getSelectedRowModel()
+              .rows.map((row) => row.original);
+            onSubmit(data);
+          }}
+        >
+          Submit
+        </Button>
+      </div>
     </>
   );
 };

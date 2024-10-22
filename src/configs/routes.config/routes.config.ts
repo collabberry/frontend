@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import authRoute from "./authRoute";
 import type { Routes } from "@/@types/routes";
+import { relative } from "path";
 
 export const publicRoutes: Routes = [...authRoute];
 
@@ -15,6 +16,14 @@ export const protectedRoutes = [
     key: "admin.assessment",
     path: "/assessment",
     component: lazy(() => import("@/views/main/Assessment/Assessment")),
+    authority: [],  
+ 
+  },
+  {
+    key: "admin.assess",
+    path: "/assessment/assess",
+    relative: true,
+    component: lazy(() => import("@/views/main/Assessment/Assess")),
     authority: [],
   },
   {

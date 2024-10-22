@@ -1,9 +1,13 @@
 import appConfig from "@/configs/app.config";
 import { REDIRECT_URL_KEY } from "@/constants/app.constant";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 import useAuth from "@/utils/hooks/useAuth";
+import InvitationLink from "@/views/main/Dashboard/InvitationDialog";
 
-const { unAuthenticatedEntryPath, notRegisteredEntryPath } = appConfig;
+const {
+  unAuthenticatedEntryPath,
+  notRegisteredEntryPath,
+} = appConfig
 
 const ProtectedRoute = () => {
   const { authenticated, walletConnected } = useAuth();
@@ -26,7 +30,6 @@ const ProtectedRoute = () => {
       />
     );
   }
-
   return <Outlet />;
 };
 

@@ -9,6 +9,7 @@ export type OrgState = {
   cycle?: number;
   name: string;
   logo?: string;
+  nextRoundDate?: string;
   contributors?: Contributor[];
 };
 
@@ -19,6 +20,7 @@ const initialState: OrgState = {
   par: undefined,
   cycle: undefined,
   startDate: "",
+  nextRoundDate: "",
   contributors: [],
 };
 
@@ -26,6 +28,16 @@ const orgSlice = createSlice({
   name: `${SLICE_BASE_NAME}/org`,
   initialState,
   reducers: {
+    resetOrganization(state) {
+      state.logo = initialState.logo;
+      state.name = initialState.name;
+      state.id = initialState.id;
+      state.par = initialState.par;
+      state.cycle = initialState.cycle;
+      state.startDate = initialState.startDate;
+      state.nextRoundDate = initialState.nextRoundDate;
+      state.contributors = initialState.contributors;
+    },
     setOrganization(state, action: PayloadAction<OrgState>) {
       state.logo = action.payload?.logo;
       state.name = action.payload?.name;
@@ -33,11 +45,12 @@ const orgSlice = createSlice({
       state.par = action.payload?.par;
       state.cycle = action.payload?.cycle;
       state.startDate = action.payload?.startDate;
+      state.nextRoundDate = action.payload?.nextRoundDate;
       state.contributors = action.payload?.contributors || [];
     },
   },
 });
 
-export const { setOrganization } = orgSlice.actions;
+export const { setOrganization, resetOrganization } = orgSlice.actions;
 export const getOrganization = (state: { org: OrgState }) => state.org;
 export default orgSlice.reducer;

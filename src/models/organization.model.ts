@@ -20,7 +20,9 @@ export interface Organization {
     roles?: number[];
     agreement?: Agreement;
     par?: number;
+    logo?: string;
     cycle?: number;
     startDate?: string;
+    nextRoundDate?: string;
     contributors?: Contributor[];
 }
