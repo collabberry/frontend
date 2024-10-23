@@ -9,7 +9,7 @@ import {
   toast,
   Tooltip,
 } from "@/components/ui";
-import AvatarImage from "../../../components/collabberry/custom-components/AvatarUpload";
+import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
 import {
   apiCreateContributorAgreement,
   apiEditOrganization,
@@ -25,7 +25,7 @@ import {
 } from "@/components/collabberry/helpers/ToastNotifications";
 import { on } from "events";
 import { Contributor } from "@/models/Organization.model";
-import CustomRangeSlider from "@/components/collabberry/custom-components/CustomRangeSlider";
+import CustomRangeSlider from "@/components/collabberry/custom-components/CustomFields/CustomRangeSlider";
 import { FcInfo } from "react-icons/fc";
 
 const validationSchema = Yup.object().shape({

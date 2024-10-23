@@ -16,6 +16,7 @@
       "org": "Organization",
       "settings": "Settings",
       "rounds": "Rounds",
+      "round": "Round",
       "team": "Team"
     }
   }

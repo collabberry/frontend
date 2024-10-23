@@ -14,7 +14,7 @@ import {
 } from "@/components/ui";
 import ViewAgreement, { ContributorHeader } from "../Team/ViewAgreement";
 import { Contributor } from "@/models/Organization.model";
-import BerryRating from "@/components/collabberry/custom-components/BerryRating";
+import BerryRating from "@/components/collabberry/custom-components/CustomFields/BerryRating";
 import { useFormik } from "formik";
 import { StepStatus } from "@/components/ui/@types/common";
 import { CustomSteps } from "@/components/ui/Steps";
@@ -114,11 +114,7 @@ const Assess = () => {
         try {
           const roundResponse = await apiGetCurrentRound(organization.id || "");
           if (roundResponse.data) {
-            dispatch(
-              setRounds({
-                currentRound: roundResponse.data,
-              })
-            );
+            dispatch(setRounds(roundResponse.data));
           }
         } catch (error: any) {
           handleError(error.response.data.message);

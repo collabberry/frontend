@@ -1,4 +1,4 @@
-import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTableWithSorting";
+import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
 import { Contributor } from "@/models/Organization.model";
 import { ColumnDef } from "@tanstack/react-table";
 import React from "react";
@@ -139,7 +139,7 @@ const Team: React.FC = () => {
         return (
           <div>
             {agreement && Object.keys(agreement).length > 0 ? (
-              <Button size="sm" onClick={() => viewAgreement(contributor)}>
+              <Button size="sm"  variant="plain" onClick={() => viewAgreement(contributor)}>
                 View Agreement
               </Button>
             ) : (
@@ -201,7 +201,7 @@ const Team: React.FC = () => {
         </Dialog>
       )}
       <div className="mb-4">
-        <div className="text-4xl font-bold">Organization</div>
+        <h1>Organization</h1>
       </div>
 
       <div className="mb-4">

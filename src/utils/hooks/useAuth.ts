@@ -17,6 +17,7 @@ import {
   resetOrganization,
   resetInvitationToken,
   setRounds,
+  resetRoundsState,
 } from "@/store";
 import appConfig from "@/configs/app.config";
 import { REDIRECT_URL_KEY } from "@/constants/app.constant";
@@ -86,11 +87,7 @@ function useAuth() {
           );
           const roundResponse = await apiGetCurrentRound(user.organization.id);
           if (roundResponse.data) {
-            dispatch(
-              setRounds({
-                currentRound: roundResponse.data,
-              })
-            );
+            dispatch(setRounds(roundResponse.data));
           }
         }
 
@@ -171,6 +168,7 @@ function useAuth() {
     dispatch(resetUser());
     dispatch(resetOrganization());
     dispatch(resetInvitationToken());
+    dispatch(resetRoundsState());
     navigate(appConfig.unAuthenticatedEntryPath);
   };
 

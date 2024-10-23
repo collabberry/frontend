@@ -30,6 +30,7 @@ const CustomTableWithSorting = <T,>({
   columns,
   initialSort,
 }: CustomTableWithSortingProps<T>) => {
+  const shouldShowPagination = data.length >= 10;
   const totalData = data.length;
   const pageSizeOption = [
     { value: 10, label: "10 / page" },
@@ -110,6 +111,7 @@ const CustomTableWithSorting = <T,>({
           })}
         </TBody>
       </Table>
+      {shouldShowPagination && (
       <div className="flex items-center justify-between mt-4">
         <Pagination
           pageSize={table.getState().pagination.pageSize}
@@ -129,6 +131,7 @@ const CustomTableWithSorting = <T,>({
           />
         </div>
       </div>
+      )}
     </>
   );
 };

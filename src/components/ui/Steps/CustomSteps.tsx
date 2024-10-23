@@ -4,6 +4,7 @@ import { STEPS_STATUS } from '../utils/constants'
 import mapCloneElement from '../utils/mapCloneElement'
 import type { CommonProps, StepStatus } from '../@types/common'
 import type { StepItemProps } from './StepItem'
+import { StepItemWithAvatarProps } from './StepItemWithAvatar'
 
 const { COMPLETE, PENDING, IN_PROGRESS, ERROR } = STEPS_STATUS
 
@@ -37,10 +38,11 @@ const CustomSteps = forwardRef<HTMLDivElement, CustomStepsProps>((props, ref) =>
                     index < count - 1 ? `${100 / (count - 1)}%` : undefined,
                 maxWidth: index === count - 1 ? `${100 / count}%` : undefined,
             }
-            const itemProps: StepItemProps = {
+            const itemProps: StepItemWithAvatarProps = {
                 stepNumber: index + 1,
                 status: PENDING as StepStatus,
                 style: !vertical ? itemStyles : undefined,
+                currentStep: current + 1,
                 isLast: index === count - 1,
                 vertical: vertical,
                 onStepChange: onChange ? () => onChange(index) : undefined,

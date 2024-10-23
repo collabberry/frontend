@@ -17,7 +17,7 @@ import { FcImageFile, FcInfo } from "react-icons/fc";
 import * as Yup from "yup";
 import { useEffect } from "react";
 import { Formik, Form, Field, useFormik, useFormikContext } from "formik";
-import AvatarImage from "../../../components/collabberry/custom-components/AvatarUpload";
+import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
 import { useNavigate } from "react-router-dom";
 import { RegisterCredential } from "@/@types/auth";
 import { setAgreement, setOrganization, setUser, signUpSuccess } from "@/store";
@@ -27,7 +27,7 @@ import {
   apiGetContributorAgreement,
   apiGetOrganizationById,
 } from "@/services/OrgService";
-import CustomRangeSlider from "@/components/collabberry/custom-components/CustomRangeSlider";
+import CustomRangeSlider from "@/components/collabberry/custom-components/CustomFields/CustomRangeSlider";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 

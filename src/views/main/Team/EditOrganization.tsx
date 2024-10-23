@@ -2,7 +2,7 @@ import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Button, FormContainer, FormItem, Input, toast } from "@/components/ui";
-import AvatarImage from "../../../components/collabberry/custom-components/AvatarUpload";
+import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
 import {
   apiEditOrganization,
   apiGetOrganizationById,
@@ -12,11 +12,7 @@ import { useDispatch } from "react-redux";
 import {
   handleError,
   handleSuccess,
-  openToastNotification,
 } from "@/components/collabberry/helpers/ToastNotifications";
-import { on } from "events";
-import { start } from "repl";
-import { Organization } from "@/models/Organization.model";
 
 const validationSchema = Yup.object().shape({
   logo: Yup.mixed().required("Logo is required"),

@@ -50,4 +50,10 @@ export const protectedRoutes = [
     component: lazy(() => import("@/views/main/Rounds/Rounds")),
     authority: [],
   },
+  {
+    key: "org.round",
+    path: "/rounds/round",
+    component: lazy(() => import("@/views/main/Rounds/RoundView")),
+    authority: [],
+  },
 ];

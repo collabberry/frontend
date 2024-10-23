@@ -110,7 +110,7 @@ const Dashboard = () => {
           <InvitationLink invitationToken={invitationToken} />
         </Dialog>
       )}
-      <div className="flex flex-col items-center h-screen px-4">
+      <div className="flex flex-col items-center h-full px-4">
         <div className="w-full max-w-4xl mb-6">
           <h1 className="text-4xl font-bold mb-4">Steps to Complete</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -8,7 +8,15 @@ import {
 } from "@tanstack/react-table";
 import Pagination from "@/components/ui/Pagination";
 import type { ColumnDef, ColumnSort } from "@tanstack/react-table";
-import { Button, Checkbox, CheckboxProps, Select } from "@/components/ui";
+import {
+  Button,
+  Checkbox,
+  CheckboxProps,
+  Select,
+  Tooltip,
+} from "@/components/ui";
+import { FiInfo } from "react-icons/fi";
+
 
 type CustomSelectTableProps<T> = {
   data: T[];
@@ -100,7 +108,12 @@ const CustomSelectTable = <T,>({
           //   </div>
         ),
         cell: ({ row }) => (
-          <div className="px-1 flex justify-end">
+          <div className="px-1 flex justify-end items-center">
+            {row.original?.alreadyReviewed && (
+              <Tooltip title="You've already submitted an assessment for this person.">
+                <FiInfo className="text-gray-400 mr-2 text-lg" />
+              </Tooltip>
+            )}
             <IndeterminateCheckbox
               {...{
                 checked: row.getIsSelected(),
@@ -180,29 +193,36 @@ const CustomSelectTable = <T,>({
         >
           {table.getRowModel().rows.map((row) => {
             return (
-                <Tr
-                  key={row.id}
-                  style={{
+              <Tr
+                key={row.id}
+                style={{
                   border: "none",
                   cursor: row.getCanSelect() ? "pointer" : "default",
-                  }}
-                  className={`${
-                  row.getIsSelected() ? "bg-berrylavender-100" : row.getCanSelect() ? "" : "non-hoverable bg-gray-50 opacity-50"
-                  }`}
-                  onClick={() => {
+                }}
+                className={`${
+                  row.getIsSelected()
+                    ? "bg-berrylavender-100"
+                    : row.getCanSelect()
+                      ? ""
+                      : "non-hoverable bg-gray-50 opacity-50"
+                }`}
+                onClick={() => {
                   if (row.getCanSelect()) {
                     row.toggleSelected();
                   }
-                  }}
-                >
-                  {row.getVisibleCells().map((cell) => {
+                }}
+              >
+                {row.getVisibleCells().map((cell) => {
                   return (
                     <Td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </Td>
                   );
-                  })}
-                </Tr>
+                })}
+              </Tr>
             );
           })}
         </TBody>
