@@ -1,5 +1,3 @@
-const DiffuseRainbowBerrySvg = () => {
-  return (
     <svg
       width="36"
       height="35"
@@ -58,7 +56,3 @@ const DiffuseRainbowBerrySvg = () => {
         fill="url(#customRainbowGradient)"
       />
     </svg>
-  );
-};
-
-export default DiffuseRainbowBerrySvg;
