@@ -1,4 +1,4 @@
-import CustomSelectTable from "@/components/collabberry/custom-components/CustomSelectTable/CustomSelectTable";
+import CustomSelectTable from "@/components/collabberry/custom-components/CustomTables/CustomSelectTable";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, setReviewedMembers, setSelectedTeamMembers } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
@@ -50,14 +50,25 @@ const Assessment = () => {
     );
   };
 
+  const isContributorAlreadyReviewed = (contributor: Contributor) => {
+    return submittedAssessments.some(
+      (assessment: { contributorId: string }) =>
+        assessment.contributorId === contributor.id
+    );
+  };
+
   const contributorsWithDisabledFlag = useMemo(() => {
     const contributors =
       organization?.contributors?.map((contributor) => ({
         ...contributor,
         disabled: isContributorDisabled(contributor),
+        hasAgreement: contributor.agreement ? Object.keys(contributor.agreement).length > 0 : false,
+        alreadyReviewed: isContributorAlreadyReviewed(contributor),
       })) || [];
     return contributors;
   }, [organization, submittedAssessments]);
+
+  console.log(contributorsWithDisabledFlag, "contributorsWithDisabledFlag")
 
   const columns: ColumnDef<Contributor>[] = [
     {

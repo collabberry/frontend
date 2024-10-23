@@ -11,6 +11,7 @@ const { COMPLETE, PENDING, IN_PROGRESS, ERROR } = STEPS_STATUS;
 export interface StepItemWithAvatarProps extends CommonProps {
   customIcon?: ReactNode | string;
   description?: ReactNode | string;
+  currentStep?: number;
   isLast?: boolean;
   onStepChange?: () => void;
   status?: StepStatus;
@@ -27,6 +28,7 @@ const StepItemWithAvatar = forwardRef<HTMLDivElement, StepItemWithAvatarProps>(
       customIcon,
       description,
       isLast,
+      currentStep,
       onStepChange,
       status,
       stepNumber,
@@ -74,10 +76,11 @@ const StepItemWithAvatar = forwardRef<HTMLDivElement, StepItemWithAvatarProps>(
 
     const stepIconClass = classNames(
       `step-item-icon step-item-icon-${status} border-2 rounded-full`,
+      currentStep === stepNumber && `border-${color}`,
       status === COMPLETE && `text-${color} border-${color}`,
       status === ERROR && `step-item-icon-error`,
       status === IN_PROGRESS &&
-        `text-${color} dark:text-gray-100 border-${color} step-item-icon-current`
+        `text-${color} dark:text-gray-100 step-item-icon-current`
     );
 
     const stepConnectClass = classNames(
@@ -103,7 +106,7 @@ const StepItemWithAvatar = forwardRef<HTMLDivElement, StepItemWithAvatarProps>(
         {...rest}
         ref={ref}
         role="presentation"
-        onClick={status === 'complete' ? undefined : handleStepChange}
+        onClick={status === "complete" ? undefined : handleStepChange}
       >
         <div className={stepWrapperClass}>
           <div className={stepIconClass}>{stepIcon}</div>

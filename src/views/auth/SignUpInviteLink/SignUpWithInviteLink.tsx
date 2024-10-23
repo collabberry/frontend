@@ -12,7 +12,7 @@ import { apiGetUser, apiRegisterAccount } from "@/services/AuthService";
 import { useState } from "react";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import AvatarImage from "../../../components/collabberry/custom-components/AvatarUpload";
+import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
 import { RegisterCredential } from "@/@types/auth";
 import { setUser, signUpSuccess } from "@/store";
 import { useDispatch } from "react-redux";

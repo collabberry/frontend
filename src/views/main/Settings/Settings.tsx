@@ -16,7 +16,7 @@ import {
 } from "@/services/OrgService";
 import { RootState, setOrganization } from "@/store";
 import CustomCalendar from "@/components/collabberry/custom-components/Calendar";
-import VerticalRadio from "@/components/collabberry/custom-components/VerticalRadio";
+import VerticalRadio from "@/components/collabberry/custom-components/CustomFields/VerticalRadio";
 import { useFormik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
