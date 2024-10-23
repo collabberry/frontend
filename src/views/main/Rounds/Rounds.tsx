@@ -14,7 +14,7 @@ import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-const isCurrentRound = (round: any) => {
+export const isCurrentRound = (round: any) => {
   const endDate = new Date(round.endDate);
   return endDate > new Date();
 };
@@ -119,8 +119,6 @@ const Rounds: React.FC = () => {
       },
     },
   ];
-
-  console.log("currentRound", currentRound, allRounds, selectedRound);
 
   return (
     <div>

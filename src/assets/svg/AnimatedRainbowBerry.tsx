@@ -1,4 +1,4 @@
-const RainbowBerrySvg = () => {
+const AnimatedRainbowBerrySvg = () => {
   return (
     <svg
       width="36"
@@ -7,28 +7,33 @@ const RainbowBerrySvg = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Define the diffuse rainbow gradient */}
+      {/* Define the rainbow gradient */}
       <defs>
         <linearGradient
           id="customRainbowGradient"
           x1="0%"
           y1="100%"
-          x2="100%"
+          x2="0%"
           y2="0%"
           gradientUnits="userSpaceOnUse"
+          spreadMethod="repeat"
         >
-          <stop offset="0%" stopColor="#e83122" /> {/* Red Start */}
-          <stop offset="20%" stopColor="#e83122" /> {/* Red End */}
-          <stop offset="20%" stopColor="#faa42e" /> {/* Orange Start */}
-          <stop offset="35%" stopColor="#faa42e" /> {/* Orange End */}
-          <stop offset="35%" stopColor="#faeb36" /> {/* Yellow Start */}
-          <stop offset="50%" stopColor="#faeb36" /> {/* Yellow End */}
-          <stop offset="50%" stopColor="#82ca20" /> {/* Green Start */}
-          <stop offset="65%" stopColor="#82ca20" /> {/* Green End */}
-          <stop offset="65%" stopColor="#487de7" /> {/* Blue Start */}
-          <stop offset="80%" stopColor="#487de7" /> {/* Blue End */}
-          <stop offset="80%" stopColor="#4b369d" /> {/* Purple Start */}
-          <stop offset="100%" stopColor="#4b369d" /> {/* Purple End */}
+          <stop offset="0%" stopColor="#e83122" /> {/* Red */}
+          <stop offset="16.67%" stopColor="#faa42e" /> {/* Orange */}
+          <stop offset="33.33%" stopColor="#faeb36" /> {/* Yellow */}
+          <stop offset="50%" stopColor="#82ca20" /> {/* Green */}
+          <stop offset="66.67%" stopColor="#487de7" /> {/* Blue */}
+          <stop offset="83.33%" stopColor="#4b369d" /> {/* Purple */}
+          <stop offset="100%" stopColor="#e83122" /> {/* Red (for looping) */}
+          {/* Animate the gradient to move upwards */}
+          <animateTransform
+            attributeName="gradientTransform"
+            type="translate"
+            from="0,0"
+            to="0,-260" // Moves up by the height of the SVG
+            dur="3s"
+            repeatCount="indefinite"
+          />
         </linearGradient>
       </defs>
 
@@ -61,4 +66,4 @@ const RainbowBerrySvg = () => {
   );
 };
 
-export default RainbowBerrySvg;
+export default AnimatedRainbowBerrySvg;

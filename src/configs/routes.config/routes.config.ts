@@ -16,8 +16,7 @@ export const protectedRoutes = [
     key: "admin.assessment",
     path: "/assessment",
     component: lazy(() => import("@/views/main/Assessment/Assessment")),
-    authority: [],  
- 
+    authority: [],
   },
   {
     key: "admin.assess",
@@ -30,6 +29,12 @@ export const protectedRoutes = [
     key: "admin.scores",
     path: "/scores",
     component: lazy(() => import("@/views/main/Scores/Scores")),
+    authority: [],
+  },
+  {
+    key: "admin.my-scores",
+    path: "/scores/my-scores",
+    component: lazy(() => import("@/views/main/Scores/MyScores")),
     authority: [],
   },
   {

@@ -5,7 +5,8 @@
       "dashboard": "Dashboard",
       "assessment": "Assessment",
       "assess": "Assess",
-      "scores": "My Scores"
+      "scores": "My Scores",
+      "my-scores": "My Scores"
     },
     "collapseMenu": {
       "collapseMenu": "Collapse menu item",

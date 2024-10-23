@@ -68,8 +68,6 @@ const Assessment = () => {
     return contributors;
   }, [organization, submittedAssessments]);
 
-  console.log(contributorsWithDisabledFlag, "contributorsWithDisabledFlag")
-
   const columns: ColumnDef<Contributor>[] = [
     {
       header: "",

@@ -1,7 +1,5 @@
-import DiffuseRainbowBerrySvg from "@/assets/svg/DiffuseRainbowBerry";
-import DreamyBerrySvg from "@/assets/svg/DreamBerry";
+import AnimatedRainbowBerrySvg from "@/assets/svg/AnimatedRainbowBerry";
 import RainbowBerrySvg from "@/assets/svg/RainbowBerry";
-import RainbowGradientBerrySvg from "@/assets/svg/RainbowGradientBerry";
 import SingleBerrySvg from "@/assets/svg/SingleBerry";
 
 const RatingColors: { [key: number]: string } = {
@@ -36,13 +34,9 @@ function BerryRating({ field, value, setFieldValue }: RatingReviewProps) {
             }}
           >
             {value === 5 ? (
-              <DiffuseRainbowBerrySvg />
+              <AnimatedRainbowBerrySvg />
             ) : (
-              <SingleBerrySvg
-                fillColor={
-                  RatingColors[value]
-                }
-              />
+              <SingleBerrySvg fillColor={RatingColors[value]} />
             )}
           </div>
         );
