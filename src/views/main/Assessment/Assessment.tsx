@@ -11,6 +11,7 @@ import { current } from "@reduxjs/toolkit";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
 import { use } from "i18next";
 import { is } from "immer/dist/internal";
+import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 
 const Assessment = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -62,7 +63,9 @@ const Assessment = () => {
       organization?.contributors?.map((contributor) => ({
         ...contributor,
         disabled: isContributorDisabled(contributor),
-        hasAgreement: contributor.agreement ? Object.keys(contributor.agreement).length > 0 : false,
+        hasAgreement: contributor.agreement
+          ? Object.keys(contributor.agreement).length > 0
+          : false,
         alreadyReviewed: isContributorAlreadyReviewed(contributor),
       })) || [];
     return contributors;
@@ -76,10 +79,10 @@ const Assessment = () => {
         const data = props.row.original;
         const value = props.getValue() as string;
         return (
-          <div className="flex flex-row items-center justify-start">
-            <Avatar className="mr-2 rounded-full" src={data.profilePicture} />
-            <span>{value}</span>
-          </div>
+          <CustomAvatarAndUsername
+            imageUrl={data?.profilePicture}
+            userName={value}
+          />
         );
       },
     },

@@ -5,7 +5,7 @@ import MobileNav from '@/components/template/MobileNav'
 import UserDropdown from '@/components/template/UserDropdown'
 import SideNav from '@/components/template/SideNav'
 import View from '@/views'
-import UserAccount from '../collabberry/custom-components/UserAccount'
+import UserAccount from '../collabberry/custom-components/CustomRainbowKit/UserAccount'
 
 const HeaderActionsStart = () => {
     return (

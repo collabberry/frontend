@@ -21,14 +21,15 @@ import {
 } from "@/store";
 import appConfig from "@/configs/app.config";
 import { REDIRECT_URL_KEY } from "@/constants/app.constant";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useQuery from "./useQuery";
 import { useAccount, useDisconnect } from "wagmi";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   apiGetCurrentRound,
   apiGetOrganizationById,
 } from "@/services/OrgService";
+import { set } from "lodash";
 
 type Status = "success" | "failed";
 
@@ -37,9 +38,11 @@ function useAuth() {
   const navigate = useNavigate();
   const { disconnectAsync } = useDisconnect();
   const { isDisconnected } = useAccount();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const query = useQuery();
-
+  const invitationToken = useMemo(() => {
+    return searchParams.get("invitationToken");
+  }, [searchParams.get("invitationToken")]);
   const { token, signedIn } = useAppSelector((state) => state.auth.session);
 
   const signInWithWallet = async (
@@ -56,13 +59,14 @@ function useAuth() {
         dispatch(walletConnected(token));
         let response: any = await apiGetUser();
         let user = response?.data || {};
-        const redirectUrl = query.get(REDIRECT_URL_KEY);
-        let url = redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath;
+        let url = appConfig.authenticatedEntryPath;
         if (!user) {
           user.username = "Anonymous";
           user.email = "";
           user.profilePicture = "";
-          url = appConfig.notRegisteredEntryPath;
+          url = invitationToken
+            ? `${appConfig.notRegisteredEntryPath}?invitationToken=${invitationToken}`
+            : appConfig.notRegisteredEntryPath;
         } else {
           dispatch(signInSuccess(token));
         }
@@ -90,7 +94,6 @@ function useAuth() {
             dispatch(setRounds(roundResponse.data));
           }
         }
-
         navigate(url);
         return {
           status: "success",
@@ -169,14 +172,22 @@ function useAuth() {
     dispatch(resetOrganization());
     dispatch(resetInvitationToken());
     dispatch(resetRoundsState());
-    navigate(appConfig.unAuthenticatedEntryPath);
+
+    if (invitationToken) {
+      navigate(
+        `${appConfig.unAuthenticatedEntryPath}?invitationToken=${invitationToken}`
+      );
+    } else {
+      setSearchParams({ invitationToken: "" });
+      navigate(appConfig.unAuthenticatedEntryPath);
+    }
   };
 
   useEffect(() => {
     if (isDisconnected) {
       handleSignOut();
     }
-  }, [isDisconnected]);
+  }, [isDisconnected, invitationToken]);
 
   const signOut = async () => {
     await disconnectAsync();

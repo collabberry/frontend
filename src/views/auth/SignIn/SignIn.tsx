@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Card from "@/components/ui/Card";
 import Checkbox from "@/components/ui/Checkbox/Checkbox";
-import { CustomConnectButton } from "@/components/collabberry/custom-components/CustomConnectButton";
+import { CustomConnectButton } from "@/components/collabberry/custom-components/CustomRainbowKit/CustomConnectButton";
 import Dialog from "@/components/ui/Dialog";
 import TermsAndConditions from "@/components/collabberry/TermsAndConditions";
 import PrivacyPolicy from "@/components/collabberry/PrivacyPolicy";
@@ -13,6 +13,7 @@ import useTimeOutMessage from "@/utils/hooks/useTimeOutMessage";
 import { ActionLink } from "@/components/shared";
 import PulsingCirclesBackground from "@/components/collabberry/custom-components/PulsingCirclesBackground";
 import { useEffect } from "react";
+import appConfig from "@/configs/app.config";
 
 const SignIn = () => {
   const [isPrivacyPolicyOpen, setIsPrivacyPolicyOpen] = useState(false);
@@ -22,16 +23,10 @@ const SignIn = () => {
     useState(false);
   const openTermsAndConditions = () => setIsTermsAndConditionsOpen(true);
   const closeTermsAndConditions = () => setIsTermsAndConditionsOpen(false);
-  const { authenticated, walletConnected } = useAuth();
-
-
   const [isChecked, setIsChecked] = useState(true);
-  const signUpUrl = "/sign-up";
   const onCheckboxChange = (e: boolean) => {
     setIsChecked(e);
   };
-
-
 
   return (
     <>

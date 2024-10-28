@@ -5,8 +5,8 @@ import SideNavToggle from "@/components/template/SideNavToggle";
 import MobileNav from "@/components/template/MobileNav";
 import SideNav from "@/components/template/SideNav";
 import View from "@/views";
-import { CustomConnectButton } from "../collabberry/custom-components/CustomConnectButton";
-import UserAccount from "../collabberry/custom-components/UserAccount";
+import { CustomConnectButton } from "../collabberry/custom-components/CustomRainbowKit/CustomConnectButton";
+import UserAccount from "../collabberry/custom-components/CustomRainbowKit/UserAccount";
 
 const HeaderActionsStart = () => {
   return (

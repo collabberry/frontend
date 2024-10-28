@@ -1,4 +1,5 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import CustomAvatarAndUsername from "./CustomAvatarAndUsername";
 
 interface CustomConnectButtonProps {
   disabled?: boolean;
@@ -97,7 +98,13 @@ export const CustomConnectButton: React.FC<CustomConnectButtonProps> = ({
                       {chain.name}
                     </button> */}
                     <div onClick={openAccountModal} className="cursor-pointer ">
-                      <div
+                      <CustomAvatarAndUsername
+                        imageUrl={imageUrl}
+                        userName={userName}
+                        displayName={account?.displayName}
+                        userNameBold={true}
+                      />
+                      {/* <div
                         style={{
                           display: "flex",
                           flexDirection: "row",
@@ -113,6 +120,7 @@ export const CustomConnectButton: React.FC<CustomConnectButtonProps> = ({
                               height: 40,
                               borderRadius: "50%",
                               marginRight: 8,
+                              objectFit: "cover",
                             }}
                           />
                         )}
@@ -120,7 +128,7 @@ export const CustomConnectButton: React.FC<CustomConnectButtonProps> = ({
                           {userName && <p className="font-bold">{userName}</p>}
                           <p>{account.displayName}</p>
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 );

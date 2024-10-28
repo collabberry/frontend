@@ -17,7 +17,8 @@ import useAuth from "./utils/hooks/useAuth";
 import { useMemo } from "react";
 import { mainnet, polygon, optimism, arbitrum, base } from "wagmi/chains";
 import { useAppSelector } from "./store";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import CustomAvatar from "./components/collabberry/custom-components/CustomRainbowKit/CustomAvatar";
 
 export const config = getDefaultConfig({
   appName: "Collabberry",
@@ -39,7 +40,15 @@ const base_url = import.meta.env.VITE_APP_BASE_URL as string;
 function App() {
   const { signInWithWallet } = useAuth();
   const navigate = useNavigate();
-
+  const user = useAppSelector((state) => state.auth.user);
+  const avatarProps = useMemo(() => {
+    const { profilePicture, userName } = user;
+    return { ensImage: profilePicture, size: 50 };
+  }, [user]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const invitationToken = useMemo(() => {
+    return searchParams.get("invitationToken");
+  }, [searchParams.get("invitationToken")]);
   const { status } = useAppSelector((state) => state.auth.session);
 
   const authenticationAdapter = useMemo(() => {
@@ -80,7 +89,9 @@ function App() {
           if (result?.status === "success") {
             isSuccess = true;
           } else {
-            const url = appConfig.notRegisteredEntryPath;
+            const url = invitationToken
+              ? `${appConfig.memberSignUpPath}?invitationToken=${invitationToken}`
+              : appConfig.notRegisteredEntryPath;
             navigate(url);
           }
         } catch (error) {
@@ -98,7 +109,13 @@ function App() {
       adapter={authenticationAdapter}
       status={status}
     >
-      <RainbowKitProvider>
+      <RainbowKitProvider
+        appInfo={{
+          appName: "Collabberry",
+          learnMoreUrl: "https://collabberry.xyz",
+        }}
+        avatar={CustomAvatar}
+      >
         <Theme>
           <Layout />
         </Theme>
