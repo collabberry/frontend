@@ -14,6 +14,18 @@ const authRoute: Routes = [
     component: lazy(() => import("@/views/auth/SignUp")),
     authority: [],
   },
+  {
+    key: "memberSignUp",
+    path: `/member-sign-up`,
+    component: lazy(() => import("@/views/auth/SignUpInviteLink")),
+    authority: [],
+  },
+  {
+    key: "invite",
+    path: `/invite`,
+    component: lazy(() => import("@/views/auth/Invite")),
+    authority: []
+  },
 ];
 
 export default authRoute;

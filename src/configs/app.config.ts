@@ -3,6 +3,7 @@ export type AppConfig = {
   authenticatedEntryPath: string;
   unAuthenticatedEntryPath: string;
   notRegisteredEntryPath: string;
+  memberSignUpPath: string;
   tourPath: string;
   locale: string;
   enableMock: boolean;
@@ -13,6 +14,7 @@ const appConfig: AppConfig = {
   authenticatedEntryPath: "/dashboard",
   unAuthenticatedEntryPath: "/sign-in",
   notRegisteredEntryPath: "/sign-up",
+  memberSignUpPath: "/member-sign-up",
   tourPath: "/",
   locale: "en",
   enableMock: true,

@@ -1,4 +1,5 @@
 import { CustomCountdown } from "@/components/collabberry/custom-components/CustomCountdown";
+import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
 import { Avatar, Button } from "@/components/ui";
 import { RootState } from "@/store";
@@ -31,10 +32,10 @@ const RoundView: React.FC = () => {
         const data = props.row.original;
         const value = props.getValue() as string;
         return (
-          <div className="flex flex-row items-center justify-start">
-            <Avatar className="mr-2 rounded-full" src={data.profilePicture} />
-            <span>{value}</span>
-          </div>
+          <CustomAvatarAndUsername
+            imageUrl={data?.profilePicture}
+            userName={value}
+          />
         );
       },
     },

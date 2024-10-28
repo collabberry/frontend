@@ -13,6 +13,7 @@ import AddAgreementForm from "./AddAgreement";
 import { set } from "lodash";
 import ViewAgreement from "./ViewAgreement";
 import { apiGetContributorAgreement } from "@/services/OrgService";
+import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -61,10 +62,10 @@ const Team: React.FC = () => {
         const data = props.row.original;
         const value = props.getValue() as string;
         return (
-          <div className="flex flex-row items-center justify-start">
-            <Avatar className="mr-2 rounded-full" src={data.profilePicture} />
-            <span>{value}</span>
-          </div>
+          <CustomAvatarAndUsername
+            imageUrl={data?.profilePicture}
+            userName={value}
+          />
         );
       },
     },
@@ -139,7 +140,11 @@ const Team: React.FC = () => {
         return (
           <div>
             {agreement && Object.keys(agreement).length > 0 ? (
-              <Button size="sm"  variant="plain" onClick={() => viewAgreement(contributor)}>
+              <Button
+                size="sm"
+                variant="plain"
+                onClick={() => viewAgreement(contributor)}
+              >
                 View Agreement
               </Button>
             ) : (
