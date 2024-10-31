@@ -66,9 +66,9 @@ const Dashboard = () => {
       } catch (error: any) {
         handleError(error.response.data.message);
       }
+    } else {
+      setInviteDialogOpen(true);
     }
-
-    setInviteDialogOpen(true);
   };
 
   const assessmentCardAction = () => {

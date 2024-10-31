@@ -1,5 +1,6 @@
 import { Assessment } from "@/@types/auth";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
+import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
 import { Button } from "@/components/ui";
 import {
@@ -7,9 +8,10 @@ import {
   apiAddAssessment,
   apiGetCurrentRound,
 } from "@/services/OrgService";
-import { RootState, setAllRounds, setSelectedRound } from "@/store";
+import { RootState, setAllRounds, setRounds, setSelectedRound } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { all } from "axios";
+import { set } from "lodash";
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +24,8 @@ export const isCurrentRound = (round: any) => {
 const Rounds: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [loading, setLoading] = React.useState(false);
+  const organization = useSelector((state: RootState) => state.auth.org);
   const { currentRound, selectedRound, allRounds } = useSelector(
     (state: RootState) => state.auth.rounds
   );
@@ -32,6 +36,34 @@ const Rounds: React.FC = () => {
       dispatch(setAllRounds([currentRound]));
     }
   }, [allRounds, currentRound]);
+
+  const handleRoundActivation = async () => {
+    setLoading(true);
+    if (currentRound && currentRound.status === RoundStatus.InProgress) {
+      // TODO: Call deactivate round API
+      console.log("Deactivating round");
+      setLoading(false);
+    } else {
+      try {
+        const response = await apiActivateRounds(organization.id || "");
+        if (response?.data && organization.id) {
+          try {
+            const roundResponse = await apiGetCurrentRound(organization.id);
+            if (roundResponse.data) {
+              dispatch(setRounds(roundResponse.data));
+            }
+          } catch (error: any) {
+            setLoading(false);
+            handleError(error.response.data.message);
+          }
+        }
+        setLoading(false);
+      } catch (error: any) {
+        setLoading(false);
+        handleError(error.response.data.message);
+      }
+    }
+  };
 
   const goToRound = (round: any) => {
     dispatch(setSelectedRound(round));
@@ -110,7 +142,11 @@ const Rounds: React.FC = () => {
         return (
           <div>
             {round && isCurrentRound(round) ? (
-              <Button size="sm" variant="plain" onClick={() => goToRound(round)}>
+              <Button
+                size="sm"
+                variant="plain"
+                onClick={() => goToRound(round)}
+              >
                 Go to Round
               </Button>
             ) : null}
@@ -123,7 +159,28 @@ const Rounds: React.FC = () => {
   return (
     <div>
       <h1>Rounds</h1>
-      {/* <div className="flex flex-col space-y-4"> */}
+      <div className="flex flex-col space-y-4 items-end justify-center mt-4">
+        <Button
+          size="sm"
+          color={
+            currentRound && currentRound.status === RoundStatus.InProgress
+              ? ""
+              : "berrylavender"
+          }
+          disabled={loading}
+          variant={
+            currentRound && currentRound.status === RoundStatus.InProgress
+              ? undefined
+              : "solid"
+          }
+          className="ltr:mr-2 rtl:ml-2 max-w-[150px]"
+          onClick={handleRoundActivation}
+        >
+          {currentRound && currentRound.status === RoundStatus.InProgress
+            ? "Deactivate Round"
+            : "Activate Rounds"}
+        </Button>
+      </div>
       {/* <button
           className="bg-blue-500 text-white font-bold py-2 px-4 rounded w-full max-w-[250px]"
           onClick={() => apiActivateRounds(organization.id || "")}
@@ -138,7 +195,13 @@ const Rounds: React.FC = () => {
         </button> */}
       {/* </div> */}
       <div className="mt-4">
-        <CustomTableWithSorting data={allRounds || []} columns={columns} />
+        {allRounds.length ? (
+          <CustomTableWithSorting data={allRounds || []} columns={columns} />
+        ) : (
+          <div className="text-center text-gray-500">
+            Rounds have not yet been activated.
+          </div>
+        )}
       </div>
     </div>
   );
