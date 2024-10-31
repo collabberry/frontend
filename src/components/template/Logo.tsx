@@ -1,10 +1,12 @@
 import classNames from 'classnames'
 import { APP_NAME } from '@/constants/app.constant'
 import type { CommonProps } from '@/@types/common'
+import { on } from 'events'
 
 interface LogoProps extends CommonProps {
     type?: 'full' | 'streamline'
     mode?: 'light' | 'dark'
+    onLogoClick?: () => void
     imgClass?: string
     logoWidth?: number | string
 }
@@ -16,6 +18,7 @@ const Logo = (props: LogoProps) => {
         type = 'full',
         mode = 'light',
         className,
+        onLogoClick = () => {},
         imgClass,
         style,
         logoWidth = 'auto',
@@ -23,11 +26,12 @@ const Logo = (props: LogoProps) => {
 
     return (
         <div
-            className={classNames('logo', className)}
+            className={classNames('logo', 'cursor-pointer', className)}
             style={{
                 ...style,
                 ...{ width: logoWidth },
             }}
+            onClick={onLogoClick}
         >
             <img
                 className={imgClass}

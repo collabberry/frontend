@@ -6,7 +6,6 @@ import {
 import type { NavigationTree } from "@/@types/navigation";
 import { FiUserCheck } from "react-icons/fi";
 
-
 const navigationConfig: NavigationTree[] = [
   {
     key: "admin",
@@ -18,7 +17,7 @@ const navigationConfig: NavigationTree[] = [
     authority: [],
     subMenu: [
       {
-        key: "dashboard",
+        key: "admin.dashboard",
         path: "/dashboard",
         title: "Dashboard",
         translateKey: "nav.admin.dashboard",
@@ -28,18 +27,18 @@ const navigationConfig: NavigationTree[] = [
         subMenu: [],
       },
       {
-        key: "assessment",
+        key: "admin.assessment",
         path: "/assessment",
         title: "Assessment",
         translateKey: "nav.admin.assessment",
-        icon: 'assessment',
+        icon: "assessment",
         type: NAV_ITEM_TYPE_ITEM,
         authority: [],
         subMenu: [],
       },
       /** Example purpose only, please remove */
       {
-        key: "scores",
+        key: "admin.scores",
         path: "/scores",
         title: "My Scores",
         translateKey: "nav.admin.scores",

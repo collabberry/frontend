@@ -18,7 +18,8 @@ const Assessment = () => {
   const currentRound = useSelector(
     (state: RootState) => state.auth.rounds.currentRound
   );
-  const { submittedAssessments } = currentRound;
+
+  const { submittedAssessments } = currentRound || {};
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -30,13 +31,13 @@ const Assessment = () => {
   };
 
   const isTableDisabled = useMemo(() => {
-    return currentRound.status !== RoundStatus.InProgress;
+    return currentRound?.status !== RoundStatus.InProgress;
   }, [currentRound]);
 
   const isContributorDisabled = (contributor: Contributor) => {
     if (
-      !contributor.agreement ||
-      Object.keys(contributor.agreement).length === 0
+      !contributor?.agreement ||
+      Object.keys(contributor?.agreement).length === 0
     ) {
       return true;
     }
@@ -45,14 +46,14 @@ const Assessment = () => {
       return true;
     }
 
-    return submittedAssessments.some(
+    return submittedAssessments?.some(
       (assessment: { contributorId: string }) =>
         assessment.contributorId === contributor.id
     );
   };
 
   const isContributorAlreadyReviewed = (contributor: Contributor) => {
-    return submittedAssessments.some(
+    return submittedAssessments?.some(
       (assessment: { contributorId: string }) =>
         assessment.contributorId === contributor.id
     );
@@ -97,7 +98,9 @@ const Assessment = () => {
       <div>
         <h1>Assessment</h1>
         <div className="mt-4">
-          Select the team members you interacted with last month.
+          {isTableDisabled
+            ? "There is no ongoing round. Please wait for the next round to start."
+            : "Select the team members you interacted with last month."}
         </div>
       </div>
       {/* <div>

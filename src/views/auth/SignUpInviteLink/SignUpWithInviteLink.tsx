@@ -14,7 +14,7 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
 import { RegisterCredential } from "@/@types/auth";
-import { setUser, signUpSuccess } from "@/store";
+import { setOrganization, setRounds, setUser, signUpSuccess } from "@/store";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -22,6 +22,10 @@ import { useMemo } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import appConfig from "@/configs/app.config";
+import {
+  apiGetCurrentRound,
+  apiGetOrganizationById,
+} from "@/services/OrgService";
 
 const ValidationStepsSchema = Yup.object().shape({
   username: Yup.string()
@@ -69,6 +73,32 @@ const SignUpWithInviteLink = () => {
             let response: any = await apiGetUser();
             let user = response?.data || {};
             if (user) {
+              if (user?.organization?.id) {
+                try {
+                  const orgResponse = await apiGetOrganizationById(
+                    user.organization.id
+                  );
+                  dispatch(
+                    setOrganization({
+                      ...orgResponse.data,
+                      logo: orgResponse.data.logo,
+                    })
+                  );
+                } catch (error) {
+                  console.error("Error fetching organization data:", error);
+                }
+
+                try {
+                  const roundResponse = await apiGetCurrentRound(
+                    user.organization.id
+                  );
+                  if (roundResponse.data) {
+                    dispatch(setRounds(roundResponse.data));
+                  }
+                } catch (error) {
+                  console.error("Error fetching round data:", error);
+                }
+              }
               dispatch(
                 setUser({
                   id: user.id,
