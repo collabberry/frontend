@@ -37,32 +37,55 @@ const Rounds: React.FC = () => {
     }
   }, [allRounds, currentRound]);
 
-  const handleRoundActivation = async () => {
+  const handleRoundActivation = async (setIsActive: boolean) => {
     setLoading(true);
-    if (currentRound && currentRound.status === RoundStatus.InProgress) {
-      // TODO: Call deactivate round API
-      console.log("Deactivating round");
-      setLoading(false);
-    } else {
-      try {
-        const response = await apiActivateRounds(organization.id || "");
-        if (response?.data && organization.id) {
-          try {
-            const roundResponse = await apiGetCurrentRound(organization.id);
-            if (roundResponse.data) {
-              dispatch(setRounds(roundResponse.data));
-            }
-          } catch (error: any) {
-            setLoading(false);
-            handleError(error.response.data.message);
+    try {
+      //TODO: response.data returns null so I am not checking for response.data at the moment
+      const response = await apiActivateRounds(organization.id || "", {
+        isActive: setIsActive,
+      });
+      if (organization.id) {
+        try {
+          const roundResponse = await apiGetCurrentRound(organization.id);
+          if (roundResponse?.data) {
+            dispatch(setRounds(roundResponse.data));
           }
+        } catch (error: any) {
+          setLoading(false);
+          handleError(error.response.data.message);
         }
-        setLoading(false);
-      } catch (error: any) {
-        setLoading(false);
-        handleError(error.response.data.message);
       }
+      setLoading(false);
+    } catch (error: any) {
+      setLoading(false);
+      handleError(error.response.data.message);
     }
+    // if (currentRound && currentRound.status === RoundStatus.InProgress) {
+    //   // TODO: Call deactivate round API
+    //   console.log("Deactivating round");
+    //   setLoading(false);
+    // } else {
+    //   try {
+    //     const response = await apiActivateRounds(organization.id || "", {
+    //       isActive: true,
+    //     });
+    //     if (response?.data && organization.id) {
+    //       try {
+    //         const roundResponse = await apiGetCurrentRound(organization.id);
+    //         if (roundResponse.data) {
+    //           dispatch(setRounds(roundResponse.data));
+    //         }
+    //       } catch (error: any) {
+    //         setLoading(false);
+    //         handleError(error.response.data.message);
+    //       }
+    //     }
+    //     setLoading(false);
+    //   } catch (error: any) {
+    //     setLoading(false);
+    //     handleError(error.response.data.message);
+    //   }
+    // }
   };
 
   const goToRound = (round: any) => {
@@ -160,26 +183,31 @@ const Rounds: React.FC = () => {
     <div>
       <h1>Rounds</h1>
       <div className="flex flex-col space-y-4 items-end justify-center mt-4">
-        <Button
-          size="sm"
-          color={
-            currentRound && currentRound.status === RoundStatus.InProgress
-              ? ""
-              : "berrylavender"
-          }
-          disabled={loading}
-          variant={
-            currentRound && currentRound.status === RoundStatus.InProgress
-              ? undefined
-              : "solid"
-          }
-          className="ltr:mr-2 rtl:ml-2 max-w-[150px]"
-          onClick={handleRoundActivation}
-        >
-          {currentRound && currentRound.status === RoundStatus.InProgress
-            ? "Deactivate Round"
-            : "Activate Rounds"}
-        </Button>
+        {currentRound ? (
+          <>
+            {currentRound && currentRound.status === RoundStatus.InProgress ? (
+              <Button
+                size="sm"
+                disabled={loading}
+                className="ltr:mr-2 rtl:ml-2 max-w-[150px]"
+                onClick={() => handleRoundActivation(false)}
+              >
+                Deactivate Round
+              </Button>
+            ) : null}
+          </>
+        ) : (
+          <Button
+            size="sm"
+            color="berrylavender"
+            disabled={loading}
+            variant="solid"
+            className="ltr:mr-2 rtl:ml-2 max-w-[150px]"
+            onClick={() => handleRoundActivation(true)}
+            >
+            Activate Round
+          </Button>
+        )}
       </div>
       {/* <button
           className="bg-blue-500 text-white font-bold py-2 px-4 rounded w-full max-w-[250px]"

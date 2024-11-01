@@ -41,12 +41,12 @@ const AgreementDetails: React.FC<{ contributor: Contributor }> = ({
     <>
       <div className="mt-4 p-4 bg-gray-100 rounded">
         <div className="flex flex-row justify-between">
-          <p>{`Commitment: ${commitment ? commitment.toFixed(0) : "N/A"}%`}</p>
+          <p>{`Commitment: ${commitment ? commitment?.toFixed(0) : "N/A"}%`}</p>
           <p>|</p>
-          <p>{`Market Rate: $${marketRate ? marketRate.toFixed(0) : "N/A"}`}</p>
+          <p>{`Market Rate: $${marketRate ? marketRate : "N/A"}`}</p>
           <p>|</p>
-          <p>{`Monetary Compensation: $${
-            fiatRequested ? fiatRequested.toFixed(0) : "N/A"
+          <p>{`Monetary Comp: $${
+            fiatRequested ? fiatRequested : "N/A"
           }`}</p>
         </div>
       </div>

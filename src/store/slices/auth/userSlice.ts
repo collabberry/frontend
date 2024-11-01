@@ -7,8 +7,8 @@ export type UserState = {
   userName?: string;
   email?: string;
   authority?: string[];
+  isAdmin?: boolean;
 };
-
 
 const initialState: UserState = {
   profilePicture: "",
@@ -16,6 +16,7 @@ const initialState: UserState = {
   userName: "",
   email: "",
   authority: [],
+  isAdmin: false,
 };
 
 const userSlice = createSlice({
@@ -28,6 +29,7 @@ const userSlice = createSlice({
       state.userName = initialState.userName;
       state.authority = initialState.authority;
       state.id = initialState.id;
+      state.isAdmin = initialState.isAdmin;
     },
     setUser(state, action: PayloadAction<UserState>) {
       state.profilePicture = action.payload?.profilePicture;
@@ -35,6 +37,7 @@ const userSlice = createSlice({
       state.userName = action.payload?.userName;
       state.authority = action.payload?.authority;
       state.id = action.payload?.id;
+      state.isAdmin = action.payload?.isAdmin;
     },
   },
 });

@@ -72,21 +72,22 @@ function useAuth() {
         }
         dispatch(
           setUser({
-            profilePicture: user.profilePicture,
-            userName: user.username,
-            authority: ["USER"],
-            email: user.email,
-            id: user.id,
+            profilePicture: user?.profilePicture,
+            userName: user?.username,
+            authority: user?.isAdmin ? ["ADMIN"] : ["USER"],
+            email: user?.email,
+            id: user?.id,
+            isAdmin: user?.isAdmin,
           })
         );
         if (user?.organization?.id) {
           const orgResponse = await apiGetOrganizationById(
-            user.organization.id
+            user?.organization?.id
           );
           dispatch(
             setOrganization({
-              ...orgResponse.data,
-              logo: orgResponse.data.logo,
+              ...orgResponse?.data,
+              logo: orgResponse?.data?.logo,
             })
           );
           const roundResponse = await apiGetCurrentRound(user.organization.id);

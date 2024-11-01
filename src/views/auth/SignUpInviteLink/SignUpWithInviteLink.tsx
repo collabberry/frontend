@@ -102,10 +102,11 @@ const SignUpWithInviteLink = () => {
               dispatch(
                 setUser({
                   id: user.id,
-                  profilePicture: user.profilePicture,
-                  userName: response.data.username,
+                  profilePicture: user?.profilePicture,
+                  userName: response?.data?.username,
                   authority: ["USER"],
-                  email: response.data.email,
+                  email: response?.data?.email,
+                  isAdmin: response?.data?.isAdmin,
                 })
               );
             }
