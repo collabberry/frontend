@@ -37,26 +37,27 @@ const TYPE_MAP = {
         icon: <HiCheckCircle />,
     },
     info: {
-        backgroundColor: 'bg-blue-50 dark:bg-blue-500',
-        titleColor: 'text-blue-700 dark:text-blue-100',
-        textColor: 'text-blue-500 dark:text-blue-100',
-        iconColor: 'text-blue-400 dark:text-blue-100',
+        backgroundColor: 'bg-gray-100 dark:bg-gray-700',
+        titleColor: 'text-gray-500 dark:text-gray-100',
+        textColor: 'text-gray-500 dark:text-gray-100',
+        iconColor: 'text-gray-500 dark:text-gray-100',
         icon: <HiInformationCircle />,
     },
     warning: {
-        backgroundColor: 'bg-yellow-50 dark:bg-yellow-500',
-        titleColor: 'text-yellow-700 dark:text-yellow-50',
-        textColor: 'text-yellow-500 dark:text-yellow-50',
-        iconColor: 'text-yellow-400 dark:text-yellow-50',
-        icon: <HiExclamation />,
+        backgroundColor: 'bg-berrylavender-50 dark:bg-berrylavender-500',
+        titleColor: 'text-berrylavender-700 dark:text-berrylavender-100',
+        textColor: 'text-berrylavender-500 dark:text-berrylavender-100',
+        iconColor: 'text-berrylavender-400 dark:text-berrylavender-100',
+        icon: <HiExclamation />,    
     },
     danger: {
-        backgroundColor: 'bg-red-50 dark:bg-red-500',
-        titleColor: 'text-red-700 dark:text-red-100',
-        textColor: 'text-red-500 dark:text-red-100',
-        iconColor: 'text-red-400 dark:text-red-100',
+        backgroundColor: 'bg-berryred-50 dark:bg-berryred-500',
+        titleColor: 'text-berryred-700 dark:text-berryred-100',
+        textColor: 'text-berryred-500 dark:text-berryred-100',
+        iconColor: 'text-berryred-500 dark:text-berryred-100',
         icon: <HiXCircle />,
     },
+
 }
 
 const TYPE_ARRAY: TypeAttributes.Status[] = [

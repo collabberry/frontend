@@ -17,9 +17,10 @@ import CustomAvatarAndUsername from "@/components/collabberry/custom-components/
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
+  const { isAdmin } = useSelector((state: RootState) => state.auth.user);
+  console.log("isAdmin", isAdmin);
   const location = useLocation();
   const fromDashboard = location.state && location.state.from === "dashboard";
-
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAgreementDialogOpen, setIsAgreementDialogOpen] = useState(false);
   const [isViewAgreementDialogOpen, setIsViewAgreementDialogOpen] =
@@ -147,11 +148,11 @@ const Team: React.FC = () => {
               >
                 View Agreement
               </Button>
-            ) : (
+            ) : isAdmin ? (
               <Button size="sm" onClick={() => addAgreement(contributor)}>
                 Add Agreement
               </Button>
-            )}
+            ) : null}
           </div>
         );
       },
@@ -210,7 +211,11 @@ const Team: React.FC = () => {
       </div>
 
       <div className="mb-4">
-        <OrganizationCard organization={organization} onEdit={handleEdit} />
+        <OrganizationCard
+          organization={organization}
+          onEdit={handleEdit}
+          isAdmin={isAdmin as boolean}
+        />
       </div>
       <div>
         <CustomTableWithSorting

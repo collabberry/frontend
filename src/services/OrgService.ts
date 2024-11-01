@@ -15,10 +15,11 @@ export async function apiGetContributorAgreement(contributorId: string) {
   });
 }
 
-export async function apiActivateRounds(orgId: string) {
+export async function apiActivateRounds(orgId: string, data: any) {
   return ApiService.fetchData<any>({
-    url: `/orgs/${orgId}/rounds/activate`,
+    url: `/orgs/${orgId}/rounds/setIsActive`,
     method: "put",
+    data,
   });
 }
 

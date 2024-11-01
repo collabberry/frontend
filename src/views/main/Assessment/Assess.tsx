@@ -29,6 +29,8 @@ import {
   handleError,
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
+import LottieAnimation from "@/components/collabberry/LottieAnimation";
+import * as animationData from "@/assets/animations/success.json";
 
 const Assess = () => {
   const dispatch = useDispatch();
@@ -164,132 +166,157 @@ const Assess = () => {
   }, [teamMembers]);
 
   return (
-    <div className="flex flex-col gap-2 w-full">
-      <CustomSteps
-        current={teamMemberIndex}
-        onChange={(index) => onStepChange(index)}
-        className="mt-4 mb-4"
-      >
-        {teamMembers.map((member, index) => (
-          <CustomSteps.StepItemWithAvatar
-            key={index}
-            title={member.username}
-            avatar={member.profilePicture}
-            status={
-              reviewedMembers.includes(member.id) ? "complete" : "in-progress"
-            }
-          >
-            <div>Assessment for {member.username}</div>
-          </CustomSteps.StepItemWithAvatar>
-        ))}
-      </CustomSteps>
-      <Card className="w-full">
-        <div className="flex justify-between items-center">
-          <ContributorHeader contributor={currentMember} />
-          <Button
-            size="sm"
-            onClick={() => {
-              const member = teamMembers[teamMemberIndex];
-              viewAgreement(member);
-            }}
-          >
-            View Agreement
-          </Button>
-        </div>
-        <div>
-          <FormContainer>
-            <div className="grid grid-cols-2 gap-4 mt-8">
-              <FormItem label="">
-                <div className="text-2xl">Culture Impact</div>
-                <BerryRating
-                  setFieldValue={formik.setFieldValue}
-                  field={`${currentMember.id}.cultureScore`}
-                  value={formik.values[currentMember.id]?.cultureScore || 0}
-                />
-                <div className="mt-4">
-                  {getCultureScoreDescription(
-                    formik.values[currentMember.id]?.cultureScore
-                  )}
-                </div>
-              </FormItem>
-              <FormItem label="">
-                <div className="text-2xl">Work Contribution</div>
-                <BerryRating
-                  setFieldValue={formik.setFieldValue}
-                  field={`${currentMember.id}.workScore`}
-                  value={formik.values[currentMember.id]?.workScore || 0}
-                />
-                <div className="mt-4">
-                  {getWorkContributionDescription(
-                    formik.values[currentMember.id]?.workScore
-                  )}
-                </div>
-              </FormItem>
+    <>
+      {reviewedMembers.length === teamMembers.length ? (
+        <div className="flex justify-center items-center flex-col mt-4">
+            <div className="text-center text-lg font-bold max-w-[600px]">
+            Great job! You have submitted assessments for all the selected team
+            members. If you want to select more team members, you can go back to
+            the assessment panel.
             </div>
-            <div className="flex flex-col mt-8">
-              <div className="text-2xl mb-4">Feedback</div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  {`What do you think ${currentMember.username} did well in the past month, appreciate in them, and believe they should continue doing this way?`}
-                </div>
-                <div>
-                  {`What do you think ${currentMember.username} didn't do well in the past month or can work on to improve?`}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <FormItem label="">
-                  <Input
-                    name={`${currentMember.id}.feedbackPositive`}
-                    textArea
-                    rows={5}
-                    placeholder={`I appreciate that ${currentMember.username}...`}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={
-                      formik.values[currentMember.id]?.feedbackPositive || ""
-                    }
-                  />
-                </FormItem>
-                <FormItem label="">
-                  <Input
-                    textArea
-                    rows={5}
-                    placeholder={`${currentMember.username} could improve by...`}
-                    name={`${currentMember.id}.feedbackNegative`}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={
-                      formik.values[currentMember.id]?.feedbackNegative || ""
-                    }
-                  />
-                </FormItem>
-              </div>
-            </div>
-          </FormContainer>
-          <div className="flex justify-end mt-4">
-            <Button
-              type="submit"
-              onClick={() => handleSubmit(formik.values)}
-              disabled={!isMemberFormValid || formik.isSubmitting}
-            >
-              Submit
+          <div className="mt-4">
+            <Button onClick={() => navigate("/dashboard")}>Go to Dashboard</Button>
+            <Button onClick={() => navigate("/assessment")} className="ml-2">
+              Go to Assessment Panel
             </Button>
           </div>
+          <div>
+            <LottieAnimation animationData={animationData} />
+          </div>
         </div>
-      </Card>
-      {isViewAgreementDialogOpen && (
-        <Dialog
-          width={600}
-          isOpen={isViewAgreementDialogOpen}
-          onClose={handleViewAgreementDialogClose}
-        >
-          <ViewAgreement
-            contributor={currentMember}
-            handleClose={handleViewAgreementDialogClose}
-          />
-        </Dialog>
+      ) : (
+        <div className="flex flex-col gap-2 w-full">
+          <CustomSteps
+            current={teamMemberIndex}
+            onChange={(index) => onStepChange(index)}
+            className="mt-4 mb-4"
+          >
+            {teamMembers.map((member, index) => (
+              <CustomSteps.StepItemWithAvatar
+                key={index}
+                title={member.username}
+                avatar={member.profilePicture}
+                status={
+                  reviewedMembers.includes(member.id)
+                    ? "complete"
+                    : "in-progress"
+                }
+              >
+                <div>Assessment for {member.username}</div>
+              </CustomSteps.StepItemWithAvatar>
+            ))}
+          </CustomSteps>
+          <Card className="w-full">
+            <div className="flex justify-between items-center">
+              <ContributorHeader contributor={currentMember} />
+              <Button
+                size="sm"
+                onClick={() => {
+                  const member = teamMembers[teamMemberIndex];
+                  viewAgreement(member);
+                }}
+              >
+                View Agreement
+              </Button>
+            </div>
+            <div>
+              <FormContainer>
+                <div className="grid grid-cols-2 gap-4 mt-8">
+                  <FormItem label="">
+                    <div className="text-2xl">Culture Impact</div>
+                    <BerryRating
+                      setFieldValue={formik.setFieldValue}
+                      field={`${currentMember.id}.cultureScore`}
+                      value={formik.values[currentMember.id]?.cultureScore || 0}
+                    />
+                    <div className="mt-4">
+                      {getCultureScoreDescription(
+                        formik.values[currentMember.id]?.cultureScore
+                      )}
+                    </div>
+                  </FormItem>
+                  <FormItem label="">
+                    <div className="text-2xl">Work Contribution</div>
+                    <BerryRating
+                      setFieldValue={formik.setFieldValue}
+                      field={`${currentMember.id}.workScore`}
+                      value={formik.values[currentMember.id]?.workScore || 0}
+                    />
+                    <div className="mt-4">
+                      {getWorkContributionDescription(
+                        formik.values[currentMember.id]?.workScore
+                      )}
+                    </div>
+                  </FormItem>
+                </div>
+                <div className="flex flex-col mt-8">
+                  <div className="text-2xl mb-4">Feedback</div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      {`What do you think ${currentMember.username} did well in the past month, appreciate in them, and believe they should continue doing this way?`}
+                    </div>
+                    <div>
+                      {`What do you think ${currentMember.username} didn't do well in the past month or can work on to improve?`}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <FormItem label="">
+                      <Input
+                        name={`${currentMember.id}.feedbackPositive`}
+                        textArea
+                        rows={5}
+                        placeholder={`I appreciate that ${currentMember.username}...`}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={
+                          formik.values[currentMember.id]?.feedbackPositive ||
+                          ""
+                        }
+                      />
+                    </FormItem>
+                    <FormItem label="">
+                      <Input
+                        textArea
+                        rows={5}
+                        placeholder={`${currentMember.username} could improve by...`}
+                        name={`${currentMember.id}.feedbackNegative`}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={
+                          formik.values[currentMember.id]?.feedbackNegative ||
+                          ""
+                        }
+                      />
+                    </FormItem>
+                  </div>
+                </div>
+              </FormContainer>
+              <div className="flex justify-end mt-4">
+                <Button
+                  type="submit"
+                  onClick={() => handleSubmit(formik.values)}
+                  disabled={!isMemberFormValid || formik.isSubmitting}
+                >
+                  Submit
+                </Button>
+              </div>
+            </div>
+          </Card>
+          {isViewAgreementDialogOpen && (
+            <Dialog
+              width={600}
+              isOpen={isViewAgreementDialogOpen}
+              onClose={handleViewAgreementDialogClose}
+            >
+              <ViewAgreement
+                contributor={currentMember}
+                handleClose={handleViewAgreementDialogClose}
+              />
+            </Dialog>
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 };
 

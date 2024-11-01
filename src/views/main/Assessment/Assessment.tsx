@@ -3,21 +3,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState, setReviewedMembers, setSelectedTeamMembers } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { Contributor } from "@/models/Organization.model";
-import { Avatar } from "@/components/ui";
+import { Alert, Avatar } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
-
 import { useMemo } from "react";
 import { current } from "@reduxjs/toolkit";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
 import { use } from "i18next";
 import { is } from "immer/dist/internal";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
+import LottieAnimation from "@/components/collabberry/LottieAnimation";
+import * as animationData from "@/assets/animations/tea.json";
 
 const Assessment = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
   const currentRound = useSelector(
     (state: RootState) => state.auth.rounds.currentRound
   );
+  const user = useSelector((state: RootState) => state.auth.user);
 
   const { submittedAssessments } = currentRound || {};
 
@@ -59,17 +61,48 @@ const Assessment = () => {
     );
   };
 
+  const isCurrentUser = (contributor: Contributor) => {
+    return contributor.id === user?.id;
+  };
+
   const contributorsWithDisabledFlag = useMemo(() => {
-    const contributors =
-      organization?.contributors?.map((contributor) => ({
-        ...contributor,
-        disabled: isContributorDisabled(contributor),
-        hasAgreement: contributor.agreement
-          ? Object.keys(contributor.agreement).length > 0
-          : false,
-        alreadyReviewed: isContributorAlreadyReviewed(contributor),
-      })) || [];
-    return contributors;
+    const filteredContributors = (organization?.contributors || []).reduce(
+      (acc, contributor) => {
+        if (
+          contributor.agreement &&
+          Object.keys(contributor.agreement).length > 0 &&
+          !isCurrentUser(contributor)
+        ) {
+          acc.push({
+            ...contributor,
+            disabled: isContributorDisabled(contributor),
+            hasAgreement: true,
+            alreadyReviewed: isContributorAlreadyReviewed(contributor),
+          });
+        }
+        return acc;
+      },
+      [] as any[]
+    );
+
+    // const filteredContributors = (organization?.contributors || []).reduce(
+    //   (acc, contributor) => {
+    //     if (!isCurrentUser(contributor)) {
+    //       acc.push({
+    //         ...contributor,
+    //         disabled: isContributorDisabled(contributor),
+    //         hasAgreement: contributor.agreement
+    //           ? Object.keys(contributor.agreement).length > 0
+    //           : false,
+    //         alreadyReviewed: isContributorAlreadyReviewed(contributor),
+    //       });
+    //     }
+    //     return acc;
+    //   },
+    //   [] as any[]
+    // );
+    console.log("filteredContributors", filteredContributors);
+    return filteredContributors;
   }, [organization, submittedAssessments]);
 
   const columns: ColumnDef<Contributor>[] = [
@@ -97,21 +130,43 @@ const Assessment = () => {
     <>
       <div>
         <h1>Assessment</h1>
-        <div className="mt-4">
-          {isTableDisabled
-            ? "There is no ongoing round. Please wait for the next round to start."
-            : "Select the team members you interacted with last month."}
-        </div>
+        {isTableDisabled ? (
+          <Alert showIcon type="info" className="mt-4">
+            <p>
+              There is no ongoing round. You will be able to submit your assessments once the next round starts.
+            </p>
+          </Alert>
+        ) : (
+          <div className="mt-4 text-md font-bold text-gray-500">
+            Select the team members you interacted with last month.
+          </div>
+        )}
       </div>
       {/* <div>
         <ContributorSelectList></ContributorSelectList>
       </div> */}
-      <CustomSelectTable
-        data={contributorsWithDisabledFlag || []}
-        columns={columns}
-        onSubmit={onSubmit}
-        disabled={isTableDisabled}
-      />
+      <>
+        {isTableDisabled ? (
+          <div className="mt-8 mb-8">
+            <LottieAnimation animationData={animationData} />
+          </div>
+        ) : contributorsWithDisabledFlag.length > 0 ? (
+          <CustomSelectTable
+            data={contributorsWithDisabledFlag || []}
+            columns={columns}
+            onSubmit={onSubmit}
+            disabled={isTableDisabled}
+          />
+        ) : (
+          <div className="mt-4 mb-4">
+            <Alert showIcon type="danger">
+              <p>
+                There are no contributors available for assessment at this time.
+              </p>
+            </Alert>
+          </div>
+        )}
+      </>
     </>
   );
 };

@@ -13,23 +13,29 @@ interface Organization {
 interface OrganizationCardProps {
   organization: OrgState;
   onEdit: () => void;
+  isAdmin: boolean;
 }
 
 const OrganizationCard: React.FC<OrganizationCardProps> = ({
   organization,
   onEdit,
+  isAdmin,
 }) => {
   return (
     <div className="flex items-center justify-start">
       <Avatar className="mr-2 rounded-full h-24 w-24" src={organization.logo} />
-      <div className="organization-name text-2xl mr-2 text-gray-900">{organization.name}</div>
-      <Button
-        shape="circle"
-        size="sm"
-        variant="twoTone"
-        icon={<FiEdit />}
-        onClick={onEdit}
-      />
+      <div className="organization-name text-2xl mr-2 text-gray-900">
+        {organization.name}
+      </div>
+      {isAdmin && (
+        <Button
+          shape="circle"
+          size="sm"
+          variant="twoTone"
+          icon={<FiEdit />}
+          onClick={onEdit}
+        />
+      )}
     </div>
   );
 };

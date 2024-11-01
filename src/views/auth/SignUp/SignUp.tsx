@@ -92,8 +92,6 @@ const initialValues = {
 };
 
 const SignUp = () => {
-
-
   const user = useSelector((state: any) => state.auth.user);
   const dispatch = useDispatch();
   const formik = useFormik({
@@ -130,10 +128,11 @@ const SignUp = () => {
             dispatch(
               setUser({
                 id: user.id,
-                profilePicture: user.profilePicture,
-                userName: response.data.username,
-                authority: ["USER"],
-                email: response.data.email,
+                profilePicture: user?.profilePicture,
+                userName: response?.data?.username,
+                authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
+                email: response?.data?.email,
+                isAdmin: response?.data?.isAdmin,
               })
             );
           }
@@ -178,6 +177,25 @@ const SignUp = () => {
           }
         } catch (error) {
           console.error("Error getting organization:", error);
+        }
+
+        try {
+          let response: any = await apiGetUser();
+          let user = response?.data || {};
+          if (user) {
+            dispatch(
+              setUser({
+                id: user.id,
+                profilePicture: user?.profilePicture,
+                userName: response?.data?.username,
+                authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
+                email: response?.data?.email,
+                isAdmin: response?.data?.isAdmin,
+              })
+            );
+          }
+        } catch (error) {
+          console.error("Error getting user:", error);
         }
       }
       formik.setSubmitting(false);
