@@ -19,8 +19,6 @@ services:
       args:
         - VITE_APP_BASE_URL=http://16.171.142.20
     image: collabberry/frontend-app:latest
-    ports:
-      - 4100:4100
 
 networks:
   collabberry-frontend:
