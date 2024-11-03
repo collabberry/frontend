@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - VITE_APP_BASE_URL=http://16.171.142.20
+        - VITE_APP_BASE_URL=https://api.collabberry.xyz
     image: collabberry/frontend-app:latest
 
 networks:
