@@ -20,7 +20,6 @@ const RoundView: React.FC = () => {
 
   const remind = (contributor: any) => {
     // TODO: Implement reminder functionality
-    console.log("Remind", contributor);
   };
 
   const roundId = 1;

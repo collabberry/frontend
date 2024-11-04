@@ -10,6 +10,7 @@ export type OrgState = {
   name: string;
   logo?: string;
   nextRoundDate?: string;
+  roundsActivated?: boolean;
   contributors?: Contributor[];
 };
 
@@ -22,6 +23,7 @@ const initialState: OrgState = {
   startDate: "",
   nextRoundDate: "",
   contributors: [],
+  roundsActivated: false,
 };
 
 const orgSlice = createSlice({
@@ -37,6 +39,7 @@ const orgSlice = createSlice({
       state.startDate = initialState.startDate;
       state.nextRoundDate = initialState.nextRoundDate;
       state.contributors = initialState.contributors;
+      state.roundsActivated = initialState.roundsActivated;
     },
     setOrganization(state, action: PayloadAction<OrgState>) {
       state.logo = action.payload?.logo;
@@ -47,6 +50,7 @@ const orgSlice = createSlice({
       state.startDate = action.payload?.startDate;
       state.nextRoundDate = action.payload?.nextRoundDate;
       state.contributors = action.payload?.contributors || [];
+      state.roundsActivated = action.payload?.roundsActivated;
     },
   },
 });

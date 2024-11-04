@@ -14,7 +14,7 @@ import { createAuthenticationAdapter } from "@rainbow-me/rainbowkit";
 import { SiweMessage } from "siwe";
 import { getAccount } from "wagmi/actions";
 import useAuth from "./utils/hooks/useAuth";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { mainnet, polygon, optimism, arbitrum, base } from "wagmi/chains";
 import { useAppSelector } from "./store";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -41,6 +41,9 @@ function App() {
   const { signInWithWallet } = useAuth();
   const navigate = useNavigate();
   const user = useAppSelector((state) => state.auth.user);
+  const state = useAppSelector((state) => state);
+
+
   const avatarProps = useMemo(() => {
     const { profilePicture, userName } = user;
     return { ensImage: profilePicture, size: 50 };
@@ -104,6 +107,12 @@ function App() {
     });
   }, []);
 
+  //TODO: Enable this for debugging
+  
+  // useEffect(() => {
+  //   console.log(" state changed:", state);
+  // }, [state]);
+
   return (
     <RainbowKitAuthenticationProvider
       adapter={authenticationAdapter}
@@ -112,7 +121,7 @@ function App() {
       <RainbowKitProvider
         appInfo={{
           appName: "Collabberry",
-          learnMoreUrl: "https://collabberry.xyz",
+          learnMoreUrl: "https://app.collabberry.xyz",
         }}
         avatar={CustomAvatar}
       >

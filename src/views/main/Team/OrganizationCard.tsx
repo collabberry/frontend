@@ -2,7 +2,7 @@ import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import { OrgState } from "@/store";
 import React from "react";
-import { FiEdit } from "react-icons/fi";
+import { FiEdit, FiRefreshCw } from "react-icons/fi";
 
 interface Organization {
   id: string;
@@ -13,12 +13,14 @@ interface Organization {
 interface OrganizationCardProps {
   organization: OrgState;
   onEdit: () => void;
+  onRefresh: () => void;
   isAdmin: boolean;
 }
 
 const OrganizationCard: React.FC<OrganizationCardProps> = ({
   organization,
   onEdit,
+  onRefresh,
   isAdmin,
 }) => {
   return (
@@ -32,10 +34,18 @@ const OrganizationCard: React.FC<OrganizationCardProps> = ({
           shape="circle"
           size="sm"
           variant="twoTone"
+          className="mr-2"
           icon={<FiEdit />}
           onClick={onEdit}
         />
       )}
+          <Button
+          shape="circle"
+          size="sm"
+          variant="twoTone"
+          icon={<FiRefreshCw />}
+          onClick={onRefresh}
+        />
     </div>
   );
 };

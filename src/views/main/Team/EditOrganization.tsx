@@ -47,9 +47,9 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
       }
       const dateString = today ? today.toISOString() : null;
 
-      const { contributors, nextRoundDate, ...restInitialData } = initialData;
+      const { contributors, nextRoundDate, roundsActivated, ...restOrganization } = initialData;
       const body = {
-        ...restInitialData,
+        ...restOrganization,
         ...values,
         startDate: initialData.startDate || dateString || undefined,
       };

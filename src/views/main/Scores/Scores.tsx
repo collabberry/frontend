@@ -4,7 +4,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { isCurrentRound } from '../Rounds/Rounds';
 import { Button } from '@/components/ui';
 import CustomTableWithSorting from '@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting';
 
@@ -98,7 +97,7 @@ const Scores: React.FC = () => {
           const round = props.row.original;
           return (
             <div>
-              {round && isCurrentRound(round) ? (
+              {round ? (
                 <Button size="sm" variant="plain" onClick={() => seeMyScores(round)}>
                   See My Scores
                 </Button>
@@ -112,20 +111,6 @@ const Scores: React.FC = () => {
     return (
       <div>
         <h1>Rounds</h1>
-        {/* <div className="flex flex-col space-y-4"> */}
-        {/* <button
-            className="bg-blue-500 text-white font-bold py-2 px-4 rounded w-full max-w-[250px]"
-            onClick={() => apiActivateRounds(organization.id || "")}
-          >
-            Activate Rounds
-          </button> */}
-        {/* <button
-            className="bg-green-500 text-white font-bold py-2 px-4 rounded w-full max-w-[250px]"
-            onClick={() => apiGetCurrentRound(organization.id || "")}
-          >
-            Get Current Round
-          </button> */}
-        {/* </div> */}
         <div className="mt-4">
           <CustomTableWithSorting data={allRounds || []} columns={columns} />
         </div>
