@@ -40,7 +40,7 @@ const Settings: React.FC<any> = () => {
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      const { contributors, nextRoundDate, ...restOrganization } = organization;
+      const { contributors, nextRoundDate, roundsActivated, ...restOrganization } = organization;
       const body = {
         ...restOrganization,
         ...values,

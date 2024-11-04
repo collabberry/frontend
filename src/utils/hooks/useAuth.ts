@@ -18,6 +18,7 @@ import {
   resetInvitationToken,
   setRounds,
   resetRoundsState,
+  setAllRounds,
 } from "@/store";
 import appConfig from "@/configs/app.config";
 import { REDIRECT_URL_KEY } from "@/constants/app.constant";
@@ -28,6 +29,7 @@ import { useEffect, useMemo } from "react";
 import {
   apiGetCurrentRound,
   apiGetOrganizationById,
+  apiGetRounds,
 } from "@/services/OrgService";
 import { set } from "lodash";
 
@@ -90,9 +92,13 @@ function useAuth() {
               logo: orgResponse?.data?.logo,
             })
           );
-          const roundResponse = await apiGetCurrentRound(user.organization.id);
+          const roundResponse = await apiGetCurrentRound();
           if (roundResponse.data) {
             dispatch(setRounds(roundResponse.data));
+          }
+          const allRoundsResponse = await apiGetRounds();
+          if (allRoundsResponse.data) {
+            dispatch(setAllRounds(allRoundsResponse.data));
           }
         }
         navigate(url);

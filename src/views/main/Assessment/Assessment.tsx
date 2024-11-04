@@ -84,24 +84,6 @@ const Assessment = () => {
       },
       [] as any[]
     );
-
-    // const filteredContributors = (organization?.contributors || []).reduce(
-    //   (acc, contributor) => {
-    //     if (!isCurrentUser(contributor)) {
-    //       acc.push({
-    //         ...contributor,
-    //         disabled: isContributorDisabled(contributor),
-    //         hasAgreement: contributor.agreement
-    //           ? Object.keys(contributor.agreement).length > 0
-    //           : false,
-    //         alreadyReviewed: isContributorAlreadyReviewed(contributor),
-    //       });
-    //     }
-    //     return acc;
-    //   },
-    //   [] as any[]
-    // );
-    console.log("filteredContributors", filteredContributors);
     return filteredContributors;
   }, [organization, submittedAssessments]);
 

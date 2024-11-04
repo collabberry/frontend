@@ -2,8 +2,8 @@ import CustomTableWithSorting from "@/components/collabberry/custom-components/C
 import { Contributor } from "@/models/Organization.model";
 import { ColumnDef } from "@tanstack/react-table";
 import React from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, setOrganization } from "@/store";
 import { useState } from "react";
 import OrganizationCard from "./OrganizationCard";
 import { Avatar, Button, Dialog } from "@/components/ui";
@@ -12,14 +12,18 @@ import EditOrganizationForm from "./EditOrganization";
 import AddAgreementForm from "./AddAgreement";
 import { set } from "lodash";
 import ViewAgreement from "./ViewAgreement";
-import { apiGetContributorAgreement } from "@/services/OrgService";
+import {
+  apiGetContributorAgreement,
+  apiGetOrganizationById,
+} from "@/services/OrgService";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
+import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
   const { isAdmin } = useSelector((state: RootState) => state.auth.user);
-  console.log("isAdmin", isAdmin);
   const location = useLocation();
+  const dispatch = useDispatch();
   const fromDashboard = location.state && location.state.from === "dashboard";
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAgreementDialogOpen, setIsAgreementDialogOpen] = useState(false);
@@ -35,6 +39,21 @@ const Team: React.FC = () => {
   //     setIsViewAgreementDialogOpen(true);
   //   }
   // };
+
+  const handleRefresh = async () => {
+    try {
+      if (organization.id) {
+        const orgResponse = await apiGetOrganizationById(organization.id);
+        if (orgResponse.data) {
+          dispatch(setOrganization(orgResponse.data));
+        }
+      } else {
+        handleError("Organization ID not found");
+      }
+    } catch (error: any) {
+      handleError(error.response.data.message);
+    }
+  };
 
   const viewAgreement = (contributor: Contributor) => {
     if (contributor && Object.keys(contributor).length > 0) {
@@ -214,6 +233,7 @@ const Team: React.FC = () => {
         <OrganizationCard
           organization={organization}
           onEdit={handleEdit}
+          onRefresh={handleRefresh}
           isAdmin={isAdmin as boolean}
         />
       </div>

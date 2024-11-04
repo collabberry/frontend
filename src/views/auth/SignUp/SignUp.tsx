@@ -20,7 +20,13 @@ import { Formik, Form, Field, useFormik, useFormikContext } from "formik";
 import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
 import { useNavigate } from "react-router-dom";
 import { RegisterCredential } from "@/@types/auth";
-import { setAgreement, setOrganization, setUser, signUpSuccess } from "@/store";
+import {
+  RootState,
+  setAgreement,
+  setOrganization,
+  setUser,
+  signUpSuccess,
+} from "@/store";
 import {
   apiCreateContributorAgreement,
   apiCreateOrganization,
@@ -92,7 +98,8 @@ const initialValues = {
 };
 
 const SignUp = () => {
-  const user = useSelector((state: any) => state.auth.user);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const organization = useSelector((state: RootState) => state.auth.org);
   const dispatch = useDispatch();
   const formik = useFormik({
     onSubmit: () => {},
@@ -248,6 +255,28 @@ const SignUp = () => {
                   commitment: agreement.data.commitment,
                 })
               );
+
+              if (organization?.id) {
+                try {
+                  const org = await apiGetOrganizationById(organization?.id);
+                  if (org.data) {
+                    dispatch(
+                      setOrganization({
+                        logo: org.data.logo,
+                        name: org.data.name,
+                        id: org.data.id,
+                        par: org.data.par,
+                        cycle: org.data.cycle,
+                        startDate: org.data.startDate,
+                        contributors: org.data.contributors,
+                        roundsActivated: org.data.roundsActivated,
+                      })
+                    );
+                  }
+                } catch (error) {
+                  console.error("Error getting organization:", error);
+                }
+              }
             }
           } catch (error) {
             console.error("Error getting agreement:", error);

@@ -2,13 +2,20 @@ import { Assessment } from "@/@types/auth";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
-import { Button } from "@/components/ui";
+import { Button, Switcher } from "@/components/ui";
 import {
   apiActivateRounds,
   apiAddAssessment,
   apiGetCurrentRound,
+  apiGetOrganizationById,
 } from "@/services/OrgService";
-import { RootState, setAllRounds, setRounds, setSelectedRound } from "@/store";
+import {
+  RootState,
+  setAllRounds,
+  setOrganization,
+  setRounds,
+  setSelectedRound,
+} from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { all } from "axios";
 import { set } from "lodash";
@@ -16,76 +23,61 @@ import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-export const isCurrentRound = (round: any) => {
-  const endDate = new Date(round.endDate);
-  return endDate > new Date();
-};
-
 const Rounds: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
   const organization = useSelector((state: RootState) => state.auth.org);
-  const { currentRound, selectedRound, allRounds } = useSelector(
+  const [roundsStatus, setRoundsStatus] = React.useState(
+    organization?.roundsActivated
+  );
+  const { isAdmin } = useSelector((state: RootState) => state.auth.user);
+  const { allRounds, currentRound } = useSelector(
     (state: RootState) => state.auth.rounds
   );
 
-  //TODO: Change once there is a round id
-  React.useEffect(() => {
-    if (!allRounds || (allRounds.length === 0 && currentRound)) {
-      dispatch(setAllRounds([currentRound]));
-    }
-  }, [allRounds, currentRound]);
+  const isCurrentRound = (round: any) => {
+    return round.id === currentRound.id;
+  };
 
-  const handleRoundActivation = async (setIsActive: boolean) => {
+  const getRoundNumber = (id: string) => {
+    if (!id) return "";
+    const index = allRounds.findIndex((r) => r.id === id);
+    return allRounds.length - index;
+  };
+
+  const handleRoundActivation = async (event: boolean) => {
     setLoading(true);
     try {
-      //TODO: response.data returns null so I am not checking for response.data at the moment
-      const response = await apiActivateRounds(organization.id || "", {
-        isActive: setIsActive,
+      const response = await apiActivateRounds({
+        isActive: event,
       });
-      if (organization.id) {
+      if (organization?.id) {
+        // try {
+        //   const roundResponse = await apiGetCurrentRound();
+        //   if (roundResponse?.data) {
+        //     dispatch(setRounds(roundResponse.data));
+        //   }
+        // } catch (error: any) {
+        //   setLoading(false);
+        //   handleError(error.response.data.message);
+        // }
         try {
-          const roundResponse = await apiGetCurrentRound(organization.id);
-          if (roundResponse?.data) {
-            dispatch(setRounds(roundResponse.data));
+          const orgResponse = await apiGetOrganizationById(organization.id);
+          if (orgResponse?.data) {
+            dispatch(setOrganization(orgResponse.data));
           }
         } catch (error: any) {
           setLoading(false);
           handleError(error.response.data.message);
         }
       }
+      setRoundsStatus(event);
       setLoading(false);
     } catch (error: any) {
       setLoading(false);
       handleError(error.response.data.message);
     }
-    // if (currentRound && currentRound.status === RoundStatus.InProgress) {
-    //   // TODO: Call deactivate round API
-    //   console.log("Deactivating round");
-    //   setLoading(false);
-    // } else {
-    //   try {
-    //     const response = await apiActivateRounds(organization.id || "", {
-    //       isActive: true,
-    //     });
-    //     if (response?.data && organization.id) {
-    //       try {
-    //         const roundResponse = await apiGetCurrentRound(organization.id);
-    //         if (roundResponse.data) {
-    //           dispatch(setRounds(roundResponse.data));
-    //         }
-    //       } catch (error: any) {
-    //         setLoading(false);
-    //         handleError(error.response.data.message);
-    //       }
-    //     }
-    //     setLoading(false);
-    //   } catch (error: any) {
-    //     setLoading(false);
-    //     handleError(error.response.data.message);
-    //   }
-    // }
   };
 
   const goToRound = (round: any) => {
@@ -97,10 +89,9 @@ const Rounds: React.FC = () => {
     {
       header: "Round",
       cell: (props) => {
-        //TODO: Change once there is a round id
         const data = props.row.original;
         const value = props.getValue() as string;
-        return <span>{"Round 1"}</span>;
+        return <span>{`Round ${getRoundNumber(data?.id)}`}</span>;
       },
     },
     {
@@ -182,33 +173,46 @@ const Rounds: React.FC = () => {
   return (
     <div>
       <h1>Rounds</h1>
-      <div className="flex flex-col space-y-4 items-end justify-center mt-4">
-        {currentRound ? (
-          <>
-            {currentRound && currentRound.status === RoundStatus.InProgress ? (
-              <Button
-                size="sm"
-                disabled={loading}
-                className="ltr:mr-2 rtl:ml-2 max-w-[150px]"
-                onClick={() => handleRoundActivation(false)}
-              >
-                Deactivate Round
-              </Button>
-            ) : null}
-          </>
-        ) : (
-          <Button
-            size="sm"
-            color="berrylavender"
-            disabled={loading}
-            variant="solid"
-            className="ltr:mr-2 rtl:ml-2 max-w-[150px]"
-            onClick={() => handleRoundActivation(true)}
+      {isAdmin && (
+        <div className="flex flex-col space-y-4 items-end justify-center mt-4">
+          <div className="mb-4">
+            <Switcher
+              checkedContent="Active"
+              unCheckedContent="Paused"
+              isLoading={loading}
+              onChange={handleRoundActivation}
+              defaultChecked={roundsStatus}
+            />
+          </div>
+          {/* {currentRound ? (
+            <>
+              {currentRound &&
+              currentRound.status === RoundStatus.InProgress ? (
+                <Button
+                  size="sm"
+                  disabled={loading}
+                  className="ltr:mr-2 rtl:ml-2 max-w-[150px]"
+                  onClick={() => handleRoundActivation(false)}
+                >
+                  Deactivate Round
+                </Button>
+              ) : null}
+            </>
+          ) : (
+            <Button
+              size="sm"
+              color="berrylavender"
+              disabled={loading}
+              variant="solid"
+              className="ltr:mr-2 rtl:ml-2 max-w-[150px]"
+              onClick={() => handleRoundActivation(true)}
             >
-            Activate Round
-          </Button>
-        )}
-      </div>
+              Activate Round
+            </Button>
+          )} */}
+        </div>
+      )}
+
       {/* <button
           className="bg-blue-500 text-white font-bold py-2 px-4 rounded w-full max-w-[250px]"
           onClick={() => apiActivateRounds(organization.id || "")}

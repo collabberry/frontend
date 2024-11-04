@@ -15,24 +15,41 @@ export async function apiGetContributorAgreement(contributorId: string) {
   });
 }
 
-export async function apiActivateRounds(orgId: string, data: any) {
+export async function apiActivateRounds(data: any) {
   return ApiService.fetchData<any>({
-    url: `/orgs/${orgId}/rounds/setIsActive`,
+    url: `/rounds/setIsActive`,
     method: "put",
     data,
   });
 }
 
-export async function apiGetCurrentRound(orgId: string) {
+export async function apiGetCurrentRound() {
   return ApiService.fetchData<any>({
-    url: `/orgs/${orgId}/rounds/current`,
+    url: `/rounds/current`,
     method: "get",
   });
 }
 
+export async function apiGetAllRounds() {
+  return ApiService.fetchData<any>({
+    url: `/rounds`,
+    method: "get",
+  });
+}
+
+export async function apiGetRounds() {
+  return ApiService.fetchData<any>({
+    url: `/rounds`,
+    method: "get",
+  });
+}
+
+
+
+
 export async function apiAddAssessment(data: Assessment) {
   return ApiService.fetchData<any>({
-    url: `/orgs/rounds/assess`,
+    url: `/rounds/assess`,
     method: "post",
     data,
   });
