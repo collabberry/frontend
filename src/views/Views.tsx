@@ -10,6 +10,8 @@ import PublicRoute from '@/components/route/PublicRoute'
 import AuthorityGuard from '@/components/route/AuthorityGuard'
 import AppRoute from '@/components/route/AppRoute'
 import type { LayoutType } from '@/@types/theme'
+import InviteRoute from '@/components/route/InviteRoute'
+import { inviteRoutes } from '@/configs/routes.config/routes.config'
 
 interface ViewsProps {
     pageContainerType?: 'default' | 'gutterless' | 'contained'
@@ -25,6 +27,21 @@ const AllRoutes = (props: AllRoutesProps) => {
 
     return (
         <Routes>
+            {/* <Route path="/" element={<InviteRoute />}>
+            {inviteRoutes.map((route) => (
+                    <Route
+                        key={route.path}
+                        path={route.path}
+                        element={
+                            <AppRoute
+                                routeKey={route.key}
+                                component={route.component}
+                                {...route.meta}
+                            />
+                        }
+                    />
+                ))}
+            </Route> */}
             <Route path="/" element={<ProtectedRoute />}>
                 <Route
                     path="/"

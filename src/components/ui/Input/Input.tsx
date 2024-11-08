@@ -174,6 +174,9 @@ const Input = forwardRef<ElementType | HTMLInputElement, InputProps>(
             disabled,
             type,
             ref,
+            onWheelCapture: (e: React.WheelEvent) => {
+                (e.target as HTMLInputElement).blur()
+            },
             ...field,
             ...rest,
         }

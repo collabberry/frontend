@@ -1,4 +1,4 @@
-export enum Cycle {
+export enum CompensationPeriod {
   Weekly = 1,
   Biweekly,
   Monthly,

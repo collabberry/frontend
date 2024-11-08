@@ -2,6 +2,7 @@ export type AppConfig = {
   apiPrefix: string;
   authenticatedEntryPath: string;
   unAuthenticatedEntryPath: string;
+  inviteEntryPath: string;
   notRegisteredEntryPath: string;
   memberSignUpPath: string;
   tourPath: string;
@@ -14,6 +15,7 @@ const appConfig: AppConfig = {
   authenticatedEntryPath: "/dashboard",
   unAuthenticatedEntryPath: "/sign-in",
   notRegisteredEntryPath: "/sign-up",
+  inviteEntryPath: "/invite",
   memberSignUpPath: "/member-sign-up",
   tourPath: "/",
   locale: "en",

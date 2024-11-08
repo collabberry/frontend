@@ -5,8 +5,10 @@ import { Contributor } from "@/models/Organization.model";
 export type OrgState = {
   id?: string;
   par?: number;
-  startDate?: string;
-  cycle?: number;
+  compensationStartDay?: string;
+  assessmentStartDelayInDays?: number;
+  assessmentDurationInDays?: number;
+  compensationPeriod?: number;
   name: string;
   logo?: string;
   nextRoundDate?: string;
@@ -19,8 +21,10 @@ const initialState: OrgState = {
   name: "",
   id: "",
   par: undefined,
-  cycle: undefined,
-  startDate: "",
+  compensationPeriod: undefined,
+  compensationStartDay: "",
+  assessmentStartDelayInDays: undefined,
+  assessmentDurationInDays: undefined,
   nextRoundDate: "",
   contributors: [],
   roundsActivated: false,
@@ -35,8 +39,10 @@ const orgSlice = createSlice({
       state.name = initialState.name;
       state.id = initialState.id;
       state.par = initialState.par;
-      state.cycle = initialState.cycle;
-      state.startDate = initialState.startDate;
+      state.compensationPeriod = initialState.compensationPeriod;
+      state.compensationStartDay = initialState.compensationStartDay;
+      state.assessmentStartDelayInDays = initialState.assessmentStartDelayInDays;
+      state.assessmentDurationInDays = initialState.assessmentDurationInDays;
       state.nextRoundDate = initialState.nextRoundDate;
       state.contributors = initialState.contributors;
       state.roundsActivated = initialState.roundsActivated;
@@ -46,8 +52,10 @@ const orgSlice = createSlice({
       state.name = action.payload?.name;
       state.id = action.payload?.id;
       state.par = action.payload?.par;
-      state.cycle = action.payload?.cycle;
-      state.startDate = action.payload?.startDate;
+      state.compensationPeriod = action.payload?.compensationPeriod;
+      state.compensationStartDay = action.payload?.compensationStartDay;
+      state.assessmentStartDelayInDays = action.payload?.assessmentStartDelayInDays;
+      state.assessmentDurationInDays = action.payload?.assessmentDurationInDays;
       state.nextRoundDate = action.payload?.nextRoundDate;
       state.contributors = action.payload?.contributors || [];
       state.roundsActivated = action.payload?.roundsActivated;

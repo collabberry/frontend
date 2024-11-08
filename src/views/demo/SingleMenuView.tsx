@@ -17,8 +17,8 @@ const SingleMenuView = () => {
     id: "66fd82230be1e66a5bfe5478",
     name: "The Moth Umbrella Corp",
     par: 20,
-    cycle: 3,
-    startDate: "2024-10-04T00:00:00.000Z",
+    compensationPeriod: 3,
+    compensationStartDay: "2024-10-04T00:00:00.000Z",
   };
 
   const registerOrganization = async () => {

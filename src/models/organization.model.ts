@@ -21,8 +21,10 @@ export interface Organization {
     agreement?: Agreement;
     par?: number;
     logo?: string;
-    cycle?: number;
-    startDate?: string;
+    compensationPeriod?: number;
+    compensationStartDay?: string;
+    assessmentStartDelayInDays?: number;
+    assessmentDurationInDays?: number;
     nextRoundDate?: string;
     contributors?: Contributor[];
 }

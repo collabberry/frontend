@@ -19,6 +19,7 @@ import {
   setRounds,
   resetRoundsState,
   setAllRounds,
+  saveInvitationToken,
 } from "@/store";
 import appConfig from "@/configs/app.config";
 import { REDIRECT_URL_KEY } from "@/constants/app.constant";
@@ -41,11 +42,11 @@ function useAuth() {
   const { disconnectAsync } = useDisconnect();
   const { isDisconnected } = useAccount();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { token, signedIn, invitationToken: savedInvinationToken } = useAppSelector((state) => state.auth.session);
 
   const invitationToken = useMemo(() => {
-    return searchParams.get("invitationToken");
-  }, [searchParams.get("invitationToken")]);
-  const { token, signedIn } = useAppSelector((state) => state.auth.session);
+    return searchParams.get("invitationToken") || savedInvinationToken;
+  }, [searchParams.get("invitationToken"), savedInvinationToken]);
 
   const signInWithWallet = async (
     token: string
@@ -188,6 +189,8 @@ function useAuth() {
       setSearchParams({ invitationToken: "" });
       navigate(appConfig.unAuthenticatedEntryPath);
     }
+
+    dispatch(saveInvitationToken(""));
   };
 
   useEffect(() => {
@@ -196,14 +199,18 @@ function useAuth() {
     }
   }, [isDisconnected, invitationToken]);
 
+  useEffect(() => {
+    if (token && signedIn && invitationToken) {
+      dispatch(saveInvitationToken(invitationToken));
+    }
+  }, [token, signedIn, invitationToken]);
+
   const signOut = async () => {
     await disconnectAsync();
     handleSignOut();
   };
 
   return {
-    authenticated: token && signedIn,
-    walletConnected: token,
     signInWithWallet,
     signOut,
     getOrganizationData,

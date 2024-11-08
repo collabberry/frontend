@@ -25,6 +25,7 @@ function BerryRating({ field, value, setFieldValue }: RatingReviewProps) {
             className="start"
             style={{
               cursor: "pointer",
+              scale: star === 3 ? "1" : "0.5",
               opacity: value >= star ? "1" : "0.2",
               filter: value >= star ? "grayscale(0%)" : "grayscale(100%)",
               fontSize: `35px`,

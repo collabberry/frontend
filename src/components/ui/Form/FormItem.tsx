@@ -6,11 +6,14 @@ import { useConfig } from '../ConfigProvider'
 import { CONTROL_SIZES, LAYOUT } from '../utils/constants'
 import type { CommonProps, TypeAttributes } from '../@types/common'
 import type { ReactNode } from 'react'
+import Tooltip from '../Tooltip'
+import { HiOutlineQuestionMarkCircle } from 'react-icons/hi'
 
 export interface FormItemProps extends CommonProps {
     asterisk?: boolean
     errorMessage?: string
     extra?: string | ReactNode
+    extraTooltip?: string 
     htmlFor?: string
     invalid?: boolean | ''
     label?: string
@@ -35,6 +38,7 @@ const FormItem = forwardRef<HTMLDivElement, FormItemProps>((props, ref) => {
         layout,
         style,
         size,
+        extraTooltip,
     } = props
 
     const formContext = useForm()
@@ -93,44 +97,49 @@ const FormItem = forwardRef<HTMLDivElement, FormItemProps>((props, ref) => {
     const initialStyle = exitStyle
 
     return (
-        <div ref={ref} className={formItemClass}>
-            <label
-                htmlFor={htmlFor}
-                className={formLabelClass}
-                style={formLabelStyle()}
-            >
-                {asterisk && (
-                    <span className="text-red-500 ltr:mr-1 rtl:ml-1">*</span>
-                )}
-                {label}
-             
-                {label && formItemLayout !== 'vertical' && ':'}
-            </label>
-            {extra && <span className='mb-1'>{extra}</span>}
-            <div
-                className={
-                    formItemLayout === LAYOUT.HORIZONTAL
-                        ? 'w-full flex flex-col justify-center relative'
-                        : ''
-                }
-            >
-                {children}
-                <AnimatePresence mode="wait">
-                    {invalid && (
-                        <motion.div
-                            className="form-explain"
-                            initial={initialStyle}
-                            animate={enterStyle}
-                            exit={exitStyle}
-                            transition={{ duration: 0.15, type: 'tween' }}
-                        >
-                            {errorMessage}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
+      <div ref={ref} className={formItemClass}>
+        <label
+          htmlFor={htmlFor}
+          className={formLabelClass}
+          style={formLabelStyle()}
+        >
+          {asterisk && (
+            <span className="text-red-500 ltr:mr-1 rtl:ml-1">*</span>
+          )}
+          {label}
+          {extraTooltip && (
+            <Tooltip title={extraTooltip}>
+              <HiOutlineQuestionMarkCircle className="text-lg cursor-pointer ml-1 text-berrylavender-400" />
+            </Tooltip>
+          )}
+
+          {label && formItemLayout !== "vertical" && ":"}
+        </label>
+        {extra && <span className="mb-1">{extra}</span>}
+        <div
+          className={
+            formItemLayout === LAYOUT.HORIZONTAL
+              ? "w-full flex flex-col justify-center relative"
+              : ""
+          }
+        >
+          {children}
+          <AnimatePresence mode="wait">
+            {invalid && (
+              <motion.div
+                className="form-explain"
+                initial={initialStyle}
+                animate={enterStyle}
+                exit={exitStyle}
+                transition={{ duration: 0.15, type: "tween" }}
+              >
+                {errorMessage}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-    )
+      </div>
+    );
 })
 
 FormItem.displayName = 'FormItem'

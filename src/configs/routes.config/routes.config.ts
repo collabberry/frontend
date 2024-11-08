@@ -2,8 +2,11 @@ import { lazy } from "react";
 import authRoute from "./authRoute";
 import type { Routes } from "@/@types/routes";
 import { relative } from "path";
+import inviteRoute from "./inviteRoute";
 
 export const publicRoutes: Routes = [...authRoute];
+
+export const inviteRoutes: Routes = [...inviteRoute];
 
 export const protectedRoutes = [
   {
@@ -62,3 +65,4 @@ export const protectedRoutes = [
     authority: [],
   },
 ];
+
