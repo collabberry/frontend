@@ -26,6 +26,7 @@ import { FiCheckCircle } from "react-icons/fi";
 import { FiDollarSign } from "react-icons/fi";
 import {
   handleError,
+  handleSuccess,
   openToastNotification,
 } from "@/components/collabberry/helpers/ToastNotifications";
 import { Dialog } from "@/components/ui";
@@ -73,10 +74,13 @@ const Dashboard = () => {
 
   const assessmentCardAction = () => {
     //TODO: Implement assessment functionality
-    openToastNotification({
-      message: "All members have been reminded!",
-      type: "success",
-    });
+    // openToastNotification({
+    //   message: "All members have been reminded!",
+    //   type: "success",
+
+    // });
+
+    handleSuccess("All members have been reminded!");
   };
 
   const numberOfContributors = useMemo(() => {
@@ -100,7 +104,7 @@ const Dashboard = () => {
   const runway = 7;
 
   const numberOfContributorsWithAssessments = useMemo(() => {
-    return 3; // Hardcoded value for now
+    return 0; // Hardcoded value for now
   }, []);
 
   return (
@@ -138,7 +142,12 @@ const Dashboard = () => {
               HeaderIcon={
                 <FiSettings style={{ height: "100%", width: "100%" }} />
               }
-              cardContent={<>Set up your organisation’s compensation cycle</>}
+              cardContent={
+                <>
+                  Set up your organisation’s compensation and assessment
+                  information
+                </>
+              }
             />
             <InfoCard
               footerAction={inviteCardAction}

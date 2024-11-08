@@ -5,9 +5,11 @@ import { Button, FormContainer, FormItem, Input, toast } from "@/components/ui";
 import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
 import {
   apiEditOrganization,
+  apiGetCurrentRound,
   apiGetOrganizationById,
+  apiGetRounds,
 } from "@/services/OrgService";
-import { OrgState, setOrganization } from "@/store";
+import { OrgState, setAllRounds, setOrganization, setRounds } from "@/store";
 import { useDispatch } from "react-redux";
 import {
   handleError,
@@ -51,7 +53,7 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
       const body = {
         ...restOrganization,
         ...values,
-        startDate: initialData.startDate || dateString || undefined,
+        compensationStartDay: initialData.compensationStartDay || dateString || undefined,
       };
       try {
         const response = await apiEditOrganization(body);
@@ -66,6 +68,21 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
             handleError(error.response.data.message);
             onSubmit();
           }
+          
+          // try {
+          //   const allRoundsResponse = await apiGetRounds();
+          //   if (allRoundsResponse.data) {
+          //     dispatch(setAllRounds(allRoundsResponse.data));
+          //   }
+          // } catch (error: any) {}
+
+          // try {
+          //   const roundResponse = await apiGetCurrentRound();
+          //   if (roundResponse.data) {
+          //     dispatch(setRounds(roundResponse.data));
+          //   }
+          // } catch (error: any) {}
+          
         }
 
         handleSuccess("You have successfully edited your community");

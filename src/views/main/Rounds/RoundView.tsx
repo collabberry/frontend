@@ -1,9 +1,11 @@
 import { CustomCountdown } from "@/components/collabberry/custom-components/CustomCountdown";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
+import { handleSuccess } from "@/components/collabberry/helpers/ToastNotifications";
 import { Avatar, Button } from "@/components/ui";
 import { RootState } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
+import { set } from "lodash";
 import React from "react";
 import Countdown from "react-countdown";
 import { FiClock } from "react-icons/fi";
@@ -17,9 +19,34 @@ const RoundView: React.FC = () => {
   const { selectedRound } = useSelector(
     (state: RootState) => state.auth.rounds
   );
+  const [contributors, setContributors] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    if (organization?.contributors) {
+      const contributorsWithReminder = organization.contributors.map(
+        (contributor) => ({
+          ...contributor,
+          reminded: false,
+          loading: false,
+        })
+      );
+      setContributors(contributorsWithReminder);
+    }
+  }, []);
 
   const remind = (contributor: any) => {
     // TODO: Implement reminder functionality
+    const loadingContributors = contributors.map((c) =>
+      c.id === contributor?.id ? { ...c, loading: true } : c
+    );
+    setContributors(loadingContributors);
+    const updatedContributors = contributors.map((c) =>
+      c.id === contributor?.id ? { ...c, reminded: true } : c
+    );
+    setTimeout(() => {
+      setContributors(updatedContributors);
+      handleSuccess(`Reminder sent to ${contributor.username}!`);
+    }, 1000);
   };
 
   const roundId = 1;
@@ -105,16 +132,17 @@ const RoundView: React.FC = () => {
       id: "assessment",
       cell: (props) => {
         const contributor = props.row.original;
-        const hasSubmittedAssessment = false;
+        const reminded = contributor.reminded;
+        
         return (
           <div>
-            {hasSubmittedAssessment ? (
-              <HiCheck className="text-berrylavender-500" />
+            {reminded ? (
+              <HiCheck className="text-berrylavender-500 text-2xl font-semibold" />
             ) : (
               <Button
                 size="sm"
-                variant="plain"
-                color="primary"
+                loading={contributor.loading}
+                disabled={contributor.loading}
                 onClick={() => remind(contributor)}
               >
                 Remind
@@ -143,7 +171,7 @@ const RoundView: React.FC = () => {
           </div>
           <div className="mt-4">
             <CustomTableWithSorting
-              data={organization?.contributors || []}
+              data={contributors || []}
               columns={columns}
             />
           </div>

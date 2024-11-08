@@ -47,8 +47,8 @@ const Assess = () => {
         acc[member.id] = Yup.object().shape({
           cultureScore: Yup.number().required("Rating is required"),
           workScore: Yup.number().required("Rating is required"),
-          feedbackPositive: Yup.string().required("Feedback is required"),
-          feedbackNegative: Yup.string().required("Feedback is required"),
+          feedbackPositive: Yup.string(),
+          feedbackNegative: Yup.string(),
         });
         return acc;
       },
@@ -114,7 +114,7 @@ const Assess = () => {
       const { data } = response;
       if (data && organization.id) {
         try {
-          const roundResponse = await apiGetCurrentRound(organization.id || "");
+          const roundResponse = await apiGetCurrentRound();
           if (roundResponse.data) {
             dispatch(setRounds(roundResponse.data));
           }
@@ -169,13 +169,15 @@ const Assess = () => {
     <>
       {reviewedMembers.length === teamMembers.length ? (
         <div className="flex justify-center items-center flex-col mt-4">
-            <div className="text-center text-lg font-bold max-w-[600px]">
+          <div className="text-center text-lg font-bold max-w-[600px]">
             Great job! You have submitted assessments for all the selected team
             members. If you want to select more team members, you can go back to
             the assessment panel.
-            </div>
+          </div>
           <div className="mt-4">
-            <Button onClick={() => navigate("/dashboard")}>Go to Dashboard</Button>
+            <Button onClick={() => navigate("/dashboard")}>
+              Go to Dashboard
+            </Button>
             <Button onClick={() => navigate("/assessment")} className="ml-2">
               Go to Assessment Panel
             </Button>
@@ -185,11 +187,12 @@ const Assess = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-row gap-4 w-full">
           <CustomSteps
             current={teamMemberIndex}
+            vertical
             onChange={(index) => onStepChange(index)}
-            className="mt-4 mb-4"
+            className="justify-start mr-4"
           >
             {teamMembers.map((member, index) => (
               <CustomSteps.StepItemWithAvatar

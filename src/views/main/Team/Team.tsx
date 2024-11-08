@@ -205,6 +205,7 @@ const Team: React.FC = () => {
         <Dialog
           isOpen={isAgreementDialogOpen}
           onClose={handleAgreementDialogClose}
+          width={600}
         >
           <AddAgreementForm
             contributor={selectedContributor}

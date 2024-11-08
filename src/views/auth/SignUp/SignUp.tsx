@@ -36,37 +36,37 @@ import {
 import CustomRangeSlider from "@/components/collabberry/custom-components/CustomFields/CustomRangeSlider";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { fieldRequired } from "@/components/collabberry/helpers/validations";
+import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
+import { HiOutlineQuestionMarkCircle } from "react-icons/hi";
 
 const ValidationStepsSchema = Yup.object().shape({
   step1: Yup.object().shape({
     username: Yup.string()
-      .min(3, "Username must be at least 3 characters")
-      .required("Name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    image: Yup.mixed().required("Image is required"),
+      .min(3, "Username must be at least 3 characters.")
+      .required(fieldRequired),
+    email: Yup.string().email("Invalid e-mail.").required(fieldRequired),
+    image: Yup.mixed().required("Image is required."),
   }),
   step2: Yup.object().shape({
-    logo: Yup.mixed().required("Logo is required"),
+    logo: Yup.mixed().required(fieldRequired),
     name: Yup.string()
-      .min(3, "Name must be at least 3 characters")
-      .required("Organization Name is required"),
+      .min(3, "Name must be at least 3 characters.")
+      .required(fieldRequired),
   }),
   step3: Yup.object().shape({
-    roleName: Yup.string().required("Role is required"),
-    responsibilities: Yup.string().required("Responsibilities are required"),
-    marketRate: Yup.number().required("Market rate is required"),
+    roleName: Yup.string().required(fieldRequired),
+    responsibilities: Yup.string().required(fieldRequired),
+    marketRate: Yup.number().required(fieldRequired),
     commitment: Yup.number()
-      .min(10, "Commitment must be at least 10")
-      .required("Commitment is required"),
+      .min(1, "Commitment must be at least 1%")
+      .required(fieldRequired),
     fiatRequested: Yup.number()
-      .required("Monetary compensation is required")
-      .max(
-        Yup.ref("marketRate"),
-        "Monetary compensation cannot be higher than the market rate"
-      )
+      .required(fieldRequired)
+      .max(Yup.ref("marketRate"), "Cannot be higher than the market rate.")
       .test(
         "is-less-than-market-rate-commitment",
-        "Monetary compensation cannot be higher than total compensation",
+        "Cannot be higher than total compensation",
         function (value) {
           const { marketRate, commitment } = this.parent;
           return (
@@ -143,14 +143,15 @@ const SignUp = () => {
               })
             );
           }
-        } catch (error) {
-          console.error("Error getting user:", error);
+        } catch (error: any) {
+          handleError(error.response.data.message);
         }
       }
       formik.setSubmitting(false);
-    } catch (error) {
-      console.error("Error registering account:", error);
+    } catch (error: any) {
+      handleError(error.response.data.message);
       formik.setSubmitting(false);
+      return false;
     }
     await formik.validateForm();
     return isStepValid;
@@ -176,8 +177,10 @@ const SignUp = () => {
                 name: org.data.name,
                 id: org.data.id,
                 par: org.data.par,
-                cycle: org.data.cycle,
-                startDate: org.data.startDate,
+                compensationPeriod: org.data.compensationPeriod,
+                compensationStartDay: org.data.compensationStartDay,
+                assessmentDurationInDays: org.data.assessmentDurationInDays,
+                assessmentStartDelayInDays: org.data.assessmentStartDelayInDays,
                 contributors: org.data.contributors,
               })
             );
@@ -212,9 +215,10 @@ const SignUp = () => {
           logo: true,
         },
       });
-    } catch (error) {
-      console.error("Error creating organization:", error);
+    } catch (error: any) {
+      handleError(error.response.data.message);
       formik.setSubmitting(false);
+      return false;
     }
     await formik.validateForm();
     return isStepValid;
@@ -266,8 +270,12 @@ const SignUp = () => {
                         name: org.data.name,
                         id: org.data.id,
                         par: org.data.par,
-                        cycle: org.data.cycle,
-                        startDate: org.data.startDate,
+                        compensationPeriod: org.data.compensationPeriod,
+                        compensationStartDay: org.data.compensationStartDay,
+                        assessmentDurationInDays:
+                          org.data.assessmentDurationInDays,
+                        assessmentStartDelayInDays:
+                          org.data.assessmentStartDelayInDays,
                         contributors: org.data.contributors,
                         roundsActivated: org.data.roundsActivated,
                       })
@@ -340,14 +348,29 @@ const SignUp = () => {
               Create Your Profile
             </h2>
 
-            <FormItem label="Profile Picture">
+            <FormItem
+              label="Profile Picture"
+              asterisk
+              errorMessage={formik.errors?.step1?.image}
+              invalid={
+                formik.touched?.step1?.image && !!formik.errors?.step1?.image
+              }
+            >
               <AvatarImage
                 setFieldValue={formik.setFieldValue}
                 field="step1.image"
                 value={formik.values.step1.image}
               />
             </FormItem>
-            <FormItem label="Name">
+            <FormItem
+              label="Name"
+              asterisk
+              invalid={
+                formik.touched?.step1?.username &&
+                !!formik.errors?.step1?.username
+              }
+              errorMessage={formik.errors?.step1?.username}
+            >
               <Input
                 name="step1.username"
                 onChange={formik.handleChange}
@@ -355,7 +378,14 @@ const SignUp = () => {
                 value={formik.values.step1.username}
               />
             </FormItem>
-            <FormItem label="Email">
+            <FormItem
+              label="Email"
+              asterisk
+              invalid={
+                formik.touched?.step1?.email && !!formik.errors?.step1?.email
+              }
+              errorMessage={formik.errors?.step1?.email}
+            >
               <Input
                 name="step1.email"
                 onChange={formik.handleChange}
@@ -371,14 +401,28 @@ const SignUp = () => {
             <h2 className="text-2xl font-bold mb-4 mt-4">
               Create New Organization
             </h2>
-            <FormItem label="Image">
+            <FormItem
+              label="Image"
+              asterisk
+              invalid={
+                formik.touched?.step2?.logo && !!formik.errors?.step2?.logo
+              }
+              errorMessage={formik.errors?.step2?.logo}
+            >
               <AvatarImage
                 setFieldValue={formik.setFieldValue}
                 field="step2.logo"
                 value={formik.values.step2.logo}
               />
             </FormItem>
-            <FormItem label="Name">
+            <FormItem
+              label="Name"
+              asterisk
+              invalid={
+                formik.touched?.step2?.name && !!formik.errors?.step2?.name
+              }
+              errorMessage={formik.errors?.step2?.name}
+            >
               <Input
                 name="step2.name"
                 onChange={formik.handleChange}
@@ -390,11 +434,19 @@ const SignUp = () => {
         );
       case 2:
         return (
-          <FormContainer className="max-h-[400px] overflow-y-auto">
+          <FormContainer className="max-h-[500px] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4 mt-4">
               Your Agreement with the Organization
             </h2>
-            <FormItem label="Role">
+            <FormItem
+              label="Role"
+              asterisk
+              invalid={
+                formik.touched?.step3?.roleName &&
+                !!formik.errors?.step3?.roleName
+              }
+              errorMessage={formik.errors?.step3?.roleName}
+            >
               <Input
                 name="step3.roleName"
                 onChange={formik.handleChange}
@@ -403,11 +455,19 @@ const SignUp = () => {
               />
             </FormItem>
 
-            <FormItem label="Responsibilities">
+            <FormItem
+              label="Responsibilities"
+              asterisk
+              invalid={
+                formik.touched?.step3?.responsibilities &&
+                !!formik.errors?.step3?.responsibilities
+              }
+              errorMessage={formik.errors?.step3?.responsibilities}
+            >
               <Input
                 name="step3.responsibilities"
                 textArea
-                rows={5}
+                rows={3}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.step3.responsibilities}
@@ -416,6 +476,12 @@ const SignUp = () => {
             <FormItem
               label="Commitment"
               extra="How much of your time and energy can you provide?"
+              asterisk
+              invalid={
+                formik.touched?.step3?.commitment &&
+                !!formik.errors?.step3?.commitment
+              }
+              errorMessage={formik.errors?.step3?.commitment}
             >
               <CustomRangeSlider
                 field="step3.commitment"
@@ -446,17 +512,35 @@ const SignUp = () => {
                   </div>
                 }
               >
-                <div className="ml-2 relative group">
-                  <FcInfo className="cursor-pointer" />
+                <div className="relative group text-berrylavender-400">
+                  <HiOutlineQuestionMarkCircle className="text-lg cursor-pointer ml-1" />{" "}
                 </div>
               </Tooltip>
             </div>
+            <div className="mb-4 flex-row flex justify-start items-center bg-berrylavender-100 dark:bg-berrylavender-700 gap-1 p-2 rounded-lg">
+          <div className="text-berrylavender-700 dark:text-white font-semibold">
+            {formik.values.step3?.commitment &&!formik.errors.step3?.commitment &&
+            formik.values.step3?.marketRate &&
+            !formik.errors.step3?.marketRate
+              ? `Based on the commitment and market rate, the total compensation is $${(
+                  formik.values.step3?.marketRate *
+                  (formik.values.step3.commitment / 100)
+                ).toFixed(0)}.`
+              : "Please input commitment and market rate to calculate the total compensation."}
+          </div>
+        </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormItem
                 label="Market Rate"
                 extra={
-                  "Represents the full-time gross salary you would typically receive"
+                  "Represents the full-time gross salary you would typically receive in a month."
                 }
+                asterisk
+                invalid={
+                  formik.touched?.step3?.marketRate &&
+                  !!formik.errors?.step3?.marketRate
+                }
+                errorMessage={formik.errors?.step3?.marketRate}
               >
                 <Input
                   name="step3.marketRate"
@@ -469,7 +553,13 @@ const SignUp = () => {
               </FormItem>
               <FormItem
                 label="Monetary Compensation"
-                extra={"The monetary compensation you request per round"}
+                extra={"The monetary compensation you request per month."}
+                asterisk
+                invalid={
+                  formik.touched?.step3?.fiatRequested &&
+                  !!formik.errors?.step3?.fiatRequested
+                }
+                errorMessage={formik.errors?.step3?.fiatRequested}
               >
                 <Input
                   name="step3.fiatRequested"
@@ -482,7 +572,7 @@ const SignUp = () => {
               </FormItem>
             </div>
 
-            {formik.values.step3.commitment > 10 &&
+            {/* {formik.values.step3.commitment > 10 &&
               formik.values.step3.marketRate &&
               formik.values.step3.fiatRequested && (
                 <div className="mt-4 p-4 bg-gray-100 rounded">
@@ -519,7 +609,7 @@ const SignUp = () => {
                     to be compensated in points/tokens.
                   </p>
                 </div>
-              )}
+              )} */}
           </FormContainer>
         );
       default:

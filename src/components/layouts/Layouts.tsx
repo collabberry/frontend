@@ -24,19 +24,19 @@ const layouts = {
 
 const Layout = () => {
   const layoutType = useAppSelector((state) => state.theme.layout.type);
-
-  const { authenticated } = useAuth();
+  const { token, signedIn } = useAppSelector((state) => state.auth.session);
+  const isAuthenticated = useMemo(() => signedIn && token, [signedIn, token]);
 
   useDirection();
 
   useLocale();
 
   const AppLayout = useMemo(() => {
-    if (authenticated) {
+    if (isAuthenticated) {
       return layouts[layoutType];
     }
     return lazy(() => import("./AuthLayout"));
-  }, [layoutType, authenticated]);
+  }, [layoutType, isAuthenticated]);
 
   return (
     <Suspense

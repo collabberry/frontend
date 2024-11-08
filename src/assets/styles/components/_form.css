@@ -27,7 +27,7 @@
 }
 
 .form-explain {
-  @apply text-red-500 absolute;
+  @apply text-red-500 text-xs absolute;
 }
 
 .form-container {

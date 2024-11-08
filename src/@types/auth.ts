@@ -36,8 +36,10 @@ export type RegisterCredential = {
 export type OrganizationData = {
   id?: string;
   par?: number;
-  startDate?: string;
-  cycle?: number;
+  compensationStartDay?: string;
+  assessmentStartDelayInDays?: number;
+  assessmentDurationInDays?: number
+  compensationPeriod?: number;
   name: string;
   logo?: string;
 };

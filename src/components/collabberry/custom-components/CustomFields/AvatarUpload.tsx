@@ -34,7 +34,8 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ setFieldValue, field, value
     const beforeUpload = (files: FileList | null) => {
         let valid: string | boolean = true;
 
-        const allowedFileType = ['image/jpeg', 'image/png'];
+
+        const allowedFileType = ['image/jpeg', 'image/png', 'image/jpg'];
         if (files) {
             for (const file of files) {
                 if (!allowedFileType.includes(file.type)) {
@@ -51,7 +52,7 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ setFieldValue, field, value
             <Upload
                 className="cursor-pointer"
                 showList={false}
-                accept=".jpeg,.png"
+                accept=".jpeg,.png,.jpg"
                 uploadLimit={1}
                 beforeUpload={beforeUpload}
                 onChange={onFileUpload}

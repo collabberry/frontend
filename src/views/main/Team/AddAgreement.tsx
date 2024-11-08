@@ -2,6 +2,7 @@ import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
+  Alert,
   Button,
   FormContainer,
   FormItem,
@@ -27,23 +28,25 @@ import { on } from "events";
 import { Contributor } from "@/models/Organization.model";
 import CustomRangeSlider from "@/components/collabberry/custom-components/CustomFields/CustomRangeSlider";
 import { FcInfo } from "react-icons/fc";
+import {
+  HiInformationCircle,
+  HiOutlineQuestionMarkCircle,
+} from "react-icons/hi";
+import { fieldRequired } from "@/components/collabberry/helpers/validations";
 
 const validationSchema = Yup.object().shape({
-  roleName: Yup.string().required("Role is required"),
-  responsibilities: Yup.string().required("Responsibilities are required"),
-  marketRate: Yup.number().required("Market rate is required"),
+  roleName: Yup.string().required(fieldRequired),
+  responsibilities: Yup.string().required(fieldRequired),
+  marketRate: Yup.number().required(fieldRequired),
   commitment: Yup.number()
-    .min(10, "Commitment must be at least 10")
-    .required("Commitment is required"),
+    .min(1, "Commitment must be at least 1%")
+    .required(fieldRequired),
   fiatRequested: Yup.number()
-    .required("Monetary compensation is required")
-    .max(
-      Yup.ref("marketRate"),
-      "Monetary compensation cannot be higher than the market rate"
-    )
+    .required(fieldRequired)
+    .max(Yup.ref("marketRate"), "Cannot be higher than the market rate.")
     .test(
       "is-less-than-market-rate-commitment",
-      "Monetary compensation cannot be higher than total compensation",
+      "Cannot be higher than total compensation",
       function (value) {
         const { marketRate, commitment } = this.parent;
         return (
@@ -70,9 +73,9 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
     initialValues: {
       roleName: "",
       responsibilities: "",
-      marketRate: 0,
-      commitment: 0,
-      fiatRequested: 0,
+      marketRate: null,
+      commitment: 50,
+      fiatRequested: null,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -121,30 +124,56 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
 
   return (
     <>
-      <FormContainer className="h-full overflow-y-auto">
+      <FormContainer
+        className="h-90 max-h-[750px] overflow-y-auto"
+        style={{ height: "100vh" }}
+      >
         <h2 className="text-2xl font-bold mb-4 mt-4">
           Add Agreement for {contributor.username}
         </h2>
-        <FormItem label="Role">
+        <FormItem
+          label="Role"
+          asterisk
+          invalid={!!formik.errors.roleName && formik.touched.roleName}
+          errorMessage={formik.errors.roleName}
+        >
           <Input
             name="roleName"
             onChange={formik.handleChange}
+            invalid={!!formik.errors.roleName && formik.touched.roleName}
             onBlur={formik.handleBlur}
             value={formik.values.roleName}
           />
         </FormItem>
 
-        <FormItem label="Responsibilities">
+        <FormItem
+          label="Responsibilities"
+          asterisk
+          invalid={
+            !!formik.errors.responsibilities && formik.touched.responsibilities
+          }
+          errorMessage={formik.errors.responsibilities}
+        >
           <Input
             name="responsibilities"
+            invalid={
+              !!formik.errors.responsibilities &&
+              formik.touched.responsibilities
+            }
             textArea
-            rows={5}
+            rows={3}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.responsibilities}
           />
         </FormItem>
-        <FormItem label="Commitment">
+        <FormItem
+          label="Commitment"
+          asterisk
+          invalid={!!formik.errors.commitment && formik.touched.commitment}
+          errorMessage={formik.errors.commitment}
+
+        >
           <CustomRangeSlider
             field="commitment"
             setFieldValue={formik.setFieldValue}
@@ -173,30 +202,59 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
               </div>
             }
           >
-            <div className="ml-2 relative group">
-              <FcInfo className="cursor-pointer" />
+            <div className="relative group text-berrylavender-400">
+              <HiOutlineQuestionMarkCircle className="text-lg cursor-pointer ml-1" />{" "}
             </div>
           </Tooltip>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormItem label="Market Rate">
+        <div className="mb-4 flex-row flex justify-start items-center bg-berrylavender-100 dark:bg-berrylavender-700 gap-1 p-2 rounded-lg">
+          <div className="text-berrylavender-700 dark:text-white font-semibold">
+            {formik.values.commitment &&
+            !formik.errors.commitment &&
+            formik.values.marketRate &&
+            !formik.errors.marketRate
+              ? `Based on the commitment and market rate, the total compensation is $${(
+                  formik.values.marketRate *
+                  (formik.values.commitment / 100)
+                ).toFixed(0)}.`
+              : "Please input commitment and market rate to calculate the total compensation."}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormItem
+            asterisk
+            label="Market Rate (per month)"
+            invalid={!!formik.errors.marketRate && formik.touched.marketRate}
+            errorMessage={formik.errors.marketRate}
+          >
             <Input
               name="marketRate"
               type="number"
               prefix="$"
+              invalid={!!formik.errors.marketRate && formik.touched.marketRate}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.marketRate || ""}
+              value={formik.values.marketRate || undefined}
             />
           </FormItem>
-          <FormItem label="Monetary Compensation">
+          <FormItem
+            label="Monetary Compensation (per month)"
+            asterisk
+            invalid={
+              !!formik.errors.fiatRequested && formik.touched.fiatRequested
+            }
+            errorMessage={formik.errors.fiatRequested }
+          >
             <Input
               name="fiatRequested"
               type="number"
+              invalid={
+                !!formik.errors.fiatRequested && formik.touched.fiatRequested
+              }
               prefix="$"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.fiatRequested || ""}
+              value={formik.values.fiatRequested || undefined}
             />
           </FormItem>
         </div>
@@ -239,10 +297,7 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
           )} */}
       </FormContainer>
       <div className="flex justify-end mt-4 gap-4">
-        <Button
-          type="button"
-          onClick={() => handleClose()}
-        >
+        <Button type="button" onClick={() => handleClose()}>
           Cancel
         </Button>
         <Button

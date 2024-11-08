@@ -5,12 +5,14 @@ export interface SessionState {
   status: "authenticated" | "unauthenticated";
   signedIn: boolean;
   token: string | null;
+  invitationToken?: string;
 }
 
 const initialState: SessionState = {
   status: "unauthenticated",
   signedIn: false,
   token: null,
+  invitationToken: "",
 };
 
 const sessionSlice = createSlice({
@@ -35,9 +37,17 @@ const sessionSlice = createSlice({
       state.signedIn = false;
       state.token = null;
     },
+    saveInvitationToken(state, action: PayloadAction<string>) {
+      state.invitationToken = action.payload;
+    },
   },
 });
 
-export const { signInSuccess, signOutSuccess, walletConnected, signUpSuccess} =
-  sessionSlice.actions;
+export const {
+  signInSuccess,
+  signOutSuccess,
+  walletConnected,
+  signUpSuccess,
+  saveInvitationToken,
+} = sessionSlice.actions;
 export default sessionSlice.reducer;
