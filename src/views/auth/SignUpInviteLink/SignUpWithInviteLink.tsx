@@ -14,7 +14,7 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
 import { RegisterCredential } from "@/@types/auth";
-import { setOrganization, setRounds, setUser, signUpSuccess } from "@/store";
+import { setAllRounds, setOrganization, setRounds, setUser, signUpSuccess } from "@/store";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -25,7 +25,9 @@ import appConfig from "@/configs/app.config";
 import {
   apiGetCurrentRound,
   apiGetOrganizationById,
+  apiGetRounds,
 } from "@/services/OrgService";
+import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 
 const ValidationStepsSchema = Yup.object().shape({
   username: Yup.string()
@@ -84,20 +86,23 @@ const SignUpWithInviteLink = () => {
                       logo: orgResponse.data.logo,
                     })
                   );
-                } catch (error) {
-                  console.error("Error fetching organization data:", error);
+                } catch (error: any) {
+                  handleError(error.response.data.message);
                 }
 
                 try {
-                  const roundResponse = await apiGetCurrentRound(
-                    user.organization.id
-                  );
+                  const allRoundsResponse = await apiGetRounds();
+                  if (allRoundsResponse.data) {
+                    dispatch(setAllRounds(allRoundsResponse.data));
+                  }
+                } catch (error: any) {}
+
+                try {
+                  const roundResponse = await apiGetCurrentRound();
                   if (roundResponse.data) {
                     dispatch(setRounds(roundResponse.data));
                   }
-                } catch (error) {
-                  console.error("Error fetching round data:", error);
-                }
+                } catch (error) {}
               }
               dispatch(
                 setUser({

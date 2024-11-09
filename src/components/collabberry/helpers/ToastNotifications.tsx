@@ -39,6 +39,15 @@ export const handleError = (message: any, placement = "top-center") => {
   });
 };
 
+export const handleInfo = (message: any, placement = "top-center") => {
+  openToastNotification({
+    message,
+    type: "info",
+    title: "Info",
+    placement: placement as NotificationPlacement,
+  });
+};
+
 export const handleSuccess = (message: any, placement = "top-center") => {
   openToastNotification({
     message,

@@ -30,17 +30,19 @@ export async function apiGetCurrentRound() {
   });
 }
 
-export async function apiGetAllRounds() {
+export async function apiGetRounds() {
   return ApiService.fetchData<any>({
     url: `/rounds`,
     method: "get",
   });
 }
 
-export async function apiGetRounds() {
+
+export async function apiRemindContributors(roundId: string, data: any) {
   return ApiService.fetchData<any>({
-    url: `/rounds`,
-    method: "get",
+    url: `/rounds/${roundId}/assessments/remind`,
+    method: "post",
+    data
   });
 }
 
@@ -89,6 +91,7 @@ export async function apiEditOrganization(data: OrganizationData) {
   Object.keys(data).forEach((key) => {
     formData.append(key, (data as any)[key]);
   });
+  
 
   return ApiService.fetchData<any>({
     url: "/orgs",

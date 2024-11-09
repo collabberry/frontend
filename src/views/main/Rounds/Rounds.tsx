@@ -6,9 +6,9 @@ import { Alert, Button, Switcher } from "@/components/ui";
 import {
   apiActivateRounds,
   apiAddAssessment,
-  apiGetAllRounds,
   apiGetCurrentRound,
   apiGetOrganizationById,
+  apiGetRounds,
 } from "@/services/OrgService";
 import {
   RootState,
@@ -21,6 +21,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { all } from "axios";
 import { set } from "lodash";
 import React, { useMemo } from "react";
+import { FiRefreshCw } from "react-icons/fi";
 import { HiInformationCircle } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +36,8 @@ const Rounds: React.FC = () => {
     (state: RootState) => state.auth.rounds
   );
 
+  console.log("allRounds", allRounds);
+
   // React.useEffect(() => {
   //   const initializeRounds = async () => {
   //     await fetchAllRounds();
@@ -47,7 +50,7 @@ const Rounds: React.FC = () => {
   const fetchAllRounds = async () => {
     setLoading(true);
     try {
-      const allRoundsResponse = await apiGetAllRounds();
+      const allRoundsResponse = await apiGetRounds();
       if (allRoundsResponse?.data) {
         dispatch(setAllRounds(allRoundsResponse.data));
       }
@@ -80,6 +83,25 @@ const Rounds: React.FC = () => {
     return round?.id === currentRound?.id;
   };
 
+  const handleReload = async () => {
+    try {
+      const allRoundsResponse = await apiGetRounds();
+      if (allRoundsResponse.data) {
+        dispatch(setAllRounds(allRoundsResponse.data));
+      }
+    } catch (error: any) {
+      handleError(error.response.data.message);
+    }
+
+    try {
+      const roundResponse = await apiGetCurrentRound();
+      if (roundResponse.data) {
+        dispatch(setRounds(roundResponse.data));
+      }
+    } catch (error: any) {
+      handleError(error.response.data.message);
+    }
+  };
   // const handleRoundActivation = async (event: boolean) => {
   //   setLoading(true);
   //   try {
@@ -216,7 +238,16 @@ const Rounds: React.FC = () => {
 
   return (
     <div>
-      <h1>Rounds</h1>
+      <div className="flex flex-row gap-2 items-center">
+        <h1>Rounds</h1>
+        <Button
+          shape="circle"
+          size="xs"
+          variant="twoTone"
+          icon={<FiRefreshCw />}
+          onClick={handleReload}
+        />
+      </div>
 
       <div className="mt-4">
         {allRounds.length ? (
