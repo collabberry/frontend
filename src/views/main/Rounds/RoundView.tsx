@@ -16,7 +16,7 @@ const RoundView: React.FC = () => {
   const dispatch = useDispatch();
   // TODO: Change the source of contributors once round BE is ready, it should not be organization
   const organization = useSelector((state: RootState) => state.auth.org);
-  const { selectedRound } = useSelector(
+  const { selectedRound, currentRound } = useSelector(
     (state: RootState) => state.auth.rounds
   );
   const [contributors, setContributors] = React.useState<any[]>([]);
@@ -138,7 +138,7 @@ const RoundView: React.FC = () => {
           <div>
             {reminded ? (
               <HiCheck className="text-berrylavender-500 text-2xl font-semibold" />
-            ) : (
+            ) : selectedRound?.id === currentRound?.id ? (
               <Button
                 size="sm"
                 loading={contributor.loading}
@@ -147,7 +147,7 @@ const RoundView: React.FC = () => {
               >
                 Remind
               </Button>
-            )}
+            ) : null}
           </div>
         );
       },

@@ -1,9 +1,4 @@
-import {
-  apiGetUser,
-  apiSignIn,
-  apiSignOut,
-  apiSignUp,
-} from "@/services/AuthService";
+import { apiGetUser } from "@/services/AuthService";
 import {
   setUser,
   signInSuccess,
@@ -12,19 +7,16 @@ import {
   useAppSelector,
   useAppDispatch,
   setOrganization,
-  setInvitationToken,
   resetUser,
   resetOrganization,
   resetInvitationToken,
-  setRounds,
   resetRoundsState,
-  setAllRounds,
   saveInvitationToken,
+  setAllRounds,
+  setRounds,
 } from "@/store";
 import appConfig from "@/configs/app.config";
-import { REDIRECT_URL_KEY } from "@/constants/app.constant";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import useQuery from "./useQuery";
 import { useAccount, useDisconnect } from "wagmi";
 import { useEffect, useMemo } from "react";
 import {
@@ -32,7 +24,7 @@ import {
   apiGetOrganizationById,
   apiGetRounds,
 } from "@/services/OrgService";
-import { set } from "lodash";
+import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 
 type Status = "success" | "failed";
 
@@ -42,7 +34,11 @@ function useAuth() {
   const { disconnectAsync } = useDisconnect();
   const { isDisconnected } = useAccount();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { token, signedIn, invitationToken: savedInvinationToken } = useAppSelector((state) => state.auth.session);
+  const {
+    token,
+    signedIn,
+    invitationToken: savedInvinationToken,
+  } = useAppSelector((state) => state.auth.session);
 
   const invitationToken = useMemo(() => {
     return searchParams.get("invitationToken") || savedInvinationToken;
@@ -84,23 +80,33 @@ function useAuth() {
           })
         );
         if (user?.organization?.id) {
-          const orgResponse = await apiGetOrganizationById(
-            user?.organization?.id
-          );
-          dispatch(
-            setOrganization({
-              ...orgResponse?.data,
-              logo: orgResponse?.data?.logo,
-            })
-          );
-          const roundResponse = await apiGetCurrentRound();
-          if (roundResponse.data) {
-            dispatch(setRounds(roundResponse.data));
+          try {
+            const orgResponse = await apiGetOrganizationById(
+              user?.organization?.id
+            );
+
+            dispatch(
+              setOrganization({
+                ...orgResponse?.data,
+                logo: orgResponse?.data?.logo,
+              })
+            );
+          } catch (error: any) {
+            handleError(error.response.data.message);
           }
-          const allRoundsResponse = await apiGetRounds();
-          if (allRoundsResponse.data) {
-            dispatch(setAllRounds(allRoundsResponse.data));
-          }
+
+          try {
+            const allRoundsResponse = await apiGetRounds();
+            if (allRoundsResponse.data) {
+              dispatch(setAllRounds(allRoundsResponse.data));
+            }
+          } catch (error: any) {}
+          try {
+            const roundResponse = await apiGetCurrentRound();
+            if (roundResponse.data) {
+              dispatch(setRounds(roundResponse.data));
+            }
+          } catch (error: any) {}
         }
         navigate(url);
         return {
@@ -138,41 +144,6 @@ function useAuth() {
       };
     }
   };
-
-  // const signUp = async (values: SignUpCredential) => {
-  //   try {
-  //     const resp = await apiSignUp(values);
-  //     if (resp.data) {
-  //       const { token } = resp.data;
-  //       dispatch(signInSuccess(token));
-  //       if (resp.data.user) {
-  //         dispatch(
-  //           setUser(
-  //             resp.data.user || {
-  //               avatar: "",
-  //               userName: "Anonymous",
-  //               authority: ["USER"],
-  //               email: "",
-  //               id: ""
-  //             }
-  //           )
-  //         );
-  //       }
-  //       const redirectUrl = query.get(REDIRECT_URL_KEY);
-  //       navigate(redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath);
-  //       return {
-  //         status: "success",
-  //         message: "",
-  //       };
-  //     }
-  //     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  //   } catch (errors: any) {
-  //     return {
-  //       status: "failed",
-  //       message: errors?.response?.data?.message || errors.toString(),
-  //     };
-  //   }
-  // };
 
   const handleSignOut = () => {
     dispatch(signOutSuccess());

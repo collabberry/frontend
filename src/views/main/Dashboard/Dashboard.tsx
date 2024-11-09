@@ -6,6 +6,7 @@ import {
   apiGetInvitationToken,
   apiGetContributorAgreement,
   apiCreateContributorAgreement,
+  apiRemindContributors,
 } from "@/services/OrgService";
 import { RootState, setInvitationToken } from "@/store";
 import { useSelector } from "react-redux";
@@ -26,6 +27,7 @@ import { FiCheckCircle } from "react-icons/fi";
 import { FiDollarSign } from "react-icons/fi";
 import {
   handleError,
+  handleInfo,
   handleSuccess,
   openToastNotification,
 } from "@/components/collabberry/helpers/ToastNotifications";
@@ -35,6 +37,9 @@ import InvitationLink from "./InvitationDialog";
 const Dashboard = () => {
   const state = useSelector((state: RootState) => state);
   const organization = useSelector((state: RootState) => state.auth.org);
+  const currentRound = useSelector(
+    (state: RootState) => state.auth.rounds.currentRound
+  );
   const invitationToken = useSelector(
     (state: RootState) => state.auth.invite.invitationToken
   );
@@ -72,15 +77,23 @@ const Dashboard = () => {
     }
   };
 
-  const assessmentCardAction = () => {
-    //TODO: Implement assessment functionality
-    // openToastNotification({
-    //   message: "All members have been reminded!",
-    //   type: "success",
-
-    // });
-
-    handleSuccess("All members have been reminded!");
+  const assessmentCardAction = async () => {
+    if (!currentRound?.id) {
+      handleError(
+        "The reminder can't be sent because there is no active round."
+      );
+      return;
+    }
+    try {
+      const response = await apiRemindContributors(currentRound, {
+        all: true,
+      });
+      if (response) {
+        handleSuccess("All members have been reminded!");
+      }
+    } catch (error: any) {
+      handleError(error.response.data.message);
+    }
   };
 
   const numberOfContributors = useMemo(() => {
@@ -97,7 +110,7 @@ const Dashboard = () => {
   }, [organization]);
 
   // TODO: Replace hardcoded values with actual data
-  const currentRound = 1;
+  // const currentRound = 1;
   const fiatPerRound = 1000;
   const pointsPerRound = 32000;
   const treasury = 18000;
@@ -164,8 +177,10 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <InfoCard
+              //TODO: Implement logic to show correct number of contribitors with assessments
               footerAction={
-                numberOfContributorsWithAssessments < numberOfContributors
+                numberOfContributorsWithAssessments < numberOfContributors &&
+                currentRound?.id
                   ? assessmentCardAction
                   : undefined
               }
@@ -187,7 +202,7 @@ const Dashboard = () => {
               }
               cardContent={
                 <div>
-                  <p>Round {currentRound} total distributed</p>
+                  <p>Round total distributed</p>
                   <p className="text-lg font-bold">
                     TP{" "}
                     {pointsPerRound.toLocaleString("en-US", {

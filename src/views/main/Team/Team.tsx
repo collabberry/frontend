@@ -40,7 +40,7 @@ const Team: React.FC = () => {
   //   }
   // };
 
-  const handleRefresh = async () => {
+  const handleReload = async () => {
     try {
       if (organization.id) {
         const orgResponse = await apiGetOrganizationById(organization.id);
@@ -234,7 +234,7 @@ const Team: React.FC = () => {
         <OrganizationCard
           organization={organization}
           onEdit={handleEdit}
-          onRefresh={handleRefresh}
+          onReload={handleReload}
           isAdmin={isAdmin as boolean}
         />
       </div>

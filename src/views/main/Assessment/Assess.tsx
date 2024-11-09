@@ -1,4 +1,4 @@
-import { addReviewedMember, RootState, setRounds } from "@/store";
+import { addReviewedMember, RootState, setAllRounds, setRounds } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { useEffect, useMemo, useState } from "react";
@@ -24,7 +24,7 @@ import {
   getCultureScoreDescription,
   getWorkContributionDescription,
 } from "./score-helpers";
-import { apiAddAssessment, apiGetCurrentRound } from "@/services/OrgService";
+import { apiAddAssessment, apiGetCurrentRound, apiGetRounds } from "@/services/OrgService";
 import {
   handleError,
   handleSuccess,
@@ -113,6 +113,15 @@ const Assess = () => {
       const response = await apiAddAssessment(assessment);
       const { data } = response;
       if (data && organization.id) {
+
+        
+        try {
+          const allRoundsResponse = await apiGetRounds();
+          if (allRoundsResponse.data) {
+            dispatch(setAllRounds(allRoundsResponse.data));
+          }
+        } catch (error: any) {}
+        
         try {
           const roundResponse = await apiGetCurrentRound();
           if (roundResponse.data) {
@@ -121,6 +130,8 @@ const Assess = () => {
         } catch (error: any) {
           handleError(error.response.data.message);
         }
+
+        
       }
 
       setReviewedMembers([...reviewedMembers, currentMember.id]);

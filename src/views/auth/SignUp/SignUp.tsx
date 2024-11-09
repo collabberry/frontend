@@ -533,7 +533,7 @@ const SignUp = () => {
               <FormItem
                 label="Market Rate"
                 extra={
-                  "Represents the full-time gross salary you would typically receive in a month."
+                  "The full-time gross salary you would typically receive in a month."
                 }
                 asterisk
                 invalid={

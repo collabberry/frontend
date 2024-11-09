@@ -39,8 +39,8 @@ const AgreementDetails: React.FC<{ contributor: Contributor }> = ({
 
   return (
     <>
-      <div className="mt-4 p-4 bg-gray-100 rounded">
-        <div className="flex flex-row justify-between">
+      <div className="mt-4 p-4 bg-berrylavender-100 rounded">
+        <div className="flex flex-row justify-between font-semibold text-berrylavender-700">
           <p>{`Commitment: ${commitment ? commitment?.toFixed(0) : "N/A"}%`}</p>
           <p>|</p>
           <p>{`Market Rate: $${marketRate ? marketRate : "N/A"}`}</p>
