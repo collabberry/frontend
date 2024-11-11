@@ -152,8 +152,15 @@ const Team: React.FC = () => {
     // },
     {
       header: "Agreement",
-      accessorKey: "agreement.responsibilities",
+      accessorKey: "agreement",
       id: "agreement",
+      sortingFn: (rowA, rowB, columnId) => {
+        const agreementA = rowA.original.agreement;
+        const agreementB = rowB.original.agreement;
+        const isEmptyA = !agreementA || Object.keys(agreementA).length === 0;
+        const isEmptyB = !agreementB || Object.keys(agreementB).length === 0;
+        return isEmptyA === isEmptyB ? 0 : isEmptyA ? -1 : 1;
+      },
       cell: (props) => {
         const contributor = props.row.original;
         const agreement = contributor?.agreement;
@@ -244,7 +251,7 @@ const Team: React.FC = () => {
           columns={columns}
           initialSort={
             fromDashboard
-              ? [{ id: "agreement", desc: false }]
+              ? [{ id: "agreement", desc: false, }]
               : [{ id: "agreement", desc: true }]
           }
         />

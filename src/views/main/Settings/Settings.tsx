@@ -99,13 +99,17 @@ const Settings: React.FC<any> = () => {
       const {
         contributors,
         nextRoundDate,
-        roundsActivated,
+        roundsActivated,   
+        cycle,
+        startDate,     
         ...restOrganization
-      } = organization;
+      } = organization as any;
+
       const body = {
         ...restOrganization,
         ...values,
       };
+
       try {
         const response = await apiEditOrganization(body);
         const { data } = response;

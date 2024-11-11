@@ -47,9 +47,12 @@ const ProtectedRoute = () => {
   }
 
   useEffect(() => {
-    if (!!invationBeforeDisconnect && !dialogOpen) {
-      setDialogOpen(true);
-    }
+    //TODO: Uncomment and fix after demo
+    // if (!!invationBeforeDisconnect && !dialogOpen) {
+    //   setDialogOpen(true);
+    // }
+    dispatch(saveInvitationToken(""));
+
   }, [invationBeforeDisconnect, dialogOpen]);
 
   const onClose = () => {
@@ -57,9 +60,11 @@ const ProtectedRoute = () => {
     dispatch(saveInvitationToken(""));
   };
 
+    //TODO: Uncomment and fix after demo
   return (
     <>
-      <Dialog onClose={onClose} isOpen={!!dialogOpen}>
+      {/* <Dialog onClose={onClose} isOpen={!!dialogOpen}> */}
+      <Dialog onClose={onClose} isOpen={false}>
         <Container>
 =          <div>
             <button onClick={onClose}>Close Dialog</button>
