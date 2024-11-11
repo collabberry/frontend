@@ -61,6 +61,8 @@ const CustomTableWithSorting = <T,>({
     table.setPageSize(Number(value));
   };
 
+  console.log(initialSort);
+
   return (
     <>
       <Table>

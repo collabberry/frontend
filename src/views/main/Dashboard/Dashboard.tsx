@@ -35,8 +35,8 @@ import { Dialog } from "@/components/ui";
 import InvitationLink from "./InvitationDialog";
 
 const Dashboard = () => {
-  const state = useSelector((state: RootState) => state);
   const organization = useSelector((state: RootState) => state.auth.org);
+  const isAdmin = useSelector((state: RootState) => state.auth.user.isAdmin);
   const currentRound = useSelector(
     (state: RootState) => state.auth.rounds.currentRound
   );
@@ -85,7 +85,7 @@ const Dashboard = () => {
       return;
     }
     try {
-      const response = await apiRemindContributors(currentRound, {
+      const response = await apiRemindContributors(currentRound?.id, {
         all: true,
       });
       if (response) {

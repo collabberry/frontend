@@ -37,17 +37,13 @@ export async function apiGetRounds() {
   });
 }
 
-
-export async function apiRemindContributors(roundId: string, data: any) {
+export async function apiRemindContributors(roundId: any, data: any) {
   return ApiService.fetchData<any>({
     url: `/rounds/${roundId}/assessments/remind`,
     method: "post",
-    data
+    data,
   });
 }
-
-
-
 
 export async function apiAddAssessment(data: Assessment) {
   return ApiService.fetchData<any>({
@@ -90,8 +86,9 @@ export async function apiEditOrganization(data: OrganizationData) {
   const formData = new FormData();
   Object.keys(data).forEach((key) => {
     formData.append(key, (data as any)[key]);
+
   });
-  
+
 
   return ApiService.fetchData<any>({
     url: "/orgs",

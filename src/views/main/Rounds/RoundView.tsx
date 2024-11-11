@@ -1,8 +1,12 @@
 import { CustomCountdown } from "@/components/collabberry/custom-components/CustomCountdown";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
-import { handleSuccess } from "@/components/collabberry/helpers/ToastNotifications";
+import {
+  handleError,
+  handleSuccess,
+} from "@/components/collabberry/helpers/ToastNotifications";
 import { Avatar, Button } from "@/components/ui";
+import { apiRemindContributors } from "@/services/OrgService";
 import { RootState } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { set } from "lodash";
@@ -34,19 +38,31 @@ const RoundView: React.FC = () => {
     }
   }, []);
 
-  const remind = (contributor: any) => {
-    // TODO: Implement reminder functionality
-    const loadingContributors = contributors.map((c) =>
+  const remind = async (contributor: any) => {
+    const loadingContributor = contributors.map((c) =>
       c.id === contributor?.id ? { ...c, loading: true } : c
     );
-    setContributors(loadingContributors);
-    const updatedContributors = contributors.map((c) =>
-      c.id === contributor?.id ? { ...c, reminded: true } : c
-    );
-    setTimeout(() => {
-      setContributors(updatedContributors);
-      handleSuccess(`Reminder sent to ${contributor.username}!`);
-    }, 1000);
+    setContributors(loadingContributor);
+
+    try {
+      const response = await apiRemindContributors(selectedRound?.id, {
+        users: [contributor?.id],
+      });
+
+      if (response) {
+        const updatedContributors = contributors.map((c) =>
+          c.id === contributor?.id ? { ...c, reminded: true } : c
+        );
+        setContributors(updatedContributors);
+        handleSuccess(`Reminder sent to ${contributor.username}!`);
+      }
+    } catch (error: any) {
+      const loadingContributor = contributors.map((c) =>
+        c.id === contributor?.id ? { ...c, loading: false } : c
+      );
+      setContributors(loadingContributor);
+      handleError(error.response.data.message);
+    }
   };
 
   const roundId = 1;
@@ -131,9 +147,10 @@ const RoundView: React.FC = () => {
       header: "Assessment",
       id: "assessment",
       cell: (props) => {
+        //TODO: Implement logic to show correctly whether the contributor has submitted any assessments
         const contributor = props.row.original;
         const reminded = contributor.reminded;
-        
+
         return (
           <div>
             {reminded ? (

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState, setReviewedMembers, setSelectedTeamMembers } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { Contributor } from "@/models/Organization.model";
-import { Alert, Avatar } from "@/components/ui";
+import { Alert, Avatar, Button } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import { current } from "@reduxjs/toolkit";
@@ -89,7 +89,22 @@ const Assessment = () => {
 
   const columns: ColumnDef<Contributor>[] = [
     {
-      header: "",
+      header: ({ table }) => (
+        <div className="flex justify-start">
+          <Button
+            color="primary"
+            className="min-w-[130px]"
+            disabled={isTableDisabled}
+            onClick={() => {
+              const isAllSelected = table.getIsAllRowsSelected();
+              table.toggleAllRowsSelected(!isAllSelected);
+            }}
+          >
+            {table.getIsAllRowsSelected() ? "Clear" : "Select All"}
+          </Button>
+        </div>
+      ),
+      id: "select",
       accessorKey: "username",
       cell: (props) => {
         const data = props.row.original;
@@ -115,7 +130,8 @@ const Assessment = () => {
         {isTableDisabled ? (
           <Alert showIcon type="info" className="mt-4">
             <p>
-              There is no ongoing round. You will be able to submit your assessments once the next round starts.
+              There is no ongoing round. You will be able to submit your
+              assessments once the next round starts.
             </p>
           </Alert>
         ) : (

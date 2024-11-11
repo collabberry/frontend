@@ -17,7 +17,6 @@ import {
 } from "@/components/ui";
 import { FiInfo } from "react-icons/fi";
 
-
 type CustomSelectTableProps<T> = {
   data: T[];
   columns: ColumnDef<T>[];
@@ -79,52 +78,52 @@ const CustomSelectTable = <T,>({
   const columnsWithSelect = useMemo<ColumnDef<any>[]>(() => {
     return [
       ...columns,
-      {
-        id: "select",
-        header: ({ table }) => (
-          <div className="flex justify-end">
-            <Button
-              color="primary"
-              className="min-w-[130px]"
-              disabled={disabled}
-              onClick={() => {
-                const isAllSelected = table.getIsAllRowsSelected();
-                table.toggleAllRowsSelected(!isAllSelected);
-              }}
-            >
-              {table.getIsAllRowsSelected() ? "Clear" : "Select All"}
-            </Button>
-          </div>
+      // {
+      //   id: "select",
+      //   header: ({ table }) => (
+      //     <div className="flex justify-end">
+      //       <Button
+      //         color="primary"
+      //         className="min-w-[130px]"
+      //         disabled={disabled}
+      //         onClick={() => {
+      //           const isAllSelected = table.getIsAllRowsSelected();
+      //           table.toggleAllRowsSelected(!isAllSelected);
+      //         }}
+      //       >
+      //         {table.getIsAllRowsSelected() ? "Clear" : "Select All"}
+      //       </Button>
+      //     </div>
 
-          //   <div className="flex flex-row gap-2">
-          //     <div>Select All</div>
-          //     <IndeterminateCheckbox
-          //       {...{
-          //         checked: table.getIsAllRowsSelected(),
-          //         indeterminate: table.getIsSomeRowsSelected(),
-          //         onChange: table.getToggleAllRowsSelectedHandler(),
-          //       }}
-          //     />
-          //   </div>
-        ),
-        cell: ({ row }) => (
-          <div className="px-1 flex justify-end items-center">
-            {row.original?.alreadyReviewed && (
-              <Tooltip title="You've already submitted an assessment for this person.">
-                <FiInfo className="text-gray-400 mr-2 text-lg" />
-              </Tooltip>
-            )}
-            <IndeterminateCheckbox
-              {...{
-                checked: row.getIsSelected(),
-                disabled: !row.getCanSelect(),
-                indeterminate: row.getIsSomeSelected(),
-                onChange: row.getToggleSelectedHandler(),
-              }}
-            />
-          </div>
-        ),
-      },
+      //     //   <div className="flex flex-row gap-2">
+      //     //     <div>Select All</div>
+      //     //     <IndeterminateCheckbox
+      //     //       {...{
+      //     //         checked: table.getIsAllRowsSelected(),
+      //     //         indeterminate: table.getIsSomeRowsSelected(),
+      //     //         onChange: table.getToggleAllRowsSelectedHandler(),
+      //     //       }}
+      //     //     />
+      //     //   </div>
+      //   ),
+      //   cell: ({ row }) => (
+      //     <div className="px-1 flex justify-end items-center">
+      //       {row.original?.alreadyReviewed && (
+      //         <Tooltip title="You've already submitted an assessment for this person.">
+      //           <FiInfo className="text-gray-400 mr-2 text-lg" />
+      //         </Tooltip>
+      //       )}
+      //       <IndeterminateCheckbox
+      //         {...{
+      //           checked: row.getIsSelected(),
+      //           disabled: !row.getCanSelect(),
+      //           indeterminate: row.getIsSomeSelected(),
+      //           onChange: row.getToggleSelectedHandler(),
+      //         }}
+      //       />
+      //     </div>
+      //   ),
+      // },
     ];
   }, []);
 
@@ -164,7 +163,11 @@ const CustomSelectTable = <T,>({
             <Tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <Th key={header.id} colSpan={header.colSpan}>
+                  <Th
+                    key={header.id}
+                    colSpan={header.colSpan}
+                    className={header.id === "select" ? "select-header" : ""}
+                  >
                     {header.isPlaceholder ? null : (
                       <div
                         {...{

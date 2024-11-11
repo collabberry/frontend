@@ -36,8 +36,6 @@ const Rounds: React.FC = () => {
     (state: RootState) => state.auth.rounds
   );
 
-  console.log("allRounds", allRounds);
-
   // React.useEffect(() => {
   //   const initializeRounds = async () => {
   //     await fetchAllRounds();
@@ -161,10 +159,41 @@ const Rounds: React.FC = () => {
       },
     },
     {
+      header: "Compensation Period",
+      accessorKey: "compensationCycleStartDate",
+      cell: (props) => {
+        const value = props.getValue() as number;
+        const row = props.row.original;
+        const compensationCycleStartDate = new Date(
+          row.compensationCycleStartDate
+        ).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          timeZone: "UTC",
+        });
+        const compensationCycleEndDate = new Date(
+          row.compensationCycleEndDate
+        ).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          timeZone: "UTC",
+        });
+
+        const dateRange =
+          compensationCycleEndDate && compensationCycleStartDate
+            ? `${compensationCycleStartDate} - ${compensationCycleEndDate}`
+            : null;
+        return dateRange ? <span>{dateRange}</span> : null;
+      },
+    },
+    {
       header: "Start Date",
       accessorKey: "startDate",
       cell: (props) => {
         const value = props.getValue() as number;
+
         const formattedDate = new Date(value).toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "short",
@@ -182,6 +211,7 @@ const Rounds: React.FC = () => {
           day: "2-digit",
           month: "short",
           year: "numeric",
+          timeZone: "UTC",
         });
         return formattedDate ? <span>{formattedDate}</span> : null;
       },

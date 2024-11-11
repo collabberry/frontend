@@ -49,7 +49,7 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
       }
       const dateString = today ? today.toISOString() : null;
 
-      const { contributors, nextRoundDate, roundsActivated, ...restOrganization } = initialData;
+      const { contributors, nextRoundDate, roundsActivated, cycle, startDate, ...restOrganization } = initialData as any;
       const body = {
         ...restOrganization,
         ...values,
