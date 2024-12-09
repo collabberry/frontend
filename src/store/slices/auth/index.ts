@@ -6,6 +6,7 @@ import agreement, { AgreementState } from "./agreementSlice";
 import invite, { InvitationTokenState } from "./inviteLinkSlice";
 import assessment, { AssessmentState } from "./assessmentSlice";
 import rounds, { RoundsState } from "./roundsSlice";
+import contributor, { ContributorState } from "./contributorSlice";
 
 const reducer = combineReducers({
   session,
@@ -15,6 +16,7 @@ const reducer = combineReducers({
   invite,
   assessment,
   rounds,
+  contributor
 });
 
 export type AuthState = {
@@ -25,6 +27,7 @@ export type AuthState = {
   invite: InvitationTokenState;
   assessment: AssessmentState;
   rounds: RoundsState;
+  contributor: ContributorState;
 };
 
 export * from "./sessionSlice";
@@ -34,5 +37,6 @@ export * from "./agreementSlice";
 export * from "./inviteLinkSlice";
 export * from "./assessmentSlice";
 export * from "./roundsSlice";
+export * from "./contributorSlice";
 
 export default reducer;

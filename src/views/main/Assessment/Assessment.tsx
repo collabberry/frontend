@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Contributor } from "@/models/Organization.model";
 import { Alert, Avatar, Button } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { current } from "@reduxjs/toolkit";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
 import { use } from "i18next";
@@ -14,15 +14,18 @@ import CustomAvatarAndUsername from "@/components/collabberry/custom-components/
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/tea.json";
 
+import { useEffect } from "react";
+import { apiGetAssessmentsByAssessor } from "@/services/OrgService";
+import { set } from "lodash";
+
 const Assessment = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
   const currentRound = useSelector(
     (state: RootState) => state.auth.rounds.currentRound
   );
   const user = useSelector((state: RootState) => state.auth.user);
-
-  const { submittedAssessments } = currentRound || {};
-
+  // const { submittedAssessments } = currentRound || {};
+  const [submittedAssessments, setSubmittedAssessments] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -31,6 +34,17 @@ const Assessment = () => {
     dispatch(setReviewedMembers([]));
     navigate("assess");
   };
+
+  useEffect(() => {
+    const fetchMyAssessments = async () => {
+      const assessedByMe = await apiGetAssessmentsByAssessor(
+        currentRound?.id,
+        user?.id
+      );
+      setSubmittedAssessments(assessedByMe.data);
+    };
+    fetchMyAssessments();
+  }, []);
 
   const isTableDisabled = useMemo(() => {
     return currentRound?.status !== RoundStatus.InProgress;
@@ -49,16 +63,15 @@ const Assessment = () => {
     }
 
     return submittedAssessments?.some(
-      (assessment: { contributorId: string }) =>
-        assessment.contributorId === contributor.id
+      (assessment: { assessedId: string }) =>
+        assessment.assessedId === contributor.id
     );
   };
 
   const isContributorAlreadyReviewed = (contributor: Contributor) => {
-    return submittedAssessments?.some(
-      (assessment: { contributorId: string }) =>
-        assessment.contributorId === contributor.id
-    );
+    return submittedAssessments?.some((assessment: { assessedId: string }) => {
+      return assessment.assessedId === contributor.id;
+    });
   };
 
   const isCurrentUser = (contributor: Contributor) => {
@@ -86,6 +99,12 @@ const Assessment = () => {
     );
     return filteredContributors;
   }, [organization, submittedAssessments]);
+
+  const isAssessmentDone = useMemo(() => {
+    return contributorsWithDisabledFlag.every(
+      (contributor) => contributor.alreadyReviewed
+    );
+  }, [submittedAssessments, contributorsWithDisabledFlag]);
 
   const columns: ColumnDef<Contributor>[] = [
     {
@@ -134,6 +153,12 @@ const Assessment = () => {
               assessments once the next round starts.
             </p>
           </Alert>
+        ) : isAssessmentDone ? (
+          <Alert showIcon type="warning" className="mt-4">
+            <p>
+              It looks like you've already assessed all the members of your team. See you for the next round!
+            </p>
+          </Alert>
         ) : (
           <div className="mt-4 text-md font-bold text-gray-500">
             Select the team members you interacted with last month.
@@ -144,11 +169,11 @@ const Assessment = () => {
         <ContributorSelectList></ContributorSelectList>
       </div> */}
       <>
-        {isTableDisabled ? (
+        {isTableDisabled || isAssessmentDone ? (
           <div className="mt-8 mb-8">
             <LottieAnimation animationData={animationData} />
           </div>
-        ) : contributorsWithDisabledFlag.length > 0 ? (
+        ) : contributorsWithDisabledFlag.length > 0 && !isAssessmentDone ? (
           <CustomSelectTable
             data={contributorsWithDisabledFlag || []}
             columns={columns}

@@ -82,13 +82,32 @@ export async function apiCreateOrganization(data: OrganizationData) {
   });
 }
 
+export async function apiGetMyScores() {
+  return ApiService.fetchData<any>({
+    url: `/orgs/contributors/myscores`,
+    method: "get",
+  });
+}
+
+export async function apiGetAssessmentsByAssessor(roundId: string, assessorId: string) {
+  return ApiService.fetchData<any>({
+    url: `/rounds/${roundId}/assessments?assessorId=${assessorId}`,
+    method: "get",
+  });
+}
+
+export async function apiGetAssessmentsByAssessed(roundId: string, assessedId: string) {
+  return ApiService.fetchData<any>({
+    url: `/rounds/${roundId}/assessments?assessedId=${assessedId}`,
+    method: "get",
+  });
+}
+
 export async function apiEditOrganization(data: OrganizationData) {
   const formData = new FormData();
   Object.keys(data).forEach((key) => {
     formData.append(key, (data as any)[key]);
-
   });
-
 
   return ApiService.fetchData<any>({
     url: "/orgs",

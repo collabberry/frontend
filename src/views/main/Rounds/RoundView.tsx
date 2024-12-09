@@ -7,7 +7,7 @@ import {
 } from "@/components/collabberry/helpers/ToastNotifications";
 import { Avatar, Button } from "@/components/ui";
 import { apiRemindContributors } from "@/services/OrgService";
-import { RootState } from "@/store";
+import { RootState, setSelectedUser } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { set } from "lodash";
 import React from "react";
@@ -15,20 +15,34 @@ import Countdown from "react-countdown";
 import { FiClock } from "react-icons/fi";
 import { HiCheck } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const RoundView: React.FC = () => {
-  const dispatch = useDispatch();
-  // TODO: Change the source of contributors once round BE is ready, it should not be organization
-  const organization = useSelector((state: RootState) => state.auth.org);
   const { selectedRound, currentRound } = useSelector(
     (state: RootState) => state.auth.rounds
   );
+  const organization = useSelector((state: RootState) => state.auth.org);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [contributors, setContributors] = React.useState<any[]>([]);
 
+  const goToContributorAssessments = (contributor: any) => {
+    const orgContributor = organization?.contributors?.find(
+      (orgContrib: any) => orgContrib.id === contributor.id
+    );
+    const enhancedContributor = {
+      ...contributor,
+      profilePicture: orgContributor?.profilePicture || "",
+    };
+    dispatch(setSelectedUser(enhancedContributor));
+    console.log("enhancedContributor", enhancedContributor);
+    navigate("/rounds/round/contributor-scores");
+  };
+
   React.useEffect(() => {
-    if (organization?.contributors) {
-      const contributorsWithReminder = organization.contributors.map(
-        (contributor) => ({
+    if (currentRound?.contributors) {
+      const contributorsWithReminder = currentRound.contributors.map(
+        (contributor: any) => ({
           ...contributor,
           reminded: false,
           loading: false,
@@ -115,7 +129,7 @@ const RoundView: React.FC = () => {
     },
     {
       header: "Fiat",
-      accessorKey: "monetaryCompensation",
+      accessorKey: "fiat",
       cell: (props) => {
         const value = props.getValue() as number;
         if (value) {
@@ -144,18 +158,17 @@ const RoundView: React.FC = () => {
     //   },
     // },
     {
-      header: "Assessment",
-      id: "assessment",
+      header: "Has Assessed",
+      id: "hasAssessed",
       cell: (props) => {
-        //TODO: Implement logic to show correctly whether the contributor has submitted any assessments
         const contributor = props.row.original;
         const reminded = contributor.reminded;
 
         return (
-          <div>
-            {reminded ? (
+          <div className="flex flex-row justify-center">
+            {contributor.hasAssessed ? (
               <HiCheck className="text-berrylavender-500 text-2xl font-semibold" />
-            ) : selectedRound?.id === currentRound?.id ? (
+            ) : selectedRound?.id === currentRound?.id && !reminded ? (
               <Button
                 size="sm"
                 loading={contributor.loading}
@@ -164,7 +177,35 @@ const RoundView: React.FC = () => {
               >
                 Remind
               </Button>
-            ) : null}
+            ) : (
+              <Button size="sm" disabled={true}>
+                Reminded!
+              </Button>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      header: "Assessments",
+      id: "viewAssessments",
+      cell: (props) => {
+        const contributor = props.row.original;
+        const reminded = contributor.reminded;
+
+        return (
+          <div className="flex flex-row justify-start">
+            <Button
+              size="sm"
+              loading={contributor.loading}
+              disabled={false}
+              onClick={(event) => {
+                event.preventDefault();
+                goToContributorAssessments(contributor);
+              }}
+            >
+              View
+            </Button>
           </div>
         );
       },
