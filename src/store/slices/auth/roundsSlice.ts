@@ -8,12 +8,14 @@ export type RoundsState = {
   currentRound: any;
   allRounds: any[];
   selectedRound: any;
+  selectedUser: any | null;
 };
 
 const initialState: RoundsState = {
   currentRound: null,
   allRounds: [],
   selectedRound: null,
+  selectedUser: null,
 };
 
 const roundsSlice = createSlice({
@@ -24,9 +26,13 @@ const roundsSlice = createSlice({
       state.currentRound = null;
       state.allRounds = [];
       state.selectedRound = null;
+      state.selectedUser = null;
     },
     setRounds(state, action: PayloadAction<any>) {
       state.currentRound = action.payload;
+    },
+    setSelectedUser(state, action: PayloadAction<Contributor>) {
+      state.selectedUser = action.payload;
     },
     setAllRounds(state, action: PayloadAction<any>) {
       state.allRounds = action.payload;
@@ -38,7 +44,7 @@ const roundsSlice = createSlice({
   },
 });
 
-export const { setRounds, resetRoundsState , setAllRounds, setSelectedRound} = roundsSlice.actions;
+export const { setRounds, resetRoundsState , setAllRounds, setSelectedRound, setSelectedUser} = roundsSlice.actions;
 export const getSubmittedAssessments = (state: RoundsState) =>
   state.currentRound?.submittedAssessments || [];
 export default roundsSlice.reducer;

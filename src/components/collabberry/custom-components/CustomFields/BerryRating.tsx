@@ -3,8 +3,8 @@ import RainbowBerrySvg from "@/assets/svg/RainbowBerry";
 import SingleBerrySvg from "@/assets/svg/SingleBerry";
 
 const RatingColors: { [key: number]: string } = {
-  1: "#FDDFD9",
-  2: "#FABEB2",
+  1: "#9ca3af",
+  2: "#6b7280",
   3: "#F7917C",
   4: "#FF7758",
 };
@@ -27,7 +27,6 @@ function BerryRating({ field, value, setFieldValue }: RatingReviewProps) {
               cursor: "pointer",
               scale: star === 3 ? "1" : "0.5",
               opacity: value >= star ? "1" : "0.2",
-              filter: value >= star ? "grayscale(0%)" : "grayscale(100%)",
               fontSize: `35px`,
             }}
             onClick={() => {
@@ -37,7 +36,7 @@ function BerryRating({ field, value, setFieldValue }: RatingReviewProps) {
             {value === 5 ? (
               <AnimatedRainbowBerrySvg />
             ) : (
-              <SingleBerrySvg fillColor={RatingColors[value]} />
+              <SingleBerrySvg fillColor={value >= star ? RatingColors[value] : '#6b7280'} />
             )}
           </div>
         );

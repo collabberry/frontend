@@ -1,8 +1,13 @@
 import AnimatedRainbowBerrySvg from "@/assets/svg/AnimatedRainbowBerry";
 import { Avatar, Card } from "@/components/ui";
 import { Contributor } from "@/models/Organization.model";
+import {
+  apiGetAssessmentsByAssessed,
+  apiGetMyScores,
+} from "@/services/OrgService";
 import { RootState } from "@/store";
-import React from "react";
+import { use } from "i18next";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
 interface ScoreCardProps {
@@ -10,7 +15,7 @@ interface ScoreCardProps {
   score: number;
 }
 
-const ScoreCard: React.FC<ScoreCardProps> = ({ title, score }) => {
+export const ScoreCard: React.FC<ScoreCardProps> = ({ title, score }) => {
   return (
     <Card className="p-4 border rounded">
       <h2 className="text-xl font-bold">{title}</h2>
@@ -27,7 +32,7 @@ interface ScoreDetailProps {
   feedbackNegative: string;
 }
 
-const ScoreDetailCard: React.FC<ScoreDetailProps> = ({
+export const ScoreDetailCard: React.FC<ScoreDetailProps> = ({
   contributor,
   workScore,
   cultureScore,
@@ -76,64 +81,89 @@ const ScoreDetailCard: React.FC<ScoreDetailProps> = ({
 };
 
 const MyScores: React.FC = () => {
-  // TODO: Change the source of contributors once round and score BE is ready, it should not be organization
   const organization = useSelector((state: RootState) => state.auth.org);
+  const currentRound = useSelector(
+    (state: RootState) => state.auth.rounds.currentRound
+  );
+  const user = useSelector((state: RootState) => state.auth.user);
   const { selectedRound } = useSelector(
     (state: RootState) => state.auth.rounds
   );
+  const [scores, setScores] = useState<any>(null);
+  const [assessments, setAssessments] = useState<any[]>([]);
 
-  //TODO: Change once there is BE
-  const contributors = organization?.contributors || [];
-
-  const mockedRoundScores = React.useMemo(() => {
-    return {
-      averageWorkScore: 3.5,
-      averageCultureScore: 4.5,
-      scores: contributors.map((contributor) => ({
-        contributorId: contributor.id,
-        contributor: { ...contributor },
-        cultureScore: 5,
-        workScore: 2.3,
-        feedbackPositive:
-          "Great work! Keep it up! :) Your dedication and effort are truly commendable, and it shows in the quality of your work. Continue to strive for excellence, and you'll achieve even greater success.",
-        feedbackNegative:
-          "Needs improvement. While there are some good aspects, there are areas that require more attention and effort. Focus on these areas, and don't hesitate to seek help or feedback to improve.",
-      })),
+  React.useEffect(() => {
+    const fetchScores = async () => {
+      const scores = await apiGetMyScores();
+      const selectedRoundScores = scores.data.find(
+        (score: any) => score.roundId === selectedRound?.id
+      );
+      setScores(selectedRoundScores);
+      const assessments = await apiGetAssessmentsByAssessed(
+        currentRound?.id,
+        user?.id
+      );
+      const enrichedAssessments = assessments.data.map(
+        (assessment: { assessorId: string }) => {
+          const contributor = organization?.contributors?.find(
+            (contributor) => contributor.id === assessment.assessorId
+          );
+          return {
+            ...assessment,
+            assessor: contributor,
+          };
+        }
+      );
+      setAssessments(enrichedAssessments);
     };
+    fetchScores();
   }, []);
-
-  const roundId = 1;
 
   return (
     <>
-      {selectedRound && (
+      {selectedRound && scores && (
         <div>
           <div className="flex flex-row justify-between">
-            <h1>Round {roundId}</h1>
+            <h1>Round {scores?.roundName}</h1>
           </div>
           <div className="mt-4">
             <div className="grid grid-cols-2 gap-4">
               <ScoreCard
                 title="Culture Score"
-                score={mockedRoundScores.averageCultureScore}
+                score={scores?.totalCultureScore}
               ></ScoreCard>
               <ScoreCard
                 title="Work Score"
-                score={mockedRoundScores.averageWorkScore}
+                score={scores?.totalWorkScore}
               ></ScoreCard>
             </div>
           </div>
+          {/* TODO: Change this to scores.assessments when the BE is fixes */}
           <div className="mt-8 grid grid-cols-1 gap-4">
-            {mockedRoundScores.scores.map((scoreDetail) => (
-              <ScoreDetailCard
-                key={scoreDetail.contributorId}
-                contributor={scoreDetail.contributor}
-                workScore={scoreDetail.workScore}
-                cultureScore={scoreDetail.cultureScore}
-                feedbackPositive={scoreDetail.feedbackPositive}
-                feedbackNegative={scoreDetail.feedbackNegative}
-              />
-            ))}
+            {assessments?.map(
+              ({
+                assessor,
+                cultureScore,
+                workScore,
+                feedbackNegative,
+                feedbackPositive,
+              }: {
+                assessor: Contributor;
+                cultureScore: number;
+                workScore: number;
+                feedbackNegative: string;
+                feedbackPositive: string;
+              }) => (
+                <ScoreDetailCard
+                  key={assessor?.id}
+                  contributor={assessor}
+                  workScore={workScore}
+                  cultureScore={cultureScore}
+                  feedbackPositive={feedbackPositive}
+                  feedbackNegative={feedbackNegative}
+                />
+              )
+            )}
           </div>
         </div>
       )}
