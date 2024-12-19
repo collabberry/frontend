@@ -127,60 +127,62 @@ const Dashboard = () => {
           <InvitationLink invitationToken={invitationToken} />
         </Dialog>
       )}
-      <div className="flex flex-col items-center h-full px-4">
-        <div className="w-full max-w-4xl mb-6">
-          <h1 className="text-4xl font-bold mb-4">Steps to Complete</h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <InfoCard
-              footerAction={
-                numberOfContributorsWithAgreements < numberOfContributors
-                  ? contributorsCardAction
-                  : undefined
-              }
-              footerButtonTitle="Add all agreements"
-              HeaderIcon={
-                <FiFileText style={{ height: "100%", width: "100%" }} />
-              }
-              cardContent={
-                <>
-                  <strong>{numberOfContributorsWithAgreements}</strong> out of{" "}
-                  <strong>{numberOfContributors}</strong> members of your
-                  organisation have added agreements
-                </>
-              }
-            />
-            <InfoCard
-              footerAction={settingsCardAction}
-              footerButtonTitle="Settings"
-              HeaderIcon={
-                <FiSettings style={{ height: "100%", width: "100%" }} />
-              }
-              cardContent={
-                <>
-                  Set up your organisation’s compensation and assessment
-                  information
-                </>
-              }
-            />
-            <InfoCard
-              footerAction={inviteCardAction}
-              footerButtonTitle="Invite Members"
-              HeaderIcon={
-                <FiUserPlus style={{ height: "100%", width: "100%" }} />
-              }
-              cardContent={<>Add more people to your organisation</>}
-            />
+      <div className="flex flex-col items-start h-full px-4">
+        {isAdmin && (
+          <div className="w-full max-w-4xl mb-6">
+            <h1 className="text-4xl font-bold mb-4">Steps to Complete</h1>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <InfoCard
+                footerAction={
+                  numberOfContributorsWithAgreements < numberOfContributors
+                    ? contributorsCardAction
+                    : undefined
+                }
+                footerButtonTitle="Add all agreements"
+                HeaderIcon={
+                  <FiFileText style={{ height: "100%", width: "100%" }} />
+                }
+                cardContent={
+                  <>
+                    <strong>{numberOfContributorsWithAgreements}</strong> out of{" "}
+                    <strong>{numberOfContributors}</strong> members of your
+                    organisation have added agreements
+                  </>
+                }
+              />
+              <InfoCard
+                footerAction={settingsCardAction}
+                footerButtonTitle="Settings"
+                HeaderIcon={
+                  <FiSettings style={{ height: "100%", width: "100%" }} />
+                }
+                cardContent={
+                  <>
+                    Set up your organisation’s compensation and assessment
+                    information
+                  </>
+                }
+              />
+              <InfoCard
+                footerAction={inviteCardAction}
+                footerButtonTitle="Invite Members"
+                HeaderIcon={
+                  <FiUserPlus style={{ height: "100%", width: "100%" }} />
+                }
+                cardContent={<>Add more people to your organisation</>}
+              />
+            </div>
           </div>
-        </div>
+        )}
         <div className="w-full max-w-4xl">
-          <h1 className="text-4xl font-bold mb-4">Admin Dashboard</h1>
+          <h1 className="text-4xl font-bold mb-4">{isAdmin ? 'Admin Dashboard' : 'Dashboard'}</h1>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <InfoCard
               //TODO: Implement logic to show correct number of contribitors with assessments
               footerAction={
                 numberOfContributorsWithAssessments < numberOfContributors &&
-                currentRound?.id
+                currentRound?.id && isAdmin
                   ? assessmentCardAction
                   : undefined
               }

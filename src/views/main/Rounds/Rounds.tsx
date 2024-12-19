@@ -1,4 +1,5 @@
 import { Assessment } from "@/@types/auth";
+import RoundStatusTag from "@/components/collabberry/custom-components/CustomFields/RoundStatusTag";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
@@ -8,6 +9,7 @@ import {
   apiAddAssessment,
   apiGetCurrentRound,
   apiGetOrganizationById,
+  apiGetRoundById,
   apiGetRounds,
 } from "@/services/OrgService";
 import {
@@ -144,9 +146,16 @@ const Rounds: React.FC = () => {
   //   }
   // };
 
-  const goToRound = (round: any) => {
-    dispatch(setSelectedRound(round));
-    navigate("round");
+  const goToRound = async (round: any) => {
+    try {
+      const selRound = await apiGetRoundById(round.id);
+      if (selRound?.data) {
+        dispatch(setSelectedRound(selRound.data));
+        navigate("round");
+      }
+    } catch (error: any) {
+      handleError(error.response.data.message);
+    }
   };
 
   const columns: ColumnDef<any>[] = [
@@ -221,29 +230,9 @@ const Rounds: React.FC = () => {
       accessorKey: "status",
       cell: (props) => {
         const value = props.getValue() as number;
-
-        const statusString = (() => {
-          switch (value) {
-            case RoundStatus.NotStarted:
-              return "Not Started";
-            case RoundStatus.InProgress:
-              return "In Progress";
-            case RoundStatus.Completed:
-              return "Completed";
-            default:
-              return "Unknown";
-          }
-        })();
-        return <span>{statusString}</span>;
-        {
-        }
+        return <RoundStatusTag roundStatus={value} />;
       },
     },
-    // {
-    //   header: "Team Points",
-    //   accessorKey: "teamPoints",
-    // },
-
     {
       header: "Go to Round",
       id: "round",

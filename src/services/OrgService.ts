@@ -37,6 +37,14 @@ export async function apiGetRounds() {
   });
 }
 
+export async function apiGetRoundById(id: string) {
+  return ApiService.fetchData<any>({
+    url: `/rounds/${id}`,
+    method: "get",
+  });
+}
+
+
 export async function apiRemindContributors(roundId: any, data: any) {
   return ApiService.fetchData<any>({
     url: `/rounds/${roundId}/assessments/remind`,

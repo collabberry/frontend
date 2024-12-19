@@ -4,10 +4,13 @@ import React from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { ScoreCard, ScoreDetailCard } from "../Scores/MyScores";
-import { Alert, Avatar, Card } from "@/components/ui";
+import { Alert, Avatar, Button, Card } from "@/components/ui";
+import { useNavigate } from "react-router-dom";
+import { HiArrowSmLeft } from "react-icons/hi";
 
 const ContributorScoreView: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
+  const navigate = useNavigate();
   const currentRound = useSelector(
     (state: RootState) => state.auth.rounds.currentRound
   );
@@ -16,7 +19,9 @@ const ContributorScoreView: React.FC = () => {
   );
   const [assessments, setAssessments] = useState<any[]>([]);
 
-  console.log(selectedUser, "selectedUser");
+  const navigateBack = () => {
+    navigate(-1);
+  };
 
   React.useEffect(() => {
     const fetchScores = async () => {
@@ -24,6 +29,8 @@ const ContributorScoreView: React.FC = () => {
         currentRound?.id,
         selectedUser?.id
       );
+
+      console.log(assessments, "assessments");
       const enrichedAssessments = assessments.data.map(
         (assessment: { assessorId: string }) => {
           const contributor = organization?.contributors?.find(
@@ -43,73 +50,83 @@ const ContributorScoreView: React.FC = () => {
   return (
     <>
       {selectedRound && selectedUser && (
-        <div>
-          {/* <div className="flex flex-row justify-between">
+        <>
+          <div>
+            <Button size="sm" onClick={navigateBack} icon={<HiArrowSmLeft />}>
+              Back to Round
+            </Button>
+          </div>
+          <div>
+            {/* <div className="flex flex-row justify-between">
               <h1>Round {setSelectedRound?.roundName}</h1>
             </div> */}
-          <div className="mt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center justify-start">
-                <Avatar
-                  className="mr-2 rounded-full h-24 w-24"
-                  src={selectedUser?.profilePicture}
-                />
-                <div>
-                  <div className="organization-name text-2xl mr-2 text-gray-900">
-                    {selectedUser?.username}
-                  </div>
+            <div className="mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center justify-start">
+                  <Avatar
+                    className="mr-2 rounded-full h-24 w-24"
+                    src={selectedUser?.profilePicture}
+                  />
                   <div>
-                    <div className="flex justify-between">
-                      <span> Work Score:</span>
-                      <span className="font-bold ml-1">
-                        {selectedUser?.workScore.toFixed(1) || 0}
-                      </span>
+                    <div className="organization-name text-2xl mr-2 text-gray-900">
+                      {selectedUser?.username}
                     </div>
-                    <div className="flex justify-between">
-                      <span> Culture Score:</span>
-                      <span className="font-bold ml-1">
-                        {selectedUser?.cultureScore.toFixed(1) || 0}
-                      </span>
+                    <div>
+                      <div className="flex justify-between">
+                        <span> Work Score:</span>
+                        <span className="font-bold ml-1">
+                          {selectedUser?.workScore.toFixed(1) || 0}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span> Culture Score:</span>
+                        <span className="font-bold ml-1">
+                          {selectedUser?.cultureScore.toFixed(1) || 0}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          {/* TODO: Change this to scores.assessments when the BE is fixes */}
-          <div className="mt-8 grid grid-cols-1 gap-4">
-            {assessments.length > 0 ? (
-              assessments?.map(
-                ({
-                  assessor,
-                  cultureScore,
-                  workScore,
-                  feedbackNegative,
-                  feedbackPositive,
-                }: {
-                  assessor: any;
-                  cultureScore: number;
-                  workScore: number;
-                  feedbackNegative: string;
-                  feedbackPositive: string;
-                }) => (
-                  <ScoreDetailCard
-                    key={assessor?.id}
-                    contributor={assessor}
-                    workScore={workScore}
-                    cultureScore={cultureScore}
-                    feedbackPositive={feedbackPositive}
-                    feedbackNegative={feedbackNegative}
-                  />
+            {/* TODO: Change this to scores.assessments when the BE is fixes */}
+            <div className="mt-8 grid grid-cols-1 gap-4">
+              {assessments.length > 0 ? (
+                assessments?.map(
+                  ({
+                    assessor,
+                    cultureScore,
+                    workScore,
+                    feedbackNegative,
+                    feedbackPositive,
+                  }: {
+                    assessor: any;
+                    cultureScore: number;
+                    workScore: number;
+                    feedbackNegative: string;
+                    feedbackPositive: string;
+                  }) => (
+                    <ScoreDetailCard
+                      key={assessor?.id}
+                      contributor={assessor}
+                      workScore={workScore}
+                      cultureScore={cultureScore}
+                      feedbackPositive={feedbackPositive}
+                      feedbackNegative={feedbackNegative}
+                    />
+                  )
                 )
-              )
-            ) : (
-              <Alert showIcon type="warning" className="mt-4">
-                <p>{selectedUser?.username || 'This user'} has not received any assessments yet.</p>
-              </Alert>
-            )}
+              ) : (
+                <Alert showIcon type="warning" className="mt-4">
+                  <p>
+                    {selectedUser?.username || "This user"} has not received any
+                    assessments yet.
+                  </p>
+                </Alert>
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );
