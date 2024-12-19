@@ -15,7 +15,7 @@ import { set } from "lodash";
 import React from "react";
 import Countdown from "react-countdown";
 import { FiClock } from "react-icons/fi";
-import { HiCheck } from "react-icons/hi";
+import { HiArrowSmLeft, HiCheck } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -38,13 +38,12 @@ const RoundView: React.FC = () => {
       profilePicture: orgContributor?.profilePicture || "",
     };
     dispatch(setSelectedUser(enhancedContributor));
-    console.log("enhancedContributor", enhancedContributor);
     navigate("/rounds/round/contributor-scores");
   };
 
   React.useEffect(() => {
-    if (currentRound?.contributors) {
-      const contributorsWithReminder = currentRound.contributors.map(
+    if (selectedRound?.contributors) {
+      const contributorsWithReminder = selectedRound.contributors.map(
         (contributor: any) => ({
           ...contributor,
           reminded: false,
@@ -81,8 +80,7 @@ const RoundView: React.FC = () => {
       handleError(error.response.data.message);
     }
   };
-
-  const columnsWithReminder: ColumnDef<any>[] = [
+  const columnsWithoutReminderAndViewAssessments: ColumnDef<any>[] = [
     {
       header: "Member",
       accessorKey: "username",
@@ -147,18 +145,38 @@ const RoundView: React.FC = () => {
         }
       },
     },
-    // {
-    //   header: "Team Points",
-    //   accessorKey: "agreement.teamPoints",
-    // },
-    // {
-    //   header: "Team Points",
-    //   accessorKey: "agreement.teamPointsShare",
-    //   cell: (props) => {
-    //     const value = props.getValue() as number;
-    //     return value ? <span>{value}%</span> : null;
-    //   },
-    // },
+  ];
+
+  const columnsWithoutReminder: ColumnDef<any>[] = [
+    ...columnsWithoutReminderAndViewAssessments,
+    {
+      header: "Assessments",
+      id: "viewAssessments",
+      cell: (props) => {
+        const contributor = props.row.original;
+        const reminded = contributor.reminded;
+
+        return (
+          <div className="flex flex-row justify-center">
+            <Button
+              size="sm"
+              loading={contributor.loading}
+              disabled={false}
+              onClick={(event) => {
+                event.preventDefault();
+                goToContributorAssessments(contributor);
+              }}
+            >
+              View
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
+  const adminColumns: ColumnDef<any>[] = [
+    ...columnsWithoutReminderAndViewAssessments,
     {
       header: "Has Assessed",
       id: "hasAssessed",
@@ -220,138 +238,54 @@ const RoundView: React.FC = () => {
     },
   ];
 
-  const columns: ColumnDef<any>[] = [
-    {
-      header: "Member",
-      accessorKey: "username",
-      cell: (props) => {
-        const data = props.row.original;
-        const value = props.getValue() as string;
-        return (
-          <CustomAvatarAndUsername
-            imageUrl={data?.profilePicture}
-            userName={value}
-          />
-        );
-      },
-    },
-    {
-      header: "Total Score",
-      accessorKey: "totalScore",
-      cell: (props) => {
-        const value = props.getValue() as number;
-        return value ? <span>{value.toFixed(1)}</span> : null;
-      },
-    },
-    {
-      header: "Culture Impact",
-      accessorKey: "cultureScore",
-      cell: (props) => {
-        const value = props.getValue() as number;
-        return value ? <span>{value.toFixed(1)}</span> : null;
-      },
-    },
-    {
-      header: "Work",
-      accessorKey: "workScore",
-      cell: (props) => {
-        const value = props.getValue() as number;
-        return value ? <span>{value.toFixed(1)}</span> : null;
-      },
-    },
-    {
-      header: "Team Points",
-      accessorKey: "teamPoints",
-      cell: (props) => {
-        const value = props.getValue() as number;
-        return value ? <span>{value.toFixed(0)}</span> : null;
-      },
-    },
-    {
-      header: "Fiat",
-      accessorKey: "fiat",
-      cell: (props) => {
-        const value = props.getValue() as number;
-        if (value) {
-          return (
-            <span>
-              $
-              {Number(props.getValue() as number).toLocaleString("en-US", {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              })}
-            </span>
-          );
-        }
-      },
-    },
-    // {
-    //   header: "Team Points",
-    //   accessorKey: "agreement.teamPoints",
-    // },
-    // {
-    //   header: "Team Points",
-    //   accessorKey: "agreement.teamPointsShare",
-    //   cell: (props) => {
-    //     const value = props.getValue() as number;
-    //     return value ? <span>{value}%</span> : null;
-    //   },
-    // },
-    {
-      header: "Assessments",
-      id: "viewAssessments",
-      cell: (props) => {
-        const contributor = props.row.original;
-        const reminded = contributor.reminded;
-
-        return (
-          <div className="flex flex-row justify-center">
-            <Button
-              size="sm"
-              loading={contributor.loading}
-              disabled={false}
-              onClick={(event) => {
-                event.preventDefault();
-                goToContributorAssessments(contributor);
-              }}
-            >
-              View
-            </Button>
-          </div>
-        );
-      },
-    },
-  ];
-
-  React.useEffect(() => {
-    // This useEffect runs only once
-  }, []);
+  const navigateBack = () => {
+    navigate(-1);
+  };
 
   return (
     <>
       {selectedRound && (
         <div>
+          <div>
+            <Button
+              size="sm"
+              className="mb-2"
+              onClick={navigateBack}
+              icon={<HiArrowSmLeft />}
+            >
+              Back to Rounds
+            </Button>
+          </div>
           <div className="flex flex-row justify-between">
             <div className="flex flex-row justify-start items-center gap-2">
-              <h1>Round {selectedRound?.roundName}</h1>
+              <h1>Round {selectedRound?.roundNumber}</h1>
               <RoundStatusTag roundStatus={selectedRound?.status} />
             </div>
-            <div className="flex flex-row items-center rounded bg-gray-200 p-2">
-              <FiClock className="text-berrylavender-500 mr-2 text-2xl" />
-              <div className="text-gray-900 mr-2 text-lg">Time left</div>
-              <Countdown
-                date={selectedRound?.endDate}
-                renderer={CustomCountdown}
-              />
-            </div>
+            {selectedRound?.status === RoundStatus.InProgress && (
+              <div className="flex flex-row items-center rounded bg-gray-200 p-2">
+                <FiClock className="text-berrylavender-500 mr-2 text-2xl" />
+                <div className="text-gray-900 mr-2 text-lg">Time left</div>
+                <Countdown
+                  date={selectedRound?.endDate}
+                  renderer={CustomCountdown}
+                />
+              </div>
+            )}
           </div>
           <div className="mt-4">
             <CustomTableWithSorting
               data={contributors || []}
               columns={
-                user?.isAdmin && selectedRound.status === RoundStatus.InProgress
-                  ? columnsWithReminder
-                  : columns
+                user?.isAdmin &&
+                selectedRound?.status === RoundStatus.InProgress
+                  ? adminColumns
+                  : user?.isAdmin &&
+                      selectedRound?.status !== RoundStatus.InProgress
+                    ? columnsWithoutReminder
+                    : !user?.isAdmin &&
+                        selectedRound?.status === RoundStatus.InProgress
+                      ? columnsWithoutReminderAndViewAssessments
+                      : columnsWithoutReminder
               }
             />
           </div>

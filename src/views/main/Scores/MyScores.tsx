@@ -109,7 +109,7 @@ const MyScores: React.FC = () => {
       {selectedRound && scores && (
         <div>
           <div className="flex flex-row justify-between">
-            <h1>Round {scores?.roundName}</h1>
+            <h1>Round {scores?.roundNumber}</h1>
           </div>
           <div className="mt-4">
             <div className="grid grid-cols-2 gap-4">

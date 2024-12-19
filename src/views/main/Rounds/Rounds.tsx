@@ -73,12 +73,6 @@ const Rounds: React.FC = () => {
       setLoading(false);
     }
   };
-
-  const getRoundNumber = (id: string) => {
-    if (!id) return "";
-    const index = allRounds?.findIndex((r) => r.id === id);
-    return allRounds?.length - index;
-  };
   const isCurrentRound = (round: any) => {
     return round?.id === currentRound?.id;
   };
@@ -161,10 +155,10 @@ const Rounds: React.FC = () => {
   const columns: ColumnDef<any>[] = [
     {
       header: "Round",
+      accessorKey: "roundNumber",
       cell: (props) => {
-        const data = props.row.original;
         const value = props.getValue() as string;
-        return <span>{`Round ${getRoundNumber(data?.id)}`}</span>;
+        return <span>{`Round ${value}`}</span>;
       },
     },
     {
@@ -284,7 +278,11 @@ const Rounds: React.FC = () => {
                 </div>
               </div>
             )} */}
-            <CustomTableWithSorting data={allRounds || []} columns={columns} />
+            <CustomTableWithSorting
+              data={allRounds || []}
+              columns={columns}
+              initialSort={[{ id: "roundNumber", desc: true }]}
+            />
           </>
         ) : (
           <>
