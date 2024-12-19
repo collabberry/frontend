@@ -11,9 +11,6 @@ import { HiArrowSmLeft } from "react-icons/hi";
 const ContributorScoreView: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
   const navigate = useNavigate();
-  const currentRound = useSelector(
-    (state: RootState) => state.auth.rounds.currentRound
-  );
   const { selectedRound, selectedUser } = useSelector(
     (state: RootState) => state.auth.rounds
   );
@@ -26,11 +23,9 @@ const ContributorScoreView: React.FC = () => {
   React.useEffect(() => {
     const fetchScores = async () => {
       const assessments = await apiGetAssessmentsByAssessed(
-        currentRound?.id,
+        selectedRound?.id,
         selectedUser?.id
       );
-
-      console.log(assessments, "assessments");
       const enrichedAssessments = assessments.data.map(
         (assessment: { assessorId: string }) => {
           const contributor = organization?.contributors?.find(
@@ -120,7 +115,7 @@ const ContributorScoreView: React.FC = () => {
                 <Alert showIcon type="warning" className="mt-4">
                   <p>
                     {selectedUser?.username || "This user"} has not received any
-                    assessments yet.
+                    assessments.
                   </p>
                 </Alert>
               )}

@@ -114,7 +114,7 @@ const Scores: React.FC = () => {
         const round = props.row.original;
         return (
           <div>
-            {round ? (
+            {round && round.status === RoundStatus.Completed ? (
               <Button
                 size="sm"
                 variant="plain"
