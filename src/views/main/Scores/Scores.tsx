@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
+import RoundStatusTag from "@/components/collabberry/custom-components/CustomFields/RoundStatusTag";
 
 const Scores: React.FC = () => {
   const dispatch = useDispatch();
@@ -98,21 +99,7 @@ const Scores: React.FC = () => {
       cell: (props) => {
         const value = props.getValue() as number;
 
-        const statusString = (() => {
-          switch (value) {
-            case RoundStatus.NotStarted:
-              return "Not Started";
-            case RoundStatus.InProgress:
-              return "In Progress";
-            case RoundStatus.Completed:
-              return "Completed";
-            default:
-              return "Unknown";
-          }
-        })();
-        return <span>{statusString}</span>;
-        {
-        }
+        return <RoundStatusTag roundStatus={value} />;
       },
     },
     // {

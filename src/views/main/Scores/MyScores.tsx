@@ -99,22 +99,7 @@ const MyScores: React.FC = () => {
         (score: any) => score.roundId === selectedRound?.id
       );
       setScores(selectedRoundScores);
-      const assessments = await apiGetAssessmentsByAssessed(
-        currentRound?.id,
-        user?.id
-      );
-      const enrichedAssessments = assessments.data.map(
-        (assessment: { assessorId: string }) => {
-          const contributor = organization?.contributors?.find(
-            (contributor) => contributor.id === assessment.assessorId
-          );
-          return {
-            ...assessment,
-            assessor: contributor,
-          };
-        }
-      );
-      setAssessments(enrichedAssessments);
+      setAssessments(selectedRoundScores?.assessments);
     };
     fetchScores();
   }, []);

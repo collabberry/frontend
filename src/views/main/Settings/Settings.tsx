@@ -82,8 +82,21 @@ const validationSchema = Yup.object().shape({
     .min(0, "The rate cannot be less than 0%"),
 });
 
+const TextInfoBlock: React.FC<{ title: string; value: string }> = ({
+  title,
+  value,
+}) => {
+  return (
+    <div className="flex flex-col">
+      <h3 className="text-berrylavender-600 font-bold">{value}</h3>
+      <span className="text-sm">{title}</span>
+    </div>
+  );
+};
+
 const Settings: React.FC<any> = () => {
   const dispatch = useDispatch();
+  const { isAdmin } = useSelector((state: RootState) => state.auth.user);
   const organization = useSelector((state: RootState) => state.auth.org);
 
   const formik = useFormik({
@@ -99,9 +112,9 @@ const Settings: React.FC<any> = () => {
       const {
         contributors,
         nextRoundDate,
-        roundsActivated,   
+        roundsActivated,
         cycle,
-        startDate,     
+        startDate,
         ...restOrganization
       } = organization as any;
 
@@ -123,7 +136,6 @@ const Settings: React.FC<any> = () => {
             handleError(error.response.data.message);
           }
 
-
           try {
             const allRoundsResponse = await apiGetRounds();
             if (allRoundsResponse.data) {
@@ -131,14 +143,12 @@ const Settings: React.FC<any> = () => {
             }
           } catch (error: any) {}
 
-          
           try {
             const roundResponse = await apiGetCurrentRound();
             if (roundResponse.data) {
               dispatch(setRounds(roundResponse.data));
             }
           } catch (error: any) {}
-
         }
 
         handleSuccess(
@@ -150,134 +160,205 @@ const Settings: React.FC<any> = () => {
     },
   });
 
+  const getCompensationPeriodLabel = (period: CompensationPeriod) => {
+    switch (period) {
+      case CompensationPeriod.Weekly:
+        return "Weekly";
+      case CompensationPeriod.Biweekly:
+        return "Biweekly";
+      case CompensationPeriod.Monthly:
+        return "Monthly";
+      case CompensationPeriod.Quarterly:
+        return "Quarterly";
+      default:
+        return "Unknown";
+    }
+  };
+
   return (
     <>
       <h2 className="text-4xl font-bold mb-4">Settings</h2>
-      <Card className="w-3/4">
-        <FormContainer>
-          <div className="text-xl font-semibold text-gray-900 mb-2">
-            Compensation Settings
-          </div>
-          <div className="flex flex-col lg:flex-row items-start justify-between">
-            <FormItem
-              label="Compensation Period"
-              asterisk={true}
-              errorMessage={formik.errors.compensationPeriod}
-              invalid={
-                formik.touched.compensationPeriod &&
-                !!formik.errors.compensationPeriod
-              }
-              className="w-full lg:w-1/3 "
-            >
-              <VerticalRadio
-                setFieldValue={formik.setFieldValue}
-                field="compensationPeriod"
-                value={formik.values.compensationPeriod ?? null}
-                options={[
-                  { label: "Weekly", value: CompensationPeriod.Weekly },
-                  { label: "Biweekly", value: CompensationPeriod.Biweekly },
-                  { label: "Monthly", value: CompensationPeriod.Monthly },
-                  { label: "Quarterly", value: CompensationPeriod.Quarterly },
-                ]}
-              />
-            </FormItem>
-            <FormItem
-              label="Compensation Start Date"
-              className="w-full lg:w-2/3"
-              asterisk={true}
-            >
-              <CustomCalendar
-                setFieldValue={formik.setFieldValue}
-                field="compensationStartDay"
-                value={formik.values.compensationStartDay ?? null}
-              />
-            </FormItem>
-          </div>
+      {isAdmin ? (
+        <Card className="w-3/4">
+          <FormContainer>
+            <div className="text-xl font-semibold text-gray-900 mb-2">
+              Compensation Settings
+            </div>
+            <div className="flex flex-col lg:flex-row items-start justify-between">
+              <FormItem
+                label="Compensation Period"
+                asterisk={true}
+                errorMessage={formik.errors.compensationPeriod}
+                invalid={
+                  formik.touched.compensationPeriod &&
+                  !!formik.errors.compensationPeriod
+                }
+                className="w-full lg:w-1/3 "
+              >
+                <VerticalRadio
+                  setFieldValue={formik.setFieldValue}
+                  field="compensationPeriod"
+                  value={formik.values.compensationPeriod ?? null}
+                  options={[
+                    { label: "Weekly", value: CompensationPeriod.Weekly },
+                    { label: "Biweekly", value: CompensationPeriod.Biweekly },
+                    { label: "Monthly", value: CompensationPeriod.Monthly },
+                    { label: "Quarterly", value: CompensationPeriod.Quarterly },
+                  ]}
+                />
+              </FormItem>
+              <FormItem
+                label="Compensation Start Date"
+                className="w-full lg:w-2/3"
+                asterisk={true}
+              >
+                <CustomCalendar
+                  setFieldValue={formik.setFieldValue}
+                  field="compensationStartDay"
+                  value={formik.values.compensationStartDay ?? null}
+                />
+              </FormItem>
+            </div>
 
-          <div className="text-xl font-semibold text-gray-900 mb-2">
-            Assessment Rounds Settings
-          </div>
-          <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
-            <FormItem
-              label="Assesment Start Delay (in days)"
-              className="w-full"
-              asterisk={true}
-              errorMessage={formik.errors.assessmentStartDelayInDays}
-              invalid={
-                formik.touched.assessmentStartDelayInDays &&
-                !!formik.errors.assessmentStartDelayInDays
-              }
-              extraTooltip="This is the number of days after the compensation period ends that the assessment round will start."
-            >
-              <Input
-                name="assessmentStartDelayInDays"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+            <div className="text-xl font-semibold text-gray-900 mb-2">
+              Assessment Rounds Settings
+            </div>
+            <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
+              <FormItem
+                label="Assesment Start Delay (in days)"
+                className="w-full"
+                asterisk={true}
+                errorMessage={formik.errors.assessmentStartDelayInDays}
                 invalid={
                   formik.touched.assessmentStartDelayInDays &&
                   !!formik.errors.assessmentStartDelayInDays
                 }
-                value={formik.values.assessmentStartDelayInDays}
-                suffix="days"
-              />
-            </FormItem>
-            <FormItem
-              label="Assesment Duration (in days)"
-              className="w-full"
-              asterisk={true}
-              errorMessage={formik.errors.assessmentDurationInDays}
-              invalid={
-                formik.touched.assessmentDurationInDays &&
-                !!formik.errors.assessmentDurationInDays
-              }
-              extraTooltip="This is the number of days the assessment round will last by default."
-            >
-              <Input
-                name="assessmentDurationInDays"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                type="number"
+                extraTooltip="This is the number of days after the compensation period ends that the assessment round will start."
+              >
+                <Input
+                  name="assessmentStartDelayInDays"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  invalid={
+                    formik.touched.assessmentStartDelayInDays &&
+                    !!formik.errors.assessmentStartDelayInDays
+                  }
+                  value={formik.values.assessmentStartDelayInDays}
+                  suffix="days"
+                />
+              </FormItem>
+              <FormItem
+                label="Assesment Duration (in days)"
+                className="w-full"
+                asterisk={true}
+                errorMessage={formik.errors.assessmentDurationInDays}
                 invalid={
                   formik.touched.assessmentDurationInDays &&
                   !!formik.errors.assessmentDurationInDays
                 }
-                value={formik.values.assessmentDurationInDays}
-                suffix="days"
-              />
-            </FormItem>
-          </div>
-          <div className="flex flex-col lg:flex-row items-start justify-between">
-            <FormItem
-              label="Performance Adjustment Rate"
-              className="w-1/2"
-              asterisk={true}
-              invalid={formik.touched.par && !!formik.errors.par}
-              errorMessage={formik.errors.par}
-              extraTooltip="This is the minimum or maximum percentage by which the compensation can increase or decrease. We recommend using 20% as a balanced value."
-            >
-              <Input
-                name="par"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.par}
+                extraTooltip="This is the number of days the assessment round will last by default."
+              >
+                <Input
+                  name="assessmentDurationInDays"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  type="number"
+                  invalid={
+                    formik.touched.assessmentDurationInDays &&
+                    !!formik.errors.assessmentDurationInDays
+                  }
+                  value={formik.values.assessmentDurationInDays}
+                  suffix="days"
+                />
+              </FormItem>
+            </div>
+            <div className="flex flex-col lg:flex-row items-start justify-between">
+              <FormItem
+                label="Performance Adjustment Rate"
+                className="w-1/2"
+                asterisk={true}
                 invalid={formik.touched.par && !!formik.errors.par}
-                suffix="%"
-              />
-            </FormItem>
-          </div>
+                errorMessage={formik.errors.par}
+                extraTooltip="This is the minimum or maximum percentage by which the compensation can increase or decrease. We recommend using 20% as a balanced value."
+              >
+                <Input
+                  name="par"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.par}
+                  invalid={formik.touched.par && !!formik.errors.par}
+                  suffix="%"
+                />
+              </FormItem>
+            </div>
 
-          <div className="flex justify-end mt-4">
-            <Button
-              type="submit"
-              className="mx-2"
-              onClick={() => formik.handleSubmit()}
-              disabled={!formik.isValid || formik.isSubmitting}
-            >
-              Save
-            </Button>
+            <div className="flex justify-end mt-4">
+              <Button
+                type="submit"
+                className="mx-2"
+                onClick={() => formik.handleSubmit()}
+                disabled={!formik.isValid || formik.isSubmitting}
+              >
+                Save
+              </Button>
+            </div>
+          </FormContainer>
+        </Card>
+      ) : (
+        <Card className="w-3/4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <TextInfoBlock
+              value={
+                organization?.compensationPeriod
+                  ? `${getCompensationPeriodLabel(
+                      organization?.compensationPeriod
+                    )}`
+                  : "N/A"
+              }
+              title="Compensation Period"
+            />
+            <TextInfoBlock
+              value={
+                organization?.par ? `${organization.par.toFixed(0)}%` : "N/A"
+              }
+              title="Performance Adjustment Rate"
+            />
+            <TextInfoBlock
+              value={
+                organization?.compensationStartDay
+                  ? new Date(
+                      organization.compensationStartDay
+                    ).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )
+                  : "N/A"
+              }
+              title="Compensation Start Date"
+            />
+            <TextInfoBlock
+              value={
+                organization?.assessmentStartDelayInDays
+                  ? `${organization.assessmentStartDelayInDays} days`
+                  : "N/A"
+              }
+              title="Assessment Start Delay"
+            />
+            <TextInfoBlock
+              value={
+                organization?.assessmentDurationInDays
+                  ? `${organization.assessmentDurationInDays} days`
+                  : "N/A"
+              }
+              title="Assessment Duration"
+            />
           </div>
-        </FormContainer>
-      </Card>
+        </Card>
+      )}
     </>
   );
 };
