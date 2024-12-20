@@ -3,6 +3,7 @@ import {
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
 import {
+  Alert,
   Button,
   Card,
   FormContainer,
@@ -23,7 +24,10 @@ import VerticalRadio from "@/components/collabberry/custom-components/CustomFiel
 import { useFormik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
-import { CompensationPeriod } from "@/components/collabberry/utils/collabberry-constants";
+import {
+  CompensationPeriod,
+  RoundStatus,
+} from "@/components/collabberry/utils/collabberry-constants";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi";
 
 const validationSchema = Yup.object().shape({
@@ -80,6 +84,11 @@ const validationSchema = Yup.object().shape({
     .required("This field is required.")
     .max(100, "The rate cannot exceed 100%")
     .min(0, "The rate cannot be less than 0%"),
+  totalFunds: Yup.number()
+    .integer("The amount must be a whole number.")
+    .required("This field is required.")
+    .min(0, "The amount cannot be less than 0")
+    .max(10000000, "The amount cannot exceed $10,000,000"),
 });
 
 const TextInfoBlock: React.FC<{ title: string; value: string }> = ({
@@ -97,6 +106,9 @@ const TextInfoBlock: React.FC<{ title: string; value: string }> = ({
 const Settings: React.FC<any> = () => {
   const dispatch = useDispatch();
   const { isAdmin } = useSelector((state: RootState) => state.auth.user);
+  const currentRound = useSelector(
+    (state: RootState) => state.auth.rounds.currentRound
+  );
   const organization = useSelector((state: RootState) => state.auth.org);
 
   const formik = useFormik({
@@ -106,6 +118,9 @@ const Settings: React.FC<any> = () => {
       assessmentStartDelayInDays: organization?.assessmentStartDelayInDays,
       assessmentDurationInDays: organization?.assessmentDurationInDays,
       par: organization?.par ? Number(organization.par) : undefined,
+      totalFunds: organization?.totalFunds
+        ? Number(organization.totalFunds)
+        : undefined,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -181,9 +196,21 @@ const Settings: React.FC<any> = () => {
       {isAdmin ? (
         <Card className="w-3/4">
           <FormContainer>
-            <div className="text-xl font-semibold text-gray-900 mb-2">
-              Compensation Settings
+            <div className="mb-4">
+              <div className="text-xl font-semibold text-gray-900">
+                Compensation Settings
+              </div>
+              {currentRound &&
+                currentRound.status === RoundStatus.InProgress && (
+                  <Alert showIcon type="warning" className="mt-2">
+                    <p>
+                      There is an ongoing round. All changes to the compensation
+                      settings will take effect in the next round.
+                    </p>
+                  </Alert>
+                )}
             </div>
+
             <div className="flex flex-col lg:flex-row items-start justify-between">
               <FormItem
                 label="Compensation Period"
@@ -219,7 +246,6 @@ const Settings: React.FC<any> = () => {
                 />
               </FormItem>
             </div>
-
             <div className="text-xl font-semibold text-gray-900 mb-2">
               Assessment Rounds Settings
             </div>
@@ -272,7 +298,7 @@ const Settings: React.FC<any> = () => {
                 />
               </FormItem>
             </div>
-            <div className="flex flex-col lg:flex-row items-start justify-between">
+            <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
               <FormItem
                 label="Performance Adjustment Rate"
                 className="w-1/2"
@@ -290,8 +316,28 @@ const Settings: React.FC<any> = () => {
                   suffix="%"
                 />
               </FormItem>
+              <FormItem
+                label="Treasury Funds"
+                className="w-1/2"
+                asterisk={true}
+                invalid={
+                  formik.touched.totalFunds && !!formik.errors.totalFunds
+                }
+                errorMessage={formik.errors.totalFunds}
+                extraTooltip="This is the amount of money in the treasury that will be used to pay contributors."
+              >
+                <Input
+                  name="totalFunds"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.totalFunds}
+                  invalid={
+                    formik.touched.totalFunds && !!formik.errors.totalFunds
+                  }
+                  suffix="$"
+                />
+              </FormItem>
             </div>
-
             <div className="flex justify-end mt-4">
               <Button
                 type="submit"
@@ -313,13 +359,15 @@ const Settings: React.FC<any> = () => {
                   ? `${getCompensationPeriodLabel(
                       organization?.compensationPeriod
                     )}`
-                  : "N/A"
+                  : "Not Set"
               }
               title="Compensation Period"
             />
             <TextInfoBlock
               value={
-                organization?.par ? `${organization.par.toFixed(0)}%` : "N/A"
+                organization?.par
+                  ? `${organization.par.toFixed(0)}%`
+                  : "Not Set"
               }
               title="Performance Adjustment Rate"
             />
@@ -328,15 +376,12 @@ const Settings: React.FC<any> = () => {
                 organization?.compensationStartDay
                   ? new Date(
                       organization.compensationStartDay
-                    ).toLocaleDateString(
-                      "en-US",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      }
-                    )
-                  : "N/A"
+                    ).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
+                  : "Not Set"
               }
               title="Compensation Start Date"
             />
@@ -344,7 +389,7 @@ const Settings: React.FC<any> = () => {
               value={
                 organization?.assessmentStartDelayInDays
                   ? `${organization.assessmentStartDelayInDays} days`
-                  : "N/A"
+                  : "Not Set"
               }
               title="Assessment Start Delay"
             />
@@ -352,9 +397,20 @@ const Settings: React.FC<any> = () => {
               value={
                 organization?.assessmentDurationInDays
                   ? `${organization.assessmentDurationInDays} days`
-                  : "N/A"
+                  : "Not Set"
               }
               title="Assessment Duration"
+            />
+            <TextInfoBlock
+              value={
+                organization?.totalFunds
+                  ? `$${organization.totalFunds.toLocaleString("en-US", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}`
+                  : "Not Set"
+              }
+              title="Treasury Funds"
             />
           </div>
         </Card>

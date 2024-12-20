@@ -41,12 +41,12 @@ const AgreementDetails: React.FC<{ contributor: Contributor }> = ({
     <>
       <div className="mt-4 p-4 bg-berrylavender-100 rounded">
         <div className="flex flex-row justify-between font-semibold text-berrylavender-700">
-          <p>{`Commitment: ${commitment ? commitment?.toFixed(0) : "N/A"}%`}</p>
+          <p>{`Commitment: ${commitment ? commitment?.toFixed(0) : "Not Set"}%`}</p>
           <p>|</p>
-          <p>{`Market Rate: $${marketRate ? marketRate : "N/A"}`}</p>
+          <p>{`Market Rate: $${marketRate ? marketRate : "Not Set"}`}</p>
           <p>|</p>
           <p>{`Monetary Comp: $${
-            fiatRequested ? fiatRequested : "N/A"
+            fiatRequested ? fiatRequested : "Not Set"
           }`}</p>
         </div>
       </div>

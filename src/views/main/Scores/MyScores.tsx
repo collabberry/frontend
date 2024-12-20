@@ -67,14 +67,18 @@ export const ScoreDetailCard: React.FC<ScoreDetailProps> = ({
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="mt-4">
-          <h3 className="font-semibold text-sm uppercase">Did well</h3>
-          <p className="mt-1">{feedbackPositive}</p>
-        </div>
-        <div className="mt-4">
+        {feedbackPositive && (
+          <div className="mt-4">
+            <h3 className="font-semibold text-sm uppercase">Did well</h3>
+            <p className="mt-1">{feedbackPositive}</p>
+          </div>
+        )}
+      {feedbackNegative && (
+          <div className="mt-4">
           <h3 className="font-semibold text-sm uppercase">Could Improve</h3>
           <p className="mt-1">{feedbackNegative}</p>
         </div>
+      )}
       </div>
     </Card>
   );

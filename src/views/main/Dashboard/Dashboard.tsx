@@ -36,7 +36,7 @@ import InvitationLink from "./InvitationDialog";
 
 const Dashboard = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
-  const isAdmin = useSelector((state: RootState) => state.auth.user.isAdmin);
+  const user = useSelector((state: RootState) => state.auth.user);
   const currentRound = useSelector(
     (state: RootState) => state.auth.rounds.currentRound
   );
@@ -109,15 +109,52 @@ const Dashboard = () => {
     );
   }, [organization]);
 
-  // TODO: Replace hardcoded values with actual data
-  // const currentRound = 1;
-  const fiatPerRound = 1000;
-  const pointsPerRound = 32000;
-  const treasury = 18000;
-  const runway = 7;
+  const remainingFunds = useMemo(() => {
+    return (
+      (organization?.totalFunds ?? 0) -
+      (organization?.totalDistributedFiat ?? 0)
+    );
+  }, [organization]);
+
+  const runway = useMemo(() => {
+    const contributorFiat = organization?.contributors?.reduce(
+      (acc, contributor) => {
+        return (
+          acc +
+          (contributor.agreement?.fiatRequested
+            ? +contributor.agreement.fiatRequested
+            : 0)
+        );
+      },
+      0
+    );
+
+    console.log("currentRound", currentRound);
+
+
+    const runway =
+      contributorFiat && remainingFunds ? remainingFunds / contributorFiat : 0;
+
+    const months = Math.floor(runway);
+    const years = Math.floor(months / 12);
+    const remainingMonths = months % 12;
+
+    if (years > 0) {
+      return `${years} year${years > 1 ? "s" : ""} ${remainingMonths} month${
+        remainingMonths !== 1 ? "s" : ""
+      }`;
+    } else {
+      return `${months} month${months !== 1 ? "s" : ""}`;
+    }
+  }, [organization, remainingFunds]);
 
   const numberOfContributorsWithAssessments = useMemo(() => {
-    return 0; // Hardcoded value for now
+    if (currentRound?.contributors) {
+      return currentRound.contributors.filter(
+        (contributor: { hasAssessed: any }) => contributor.hasAssessed
+      ).length;
+    }
+    return 0;
   }, []);
 
   return (
@@ -128,7 +165,7 @@ const Dashboard = () => {
         </Dialog>
       )}
       <div className="flex flex-col items-start h-full px-4">
-        {isAdmin && (
+        {user?.isAdmin && (
           <div className="w-full max-w-4xl mb-6">
             <h1 className="text-4xl font-bold mb-4">Steps to Complete</h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -175,49 +212,71 @@ const Dashboard = () => {
           </div>
         )}
         <div className="w-full max-w-4xl">
-          <h1 className="text-4xl font-bold mb-4">{isAdmin ? 'Admin Dashboard' : 'Dashboard'}</h1>
+          {user?.isAdmin ? (
+            <h1 className="text-4xl font-bold mb-4">Admin Dashboard</h1>
+          ) : (
+            <div className="mb-4">
+              <h1 className="text-4xl font-bold mb-4">Dashboard</h1>
+              <p>{`Welcome back, ${user.userName}!`}</p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <InfoCard
-              //TODO: Implement logic to show correct number of contribitors with assessments
-              footerAction={
-                numberOfContributorsWithAssessments < numberOfContributors &&
-                currentRound?.id && isAdmin
-                  ? assessmentCardAction
-                  : undefined
-              }
-              footerButtonTitle="Remind all"
-              HeaderIcon={
-                <FiPieChart style={{ height: "100%", width: "100%" }} />
-              }
-              cardContent={
-                <>
-                  <strong>{numberOfContributorsWithAssessments}</strong> out of{" "}
-                  <strong>{numberOfContributors}</strong> members have completed
-                  the assessment
-                </>
-              }
-            />
+            {currentRound && (
+              <InfoCard
+                //TODO: Implement logic to show correct number of contribitors with assessments
+                footerAction={
+                  numberOfContributorsWithAssessments < numberOfContributors &&
+                  currentRound?.id &&
+                  user?.isAdmin
+                    ? assessmentCardAction
+                    : undefined
+                }
+                footerButtonTitle="Remind all"
+                HeaderIcon={
+                  <FiPieChart style={{ height: "100%", width: "100%" }} />
+                }
+                cardContent={
+                  <>
+                    <strong>{numberOfContributorsWithAssessments}</strong> out
+                    of <strong>{numberOfContributors}</strong> members have
+                    completed the assessment
+                  </>
+                }
+              />
+            )}
             <InfoCard
               HeaderIcon={
                 <FiCheckCircle style={{ height: "100%", width: "100%" }} />
               }
               cardContent={
                 <div>
-                  <p>Round total distributed</p>
+                  <p>Total distributed</p>
                   <p className="text-lg font-bold">
-                    TP{" "}
-                    {pointsPerRound.toLocaleString("en-US", {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })}
+                    {`TP ${
+                      organization?.totalDistributedTP
+                        ? organization?.totalDistributedTP.toLocaleString(
+                            "en-US",
+                            {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }
+                          )
+                        : "0"
+                    }`}
                   </p>
                   <p className="text-lg font-bold">
-                    ${" "}
-                    {fiatPerRound.toLocaleString("en-US", {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })}
+                    {`$${
+                      organization?.totalDistributedFiat
+                        ? organization?.totalDistributedFiat.toLocaleString(
+                            "en-US",
+                            {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }
+                          )
+                        : "0"
+                    }`}
                   </p>
                 </div>
               }
@@ -230,14 +289,15 @@ const Dashboard = () => {
                 <div>
                   <p>Treasury</p>
                   <p className="text-lg font-bold">
-                    ${" "}
-                    {treasury.toLocaleString("en-US", {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })}
+                    {organization.totalFunds
+                      ? organization?.totalFunds.toLocaleString("en-US", {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        })
+                      : "Not Set"}
                   </p>
                   <p>Runway</p>
-                  <p className="text-lg font-bold">{runway} months</p>
+                  <p className="text-lg font-bold">{runway}</p>
                 </div>
               }
             />

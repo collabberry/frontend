@@ -173,15 +173,19 @@ const SignUp = () => {
           if (org.data) {
             dispatch(
               setOrganization({
-                logo: org.data.logo,
-                name: org.data.name,
-                id: org.data.id,
-                par: org.data.par,
-                compensationPeriod: org.data.compensationPeriod,
-                compensationStartDay: org.data.compensationStartDay,
-                assessmentDurationInDays: org.data.assessmentDurationInDays,
-                assessmentStartDelayInDays: org.data.assessmentStartDelayInDays,
-                contributors: org.data.contributors,
+                logo: org?.data?.logo,
+                name: org?.data?.name,
+                id: org?.data?.id,
+                par: org?.data?.par,
+                totalFunds: org?.data?.totalFunds,
+                totalDistributedFiat: org?.data?.totalDistributedFiat,
+                totalDistributedTP: org?.data?.totalDistributedTP,
+                compensationPeriod: org?.data?.compensationPeriod,
+                compensationStartDay: org?.data?.compensationStartDay,
+                assessmentDurationInDays: org?.data?.assessmentDurationInDays,
+                assessmentStartDelayInDays: org?.data?.assessmentStartDelayInDays,
+                contributors: org?.data?.contributors,
+
               })
             );
           }
@@ -266,18 +270,21 @@ const SignUp = () => {
                   if (org.data) {
                     dispatch(
                       setOrganization({
-                        logo: org.data.logo,
-                        name: org.data.name,
-                        id: org.data.id,
-                        par: org.data.par,
-                        compensationPeriod: org.data.compensationPeriod,
-                        compensationStartDay: org.data.compensationStartDay,
+                        logo: org?.data?.logo,
+                        name: org?.data?.name,
+                        id: org?.data?.id,
+                        par: org?.data?.par,
+                        compensationPeriod: org?.data?.compensationPeriod,
+                        compensationStartDay: org?.data?.compensationStartDay,
+                        totalFunds: org?.data?.totalFunds,
+                        totalDistributedFiat: org?.data?.totalDistributedFiat,
+                        totalDistributedTP: org?.data?.totalDistributedTP,
                         assessmentDurationInDays:
-                          org.data.assessmentDurationInDays,
+                          org?.data?.assessmentDurationInDays,
                         assessmentStartDelayInDays:
-                          org.data.assessmentStartDelayInDays,
-                        contributors: org.data.contributors,
-                        roundsActivated: org.data.roundsActivated,
+                          org?.data?.assessmentStartDelayInDays,
+                        contributors: org?.data?.contributors,
+                        roundsActivated: org?.data?.roundsActivated,
                       })
                     );
                   }
