@@ -11,6 +11,9 @@ export type OrgState = {
   compensationPeriod?: number;
   name: string;
   logo?: string;
+  totalFunds?: number;
+  totalDistributedFiat?: number;
+  totalDistributedTP?: number;
   nextRoundDate?: string;
   roundsActivated?: boolean;
   contributors?: Contributor[];
@@ -21,6 +24,9 @@ const initialState: OrgState = {
   name: "",
   id: "",
   par: undefined,
+  totalFunds: undefined,
+  totalDistributedFiat: undefined,
+  totalDistributedTP: undefined,
   compensationPeriod: undefined,
   compensationStartDay: "",
   assessmentStartDelayInDays: undefined,
@@ -41,11 +47,15 @@ const orgSlice = createSlice({
       state.par = initialState.par;
       state.compensationPeriod = initialState.compensationPeriod;
       state.compensationStartDay = initialState.compensationStartDay;
-      state.assessmentStartDelayInDays = initialState.assessmentStartDelayInDays;
+      state.assessmentStartDelayInDays =
+        initialState.assessmentStartDelayInDays;
       state.assessmentDurationInDays = initialState.assessmentDurationInDays;
       state.nextRoundDate = initialState.nextRoundDate;
       state.contributors = initialState.contributors;
       state.roundsActivated = initialState.roundsActivated;
+      state.totalFunds = initialState.totalFunds;
+      state.totalDistributedFiat = initialState.totalDistributedFiat;
+      state.totalDistributedTP = initialState.totalDistributedTP;
     },
     setOrganization(state, action: PayloadAction<OrgState>) {
       state.logo = action.payload?.logo;
@@ -54,11 +64,15 @@ const orgSlice = createSlice({
       state.par = action.payload?.par;
       state.compensationPeriod = action.payload?.compensationPeriod;
       state.compensationStartDay = action.payload?.compensationStartDay;
-      state.assessmentStartDelayInDays = action.payload?.assessmentStartDelayInDays;
+      state.assessmentStartDelayInDays =
+        action.payload?.assessmentStartDelayInDays;
       state.assessmentDurationInDays = action.payload?.assessmentDurationInDays;
       state.nextRoundDate = action.payload?.nextRoundDate;
       state.contributors = action.payload?.contributors || [];
       state.roundsActivated = action.payload?.roundsActivated;
+      state.totalFunds = action.payload?.totalFunds;
+      state.totalDistributedFiat = action.payload?.totalDistributedFiat;
+      state.totalDistributedTP = action.payload?.totalDistributedTP;
     },
   },
 });

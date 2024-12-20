@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
 import RoundStatusTag from "@/components/collabberry/custom-components/CustomFields/RoundStatusTag";
+import { all } from "axios";
+import { HiInformationCircle } from "react-icons/hi";
 
 const Scores: React.FC = () => {
   const dispatch = useDispatch();
@@ -108,7 +110,7 @@ const Scores: React.FC = () => {
     // },
 
     {
-      header: "See My Scores",
+      header: "My Scores",
       id: "round",
       cell: (props) => {
         const round = props.row.original;
@@ -133,7 +135,28 @@ const Scores: React.FC = () => {
     <div>
       <h1>Scores</h1>
       <div className="mt-4">
-        <CustomTableWithSorting data={allRounds || []} columns={columns} />
+        {allRounds && allRounds.length ? (
+          <CustomTableWithSorting data={allRounds || []} columns={columns} />
+        ) : (
+          <div className="mt-4 flex-row flex justify-start items-center bg-gray-100 dark:bg-gray-700 gap-1 p-3 rounded-lg">
+            <HiInformationCircle className="text-2xl" />
+            <div className="text-gray-500 font-semibold">
+              There are no rounds available.
+            </div>
+            {/* <div>
+              <Button
+                size="sm"
+                color="berrylavender"
+                disabled={loading}
+                variant="solid"
+                className="ml-2 max-w-[150px]"
+                onClick={() => handleRoundActivation(true)}
+              >
+                Activate Rounds
+              </Button>
+            </div> */}
+          </div>
+        )}
       </div>
     </div>
   );

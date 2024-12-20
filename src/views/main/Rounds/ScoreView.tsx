@@ -22,6 +22,7 @@ const ContributorScoreView: React.FC = () => {
 
   React.useEffect(() => {
     const fetchScores = async () => {
+      console.log('fetchScores');
       const assessments = await apiGetAssessmentsByAssessed(
         selectedRound?.id,
         selectedUser?.id
