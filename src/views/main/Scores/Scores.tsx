@@ -17,7 +17,6 @@ const Scores: React.FC = () => {
     (state: RootState) => state.auth.rounds
   );
 
-  //TODO: Change once there is a round id
   React.useEffect(() => {
     if (!allRounds || (allRounds.length === 0 && currentRound)) {
       dispatch(setAllRounds([currentRound]));
@@ -33,7 +32,6 @@ const Scores: React.FC = () => {
     {
       header: "Round",
       cell: (props) => {
-        //TODO: Change once there is a round id
         const data = props.row.original;
         const value = props.getValue() as string;
         return <span>{"Round 1"}</span>;

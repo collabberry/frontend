@@ -129,9 +129,6 @@ const Dashboard = () => {
       0
     );
 
-    console.log("currentRound", currentRound);
-
-
     const runway =
       contributorFiat && remainingFunds ? remainingFunds / contributorFiat : 0;
 
