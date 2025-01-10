@@ -1,7 +1,9 @@
 import MovingCirclesBackground from "@/components/collabberry/custom-components/MovingCirclesBackground";
 import PulsingCirclesBackground from "@/components/collabberry/custom-components/PulsingCirclesBackground";
 import {
+  Alert,
   Button,
+  Dialog,
   FormContainer,
   FormItem,
   Input,
@@ -39,6 +41,10 @@ import { useSelector } from "react-redux";
 import { fieldRequired } from "@/components/collabberry/helpers/validations";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi";
+import { ContractResponseStatus, useDeployTeamPoints } from "@/services/ContractsService";
+import LottieAnimation from "@/components/collabberry/LottieAnimation";
+import * as animationData from "@/assets/animations/clock.json";
+
 
 const ValidationStepsSchema = Yup.object().shape({
   step1: Yup.object().shape({
@@ -101,8 +107,10 @@ const SignUp = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const organization = useSelector((state: RootState) => state.auth.org);
   const dispatch = useDispatch();
+  const { deployTeamPoints } = useDeployTeamPoints();
+
   const formik = useFormik({
-    onSubmit: () => {},
+    onSubmit: () => { },
     initialValues: initialValues,
     validationSchema: ValidationStepsSchema,
     validateOnMount: true,
@@ -166,64 +174,85 @@ const SignUp = () => {
     };
 
     try {
-      const response = await apiCreateOrganization(data);
-      if (response?.data) {
+      const contractResponse = await deployTeamPoints(data?.name);
+      if (contractResponse.status === ContractResponseStatus.Success && contractResponse.data?.contractAddress) {
         try {
-          const org = await apiGetOrganizationById(response.data.id);
-          if (org.data) {
-            dispatch(
-              setOrganization({
-                logo: org?.data?.logo,
-                name: org?.data?.name,
-                id: org?.data?.id,
-                par: org?.data?.par,
-                totalFunds: org?.data?.totalFunds,
-                totalDistributedFiat: org?.data?.totalDistributedFiat,
-                totalDistributedTP: org?.data?.totalDistributedTP,
-                compensationPeriod: org?.data?.compensationPeriod,
-                compensationStartDay: org?.data?.compensationStartDay,
-                assessmentDurationInDays: org?.data?.assessmentDurationInDays,
-                assessmentStartDelayInDays: org?.data?.assessmentStartDelayInDays,
-                contributors: org?.data?.contributors,
-
-              })
-            );
+          const orgPostData = {
+            ...data,
+            teamPointsContractAddress: contractResponse?.data.contractAddress,
           }
-        } catch (error) {
-          console.error("Error getting organization:", error);
-        }
+          const response = await apiCreateOrganization(orgPostData);
+          if (response?.data) {
+            try {
+              const org = await apiGetOrganizationById(response.data.id);
+              if (org.data) {
+                dispatch(
+                  setOrganization({
+                    logo: org?.data?.logo,
+                    name: org?.data?.name,
+                    id: org?.data?.id,
+                    par: org?.data?.par,
+                    totalFunds: org?.data?.totalFunds,
+                    totalDistributedFiat: org?.data?.totalDistributedFiat,
+                    totalDistributedTP: org?.data?.totalDistributedTP,
+                    teamPointsContractAddress: org?.data?.teamPointsContractAddress,
+                    compensationPeriod: org?.data?.compensationPeriod,
+                    compensationStartDay: org?.data?.compensationStartDay,
+                    assessmentDurationInDays: org?.data?.assessmentDurationInDays,
+                    assessmentStartDelayInDays: org?.data?.assessmentStartDelayInDays,
+                    contributors: org?.data?.contributors,
 
-        try {
-          let response: any = await apiGetUser();
-          let user = response?.data || {};
-          if (user) {
-            dispatch(
-              setUser({
-                id: user.id,
-                profilePicture: user?.profilePicture,
-                userName: response?.data?.username,
-                authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
-                email: response?.data?.email,
-                isAdmin: response?.data?.isAdmin,
-              })
-            );
+                  })
+                );
+              }
+            } catch (error) {
+              console.error("Error getting organization:", error);
+            }
+
+            try {
+              let response: any = await apiGetUser();
+              let user = response?.data || {};
+              if (user) {
+                dispatch(
+                  setUser({
+                    id: user.id,
+                    profilePicture: user?.profilePicture,
+                    userName: response?.data?.username,
+                    authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
+                    email: response?.data?.email,
+                    isAdmin: response?.data?.isAdmin,
+                  })
+                );
+              }
+            } catch (error) {
+              console.error("Error getting user:", error);
+            }
           }
-        } catch (error) {
-          console.error("Error getting user:", error);
+          formik.setSubmitting(false);
+          formik.setTouched({
+            step2: {
+              name: true,
+              logo: true,
+            },
+          });
+        } catch (error: any) {
+          handleError(error.response.data.message);
+          formik.setSubmitting(false);
+          return false;
         }
+      } else {
+        handleError("Error deploying Team Points contract");
+        formik.setSubmitting(false);
+        return false;
       }
-      formik.setSubmitting(false);
-      formik.setTouched({
-        step2: {
-          name: true,
-          logo: true,
-        },
-      });
-    } catch (error: any) {
+    }
+    catch (error: any) {
       handleError(error.response.data.message);
       formik.setSubmitting(false);
       return false;
     }
+
+
     await formik.validateForm();
     return isStepValid;
   };
@@ -279,6 +308,8 @@ const SignUp = () => {
                         totalFunds: org?.data?.totalFunds,
                         totalDistributedFiat: org?.data?.totalDistributedFiat,
                         totalDistributedTP: org?.data?.totalDistributedTP,
+                        teamPointsContractAddress:
+                          org?.data?.teamPointsContractAddress,
                         assessmentDurationInDays:
                           org?.data?.assessmentDurationInDays,
                         assessmentStartDelayInDays:
@@ -404,40 +435,73 @@ const SignUp = () => {
         );
       case 1:
         return (
-          <FormContainer>
-            <h2 className="text-2xl font-bold mb-4 mt-4">
-              Create New Organization
-            </h2>
-            <FormItem
-              label="Image"
-              asterisk
-              invalid={
-                formik.touched?.step2?.logo && !!formik.errors?.step2?.logo
-              }
-              errorMessage={formik.errors?.step2?.logo}
+          <>
+            <Dialog
+              isOpen={formik.isSubmitting}
+              closable={false}
             >
-              <AvatarImage
-                setFieldValue={formik.setFieldValue}
-                field="step2.logo"
-                value={formik.values.step2.logo}
-              />
-            </FormItem>
-            <FormItem
-              label="Name"
-              asterisk
-              invalid={
-                formik.touched?.step2?.name && !!formik.errors?.step2?.name
-              }
-              errorMessage={formik.errors?.step2?.name}
-            >
-              <Input
-                name="step2.name"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.step2.name}
-              />
-            </FormItem>
-          </FormContainer>
+              <div className=" flex flex-col items-center justify-center p-2 min-h-[200px]">
+                <div className="flex flex-col items-center">
+                  <h2 className="text-lg mb-3 mt-3 text-center font-normal">
+                    Working our magic on the blockchain...
+                  </h2>
+
+                  <div className="pointer-events-none select-none">
+                    {animationData && (
+                      <LottieAnimation animationData={animationData} height={150}
+                        width={150} />
+                    )}
+                  </div>
+                  {/* <div className="flex justify-end mt-4 gap-4">
+                        <Button type="button" onClick={handleDialogClose}>
+                            Close
+                        </Button>
+                    </div> */}
+                </div>
+              </div>
+            </Dialog>
+            <FormContainer>
+              <h2 className="text-2xl font-bold mb-4 mt-4">
+                Create New Organization
+              </h2>
+              <FormItem
+                label="Image"
+                asterisk
+                invalid={
+                  formik.touched?.step2?.logo && !!formik.errors?.step2?.logo
+                }
+                errorMessage={formik.errors?.step2?.logo}
+              >
+                <AvatarImage
+                  setFieldValue={formik.setFieldValue}
+                  field="step2.logo"
+                  value={formik.values.step2.logo}
+                />
+              </FormItem>
+              <FormItem
+                label="Name"
+                asterisk
+                invalid={
+                  formik.touched?.step2?.name && !!formik.errors?.step2?.name
+                }
+                errorMessage={formik.errors?.step2?.name}
+              >
+                <Input
+                  name="step2.name"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.step2.name}
+                />
+              </FormItem>
+            </FormContainer>
+
+
+            <div className='text-sm mt-4 items-center text-gray-500 p-1 flex flex-row justify-end'>
+              {/* <FiAlertTriangle className='mr-1'/> */}
+              <p>By submitting this form, you’ll deploy a new Team Points contract. This transaction will require gas fees.</p>
+            </div>
+          </>
+
         );
       case 2:
         return (
@@ -525,17 +589,17 @@ const SignUp = () => {
               </Tooltip>
             </div>
             <div className="mb-4 flex-row flex justify-start items-center bg-berrylavender-100 dark:bg-berrylavender-700 gap-1 p-2 rounded-lg">
-          <div className="text-berrylavender-700 dark:text-white font-semibold">
-            {formik.values.step3?.commitment &&!formik.errors.step3?.commitment &&
-            formik.values.step3?.marketRate &&
-            !formik.errors.step3?.marketRate
-              ? `Based on the commitment and market rate, the total compensation is $${(
-                  formik.values.step3?.marketRate *
-                  (formik.values.step3.commitment / 100)
-                ).toFixed(0)}.`
-              : "Please input commitment and market rate to calculate the total compensation."}
-          </div>
-        </div>
+              <div className="text-berrylavender-700 dark:text-white font-semibold">
+                {formik.values.step3?.commitment && !formik.errors.step3?.commitment &&
+                  formik.values.step3?.marketRate &&
+                  !formik.errors.step3?.marketRate
+                  ? `Based on the commitment and market rate, the total compensation is $${(
+                    formik.values.step3?.marketRate *
+                    (formik.values.step3.commitment / 100)
+                  ).toFixed(0)}.`
+                  : "Please input commitment and market rate to calculate the total compensation."}
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormItem
                 label="Market Rate"
@@ -710,3 +774,5 @@ const SignUp = () => {
 };
 
 export default SignUp;
+
+

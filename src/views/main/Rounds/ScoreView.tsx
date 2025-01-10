@@ -22,7 +22,6 @@ const ContributorScoreView: React.FC = () => {
 
   React.useEffect(() => {
     const fetchScores = async () => {
-      console.log('fetchScores');
       const assessments = await apiGetAssessmentsByAssessed(
         selectedRound?.id,
         selectedUser?.id
@@ -85,7 +84,6 @@ const ContributorScoreView: React.FC = () => {
                 </div>
               </div>
             </div>
-            {/* TODO: Change this to scores.assessments when the BE is fixes */}
             <div className="mt-8 grid grid-cols-1 gap-4">
               {assessments.length > 0 ? (
                 assessments?.map(

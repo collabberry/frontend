@@ -50,7 +50,7 @@ const AgreementDetails: React.FC<{ contributor: Contributor }> = ({
           }`}</p>
         </div>
       </div>
-      <div>
+      <div className="max-h-96 overflow-y-scroll">
         <h2 className="text-4xl font-bold mt-4 mb-4">Agreement</h2>
         <div className="mb-2">
           <div className="font-bold">Role:</div>

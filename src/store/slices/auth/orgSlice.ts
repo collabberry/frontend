@@ -11,6 +11,7 @@ export type OrgState = {
   compensationPeriod?: number;
   name: string;
   logo?: string;
+  teamPointsContractAddress?: string;
   totalFunds?: number;
   totalDistributedFiat?: number;
   totalDistributedTP?: number;
@@ -34,6 +35,7 @@ const initialState: OrgState = {
   nextRoundDate: "",
   contributors: [],
   roundsActivated: false,
+  teamPointsContractAddress: "",
 };
 
 const orgSlice = createSlice({
@@ -56,6 +58,7 @@ const orgSlice = createSlice({
       state.totalFunds = initialState.totalFunds;
       state.totalDistributedFiat = initialState.totalDistributedFiat;
       state.totalDistributedTP = initialState.totalDistributedTP;
+      state.teamPointsContractAddress = initialState.teamPointsContractAddress;
     },
     setOrganization(state, action: PayloadAction<OrgState>) {
       state.logo = action.payload?.logo;
@@ -73,6 +76,7 @@ const orgSlice = createSlice({
       state.totalFunds = action.payload?.totalFunds;
       state.totalDistributedFiat = action.payload?.totalDistributedFiat;
       state.totalDistributedTP = action.payload?.totalDistributedTP;
+      state.teamPointsContractAddress = action.payload?.teamPointsContractAddress;
     },
   },
 });
