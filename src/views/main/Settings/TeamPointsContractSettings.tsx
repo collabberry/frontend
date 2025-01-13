@@ -4,10 +4,12 @@ import * as Yup from 'yup';
 import { Button, Card, FormContainer, FormItem, Input, Spinner, Alert, Switcher, Skeleton, Dialog } from '@/components/ui';
 import { useDeployTeamPoints } from '@/services/ContractsService';
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
-import {  useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from "@/store";
 import SuccessDialog from '@/components/collabberry/custom-components/TransactionSuccessDialog';
 import { FiAlertTriangle } from "react-icons/fi";
+import { set } from 'lodash';
+import ErrorDialog from '@/components/collabberry/custom-components/TransactionErrorDialog';
 
 const validationSchema = Yup.object().shape({
     isTransferable: Yup.boolean().required("This field is required."),
@@ -29,6 +31,8 @@ const TeamPointsContractSettings: React.FC = () => {
     const { readSettings, updateSettings, ethersSigner } = useDeployTeamPoints();
     const [loading, setLoading] = useState(false)
     const [dialogVisible, setDialogVisible] = useState(false);
+    const [errrorDialogVisible, setErrorDialogVisible] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [txHash, setTxHash] = useState<string | null>(null);
     const txBlockExplorer = 'https://sepolia.arbiscan.io/tx/'
     const txNetwork = 'Arbitrum Sepolia';
@@ -50,7 +54,6 @@ const TeamPointsContractSettings: React.FC = () => {
             if (organization?.teamPointsContractAddress) {
                 try {
                     const materialWeightBigInt = BigInt(values.materialWeight);
-
                     const response = await updateSettings(
                         organization.teamPointsContractAddress,
                         values.isTransferable,
@@ -63,10 +66,12 @@ const TeamPointsContractSettings: React.FC = () => {
                         setDialogVisible(true);
 
                     } else {
-                        throw new Error(response.message);
+                        setErrorDialogVisible(true);
+                        setErrorMessage(response?.message || "An error occurred while updating contract settings.");
                     }
                 } catch (error: any) {
-                    handleError(error.message || "An error occurred while updating contract settings.");
+                    setErrorDialogVisible(true);
+                    setErrorMessage(error?.message || "An error occurred while updating contract settings.");
                 }
             }
         }
@@ -102,8 +107,11 @@ const TeamPointsContractSettings: React.FC = () => {
                 txNetwork={txNetwork}
                 dialogMessage="Yay! Your settings have been updated successfully."
                 handleDialogClose={handleDialogClose}>
-
             </SuccessDialog>
+            <ErrorDialog dialogVisible={errrorDialogVisible}
+                errorMessage={errorMessage || ''}
+                handleDialogClose={() => setErrorDialogVisible(false)}   >
+            </ErrorDialog>
 
             <FormContainer>
                 {loading ? (
@@ -159,7 +167,7 @@ const TeamPointsContractSettings: React.FC = () => {
                         </>
                         <div className='text-sm mt-4 items-center text-gray-500 p-1 flex flex-row justify-end'>
                             {/* <FiAlertTriangle className='mr-1'/> */}
-                           <p>This transaction will modify contract settings on chain and require gas fees.</p>
+                            <p>This transaction will modify contract settings on chain and require gas fees.</p>
                         </div>
 
                     </>
