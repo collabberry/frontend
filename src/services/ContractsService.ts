@@ -49,9 +49,12 @@ interface ContractResponse {
 
 const _deployTeamPoints = async (ethersSigner: ethers.JsonRpcSigner | undefined, orgName: string): Promise<ContractResponse> => {
     try {
+        const factoryAddress = '0x0e414560fdEeC039c4636b9392176ddc938b182D'
+        // const factoryAddress = import.meta.env.VITE_APP_TEAM_POINTS_FACTORY_ADDRESS;
         const symbol = generateSymbol(orgName);
-        const contract = new ethers.Contract(import.meta.env.VITE_APP_TEAM_POINTS_FACTORY_ADDRESS, teamPointsFactoryAbi, ethersSigner);
-        const res = await contract.deployTeamPoints(orgName + "TP", symbol);
+        const trimmedOrgName = orgName.trim();
+        const contract = new ethers.Contract(factoryAddress, teamPointsFactoryAbi, ethersSigner);
+        const res = await contract.deployTeamPoints(trimmedOrgName + "TP", symbol);
         const tx = await res.wait();
         const event = getEvent(tx.logs, 'TeamPointsCreated');
         if (!event) {
@@ -113,7 +116,6 @@ const _updateSettings = async (
         const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
         const tx = await contract.updateSettings(isTransferable, isOutsideTransferAllowed, materialWeight);
         const receipt = await tx.wait();
-
         // Extract the event from the transaction logs
         const event = getEvent(receipt.logs, 'SettingsUpdated');
         if (!event) {
@@ -152,10 +154,13 @@ const _batchMint = async (
     try {
         const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
         const tx = await contract.batchMint(recipients, materialContributions, timeContributions);
-        await tx.wait();
+        const receipt = await tx.wait();
         return {
             message: 'Batch minting successful',
             status: ContractResponseStatus.Success,
+            data: {
+                transactionHash: receipt.hash,
+            }
         };
     } catch (error) {
         console.error(error);
@@ -169,6 +174,8 @@ const _batchMint = async (
 export const useDeployTeamPoints = () => {
     const { address } = useAccount();
     const ethersSigner = useEthersSigner();
+
+
     const deployTeamPoints = async (orgName: string): Promise<ContractResponse> => {
         if (!ethersSigner || !address) {
             return {

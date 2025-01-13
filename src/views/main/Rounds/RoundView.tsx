@@ -2,17 +2,21 @@ import { CustomCountdown } from "@/components/collabberry/custom-components/Cust
 import RoundStatusTag from "@/components/collabberry/custom-components/CustomFields/RoundStatusTag";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
+import LoadingDialog from "@/components/collabberry/custom-components/LoadingDialog";
+import ErrorDialog from "@/components/collabberry/custom-components/TransactionErrorDialog";
+import SuccessDialog from "@/components/collabberry/custom-components/TransactionSuccessDialog";
 import {
   handleError,
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
 import { Avatar, Button, Tag } from "@/components/ui";
+import { useDeployTeamPoints } from "@/services/ContractsService";
 import { apiRemindContributors } from "@/services/OrgService";
 import { RootState, setSelectedUser } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { set } from "lodash";
-import React from "react";
+import React, { useState } from "react";
 import Countdown from "react-countdown";
 import { FiClock } from "react-icons/fi";
 import { HiArrowSmLeft, HiCheck } from "react-icons/hi";
@@ -25,9 +29,17 @@ const RoundView: React.FC = () => {
   );
   const organization = useSelector((state: RootState) => state.auth.org);
   const user = useSelector((state: RootState) => state.auth.user);
+  const { batchMint, ethersSigner } = useDeployTeamPoints();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [contributors, setContributors] = React.useState<any[]>([]);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [errrorDialogVisible, setErrorDialogVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const txBlockExplorer = 'https://sepolia.arbiscan.io/tx/'
+  const txNetwork = 'Arbitrum Sepolia';
 
   const goToContributorAssessments = (contributor: any) => {
     const orgContributor = organization?.contributors?.find(
@@ -242,10 +254,82 @@ const RoundView: React.FC = () => {
     navigate(-1);
   };
 
+  const handleDialogClose = () => {
+    setDialogVisible(false);
+    setTxHash(null);
+  };
+
+  const mintTeamPoints = async () => {
+
+
+    if (organization?.teamPointsContractAddress) {
+
+      //TODO: Replace when contributors returns walletAddress
+      const enhancedContributors = contributors.map((contributor) => {
+        const orgContributor = organization?.contributors?.find(
+          (orgContrib: any) => orgContrib.id === contributor.id
+        );
+        return {
+          ...contributor,
+          walletAddress: orgContributor?.walletAddress || "",
+        };
+      });
+      const recipients = enhancedContributors.map(contributor => contributor.walletAddress);
+      const materialWeight = enhancedContributors.map(() => 0);
+      const timeContributions = enhancedContributors.map(contributor => contributor.teamPoints);
+
+
+      try {
+        setLoading(true);
+        const response = await batchMint(
+          organization?.teamPointsContractAddress,
+          recipients,
+          materialWeight,
+          timeContributions
+        );
+
+        if (response?.status === 'success') {
+          setTxHash(response?.data?.transactionHash || '');
+          setLoading(false);
+          setDialogVisible(true);
+
+
+        } else {
+          setLoading(false);
+          setErrorDialogVisible(true);
+          setErrorMessage(response?.message || "An error occurred while minting the tokens.");
+        }
+      } catch (error: any) {
+        setLoading(false);
+        setErrorDialogVisible(true);
+        setErrorMessage(error?.message || "An error occurred while minting the tokens.");
+      }
+    }
+
+  }
+
   return (
     <>
       {selectedRound && (
         <div>
+          <SuccessDialog
+            dialogVisible={dialogVisible}
+            txHash={txHash || ''}
+            txBlockExplorer={txBlockExplorer}
+            txNetwork={txNetwork}
+            dialogMessage="Yay! The tokens have been minted successfully."
+            handleDialogClose={handleDialogClose}>
+          </SuccessDialog>
+          <ErrorDialog dialogVisible={errrorDialogVisible}
+            errorMessage={errorMessage || ''}
+            handleDialogClose={() => setErrorDialogVisible(false)}   >
+          </ErrorDialog>
+          <LoadingDialog dialogVisible={loading}
+            message={'You will be promped to sign a transaction. This might take a while, so please be patient.'}
+            title="Minting Tokens..."
+            handleDialogClose={() => null}   >
+          </LoadingDialog>
+
           <div>
             <Button
               size="sm"
@@ -261,6 +345,11 @@ const RoundView: React.FC = () => {
               <h1>Round {selectedRound?.roundNumber}</h1>
               <RoundStatusTag roundStatus={selectedRound?.status} />
             </div>
+            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && (<div>
+              <Button type="button" onClick={mintTeamPoints}>
+                Mint Team Points
+              </Button>
+            </div>)}
             {selectedRound?.status === RoundStatus.InProgress && (
               <div className="flex flex-row items-center rounded bg-gray-200 p-2">
                 <FiClock className="text-berrylavender-500 mr-2 text-2xl" />
@@ -277,13 +366,13 @@ const RoundView: React.FC = () => {
               data={contributors || []}
               columns={
                 user?.isAdmin &&
-                selectedRound?.status === RoundStatus.InProgress
+                  selectedRound?.status === RoundStatus.InProgress
                   ? adminColumns
                   : user?.isAdmin &&
-                      selectedRound?.status !== RoundStatus.InProgress
+                    selectedRound?.status !== RoundStatus.InProgress
                     ? columnsWithoutReminder
                     : !user?.isAdmin &&
-                        selectedRound?.status === RoundStatus.InProgress
+                      selectedRound?.status === RoundStatus.InProgress
                       ? columnsWithoutReminderAndViewAssessments
                       : columnsWithoutReminder
               }
