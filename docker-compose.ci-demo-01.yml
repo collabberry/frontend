@@ -1,0 +1,25 @@
+x-common: &common
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "500m"
+      max-file: "5"
+      compress: "true"
+  restart: unless-stopped
+  networks:
+    - collabberry-frontend
+
+services:
+  frontend-app:
+    <<: *common
+    container_name: frontend-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_APP_BASE_URL=https://beta-api.collabberry.xyz
+    image: collabberry/frontend-app-demo-01:latest
+
+networks:
+  collabberry-frontend:
+    driver: bridge
