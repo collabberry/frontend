@@ -12,14 +12,16 @@ import {
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
 import { Avatar, Button, Tag } from "@/components/ui";
 import { useDeployTeamPoints } from "@/services/ContractsService";
-import { apiRemindContributors } from "@/services/OrgService";
-import { RootState, setSelectedUser } from "@/store";
+import { apiAddTxHashToRound, apiGetRoundById, apiRemindContributors } from "@/services/OrgService";
+import { RootState, setSelectedRound, setSelectedUser } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { set } from "lodash";
 import React, { useState } from "react";
 import Countdown from "react-countdown";
 import { FiClock } from "react-icons/fi";
-import { HiArrowSmLeft, HiCheck } from "react-icons/hi";
+import {
+  HiArrowSmLeft, HiCheck, HiExternalLink
+} from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -260,8 +262,6 @@ const RoundView: React.FC = () => {
   };
 
   const mintTeamPoints = async () => {
-
-
     if (organization?.teamPointsContractAddress) {
 
       //TODO: Replace when contributors returns walletAddress
@@ -293,7 +293,29 @@ const RoundView: React.FC = () => {
           setLoading(false);
           setDialogVisible(true);
 
-
+          if (response?.data?.transactionHash) {
+            try {
+              const roundRes = await apiAddTxHashToRound(selectedRound?.id, {
+                txId: response?.data?.transactionHash
+              })
+              if (roundRes) {
+                try {
+                  const selRound = await apiGetRoundById(selectedRound.id);
+                  if (selRound?.data) {
+                    dispatch(setSelectedRound(selRound.data));
+                  }
+                }
+                catch (error: any) {
+                  setLoading(false);
+                  handleError(error?.message || "An error occurred while fetching the selected round");
+                }
+              }
+            }
+            catch (error: any) {
+              setLoading(false);
+              handleError(error?.message || "An error occurred while adding the txHash to the selected round.");
+            }
+          }
         } else {
           setLoading(false);
           setErrorDialogVisible(true);
@@ -345,10 +367,28 @@ const RoundView: React.FC = () => {
               <h1>Round {selectedRound?.roundNumber}</h1>
               <RoundStatusTag roundStatus={selectedRound?.status} />
             </div>
-            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && (<div>
-              <Button type="button" onClick={mintTeamPoints}>
+            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && !selectedRound.txHash && (<div>
+              <Button type="button" onClick={mintTeamPoints} disabled={loading}>
                 Mint Team Points
               </Button>
+            </div>)}
+            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && selectedRound.txHash && (<div>
+
+              <a
+                href={`${txBlockExplorer}${selectedRound.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+
+                <p className="button flex items-center bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 active:bg-gray-100 dark:active:bg-gray-500 dark:active:border-gray-500 text-gray-600 dark:text-gray-100 radius-round h-9 px-3 py-2 text-sm"
+                >
+                  <span>View Token Transaction</span>
+                  <HiExternalLink className="ml-1 h-5 w-5" />
+
+                </p>
+
+              </a>
+
             </div>)}
             {selectedRound?.status === RoundStatus.InProgress && (
               <div className="flex flex-row items-center rounded bg-gray-200 p-2">

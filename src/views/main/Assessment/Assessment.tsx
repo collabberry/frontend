@@ -36,14 +36,16 @@ const Assessment = () => {
   };
 
   useEffect(() => {
-    const fetchMyAssessments = async () => {
-      const assessedByMe = await apiGetAssessmentsByAssessor(
-        currentRound?.id,
-        user?.id
-      );
-      setSubmittedAssessments(assessedByMe.data);
-    };
-    fetchMyAssessments();
+    if (currentRound?.id && user?.id) {
+      const fetchMyAssessments = async () => {
+        const assessedByMe = await apiGetAssessmentsByAssessor(
+          currentRound?.id,
+          user?.id
+        );
+        setSubmittedAssessments(assessedByMe.data);
+      };
+      fetchMyAssessments();
+    }
   }, []);
 
   const isTableDisabled = useMemo(() => {
