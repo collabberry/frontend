@@ -49,8 +49,7 @@ interface ContractResponse {
 
 const _deployTeamPoints = async (ethersSigner: ethers.JsonRpcSigner | undefined, orgName: string): Promise<ContractResponse> => {
     try {
-        const factoryAddress = '0x0e414560fdEeC039c4636b9392176ddc938b182D'
-        // const factoryAddress = import.meta.env.VITE_APP_TEAM_POINTS_FACTORY_ADDRESS;
+        const factoryAddress = import.meta.env.VITE_APP_TEAM_POINTS_FACTORY_ADDRESS;
         const symbol = generateSymbol(orgName);
         const trimmedOrgName = orgName.trim();
         const contract = new ethers.Contract(factoryAddress, teamPointsFactoryAbi, ethersSigner);

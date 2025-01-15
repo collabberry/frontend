@@ -111,6 +111,14 @@ export async function apiGetAssessmentsByAssessed(roundId: string, assessedId: s
   });
 }
 
+export async function apiAddTxHashToRound(roundId: string, data: any) {
+  return ApiService.fetchData<any>({
+    url: `/rounds/${roundId}/txHash`,
+    method: "post",
+    data,
+  });
+}
+
 export async function apiEditOrganization(data: OrganizationData) {
   const formData = new FormData();
   Object.keys(data).forEach((key) => {
