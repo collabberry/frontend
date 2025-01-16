@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_APP_BASE_URL=https://beta-api.collabberry.xyz
-        - VITE_APP_TEAM_POINTS_FACTORY_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
+        - VITE_APP_TEAM_POINTS_FACTORY_ADDRESS=0x69a99AeAc1F2410e82A84E08268b336116Ab3B5a
     image: collabberry/frontend-app-demo-01:latest
 
 networks:
