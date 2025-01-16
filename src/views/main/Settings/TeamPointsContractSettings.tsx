@@ -7,29 +7,37 @@ import { handleError } from "@/components/collabberry/helpers/ToastNotifications
 import { useSelector } from 'react-redux';
 import { RootState } from "@/store";
 import SuccessDialog from '@/components/collabberry/custom-components/TransactionSuccessDialog';
-import { FiAlertTriangle } from "react-icons/fi";
-import { set } from 'lodash';
 import ErrorDialog from '@/components/collabberry/custom-components/TransactionErrorDialog';
+import LoadingDialog from '@/components/collabberry/custom-components/LoadingDialog';
+import { ethers } from 'ethers';
 
 const validationSchema = Yup.object().shape({
     isTransferable: Yup.boolean().required("This field is required."),
     isOutsideTransferAllowed: Yup.boolean().required("This field is required."),
-    materialWeight: Yup.string()
+    materialWeight: Yup.number()
         .required("This field is required.")
-        .matches(/^\d+$/, "The material weight must be a number.")
-        .test("is-valid-bigint", "The material weight must be a valid BigInt.", value => {
-            try {
-                BigInt(value || 0);
-                return true;
-            } catch {
-                return false;
+        .max(999999999.999, "The material weight must be at most 999999999.999.")
+        .test("is-decimal-places", "The material contribution weight cannot have more than 3 decimal places.", value => {
+            if (value) {
+            const decimalPlaces = value.toString().split('.')[1];
+            return !decimalPlaces || decimalPlaces.length <= 3;
             }
+            return true;
         })
+    // .test("is-valid-bigint", "The material weight must be a valid BigInt.", value => {
+    //     try {
+    //         BigInt(value || 0);
+    //         return true;
+    //     } catch {
+    //         return false;
+    //     }
+    // })
 });
 
 const TeamPointsContractSettings: React.FC = () => {
     const { readSettings, updateSettings, ethersSigner } = useDeployTeamPoints();
     const [loading, setLoading] = useState(false)
+    const [dialogLoading, setDialogLoading] = useState(false);
     const [dialogVisible, setDialogVisible] = useState(false);
     const [errrorDialogVisible, setErrorDialogVisible] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -47,29 +55,35 @@ const TeamPointsContractSettings: React.FC = () => {
         initialValues: {
             isTransferable: false,
             isOutsideTransferAllowed: false,
-            materialWeight: "0",  // Store as string for form input
+            materialWeight: 0,
         },
         validationSchema,
         onSubmit: async (values) => {
+
             if (organization?.teamPointsContractAddress) {
+                setDialogLoading(true);
                 try {
-                    const materialWeightBigInt = BigInt(values.materialWeight);
+                    const materialWeightWei = ethers.parseUnits(values.materialWeight.toString(), 3);
+                    // const materialWeightBigInt = BigInt(values.materialWeight);
                     const response = await updateSettings(
                         organization.teamPointsContractAddress,
                         values.isTransferable,
                         values.isOutsideTransferAllowed,
-                        materialWeightBigInt
+                        materialWeightWei
                     );
 
                     if (response?.status === 'success') {
                         setTxHash(response?.event?.transactionHash || '');
+                        setDialogLoading(false);
                         setDialogVisible(true);
 
                     } else {
+                        setDialogLoading(false);
                         setErrorDialogVisible(true);
                         setErrorMessage(response?.message || "An error occurred while updating contract settings.");
                     }
                 } catch (error: any) {
+                    setDialogLoading(false);
                     setErrorDialogVisible(true);
                     setErrorMessage(error?.message || "An error occurred while updating contract settings.");
                 }
@@ -83,10 +97,12 @@ const TeamPointsContractSettings: React.FC = () => {
                 setLoading(true);
                 const response = await readSettings(organization.teamPointsContractAddress);
                 if (response.status === 'success' && response.data) {
+                    const { materialWeight } = response.data || {};
+                    const humanReadableMaterialWeight = Number(materialWeight) / 1000;
                     formik.setValues({
                         isTransferable: response.data.isTransferable,
                         isOutsideTransferAllowed: response.data.isOutsideTransferAllowed,
-                        materialWeight: response.data.materialWeight.toString(),
+                        materialWeight: humanReadableMaterialWeight,
                     });
                     setLoading(false);
                 } else {
@@ -112,6 +128,10 @@ const TeamPointsContractSettings: React.FC = () => {
                 errorMessage={errorMessage || ''}
                 handleDialogClose={() => setErrorDialogVisible(false)}   >
             </ErrorDialog>
+            <LoadingDialog dialogVisible={dialogLoading}
+                message={'This might take a while, so please be patient.'}
+                title="Updating Contract Settings..."
+                handleDialogClose={() => null} />
 
             <FormContainer>
                 {loading ? (

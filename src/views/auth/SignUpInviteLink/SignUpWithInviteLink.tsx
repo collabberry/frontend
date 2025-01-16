@@ -112,6 +112,7 @@ const SignUpWithInviteLink = () => {
                   authority: ["USER"],
                   email: response?.data?.email,
                   isAdmin: response?.data?.isAdmin,
+                  totalFiat: response?.data?.totalFiat,
                 })
               );
             }

@@ -77,6 +77,7 @@ function useAuth() {
             email: user?.email,
             id: user?.id,
             isAdmin: user?.isAdmin,
+            totalFiat: user?.totalFiat,
           })
         );
         if (user?.organization?.id) {
