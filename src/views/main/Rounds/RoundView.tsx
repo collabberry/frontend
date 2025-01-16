@@ -111,7 +111,7 @@ const RoundView: React.FC = () => {
       },
     },
     {
-      header: "Total Score",
+      header: "Total score",
       accessorKey: "totalScore",
       cell: (props) => {
         const value = props.getValue() as number;
@@ -119,7 +119,7 @@ const RoundView: React.FC = () => {
       },
     },
     {
-      header: "Culture Impact",
+      header: "Culture",
       accessorKey: "cultureScore",
       cell: (props) => {
         const value = props.getValue() as number;
@@ -140,6 +140,21 @@ const RoundView: React.FC = () => {
       cell: (props) => {
         const value = props.getValue() as number;
         return value ? <span>{value.toFixed(0)}</span> : null;
+      },
+    },
+    {
+      header: () => (
+        <p className="flex flex-col justify-start">
+          <span>Points with</span>
+          <span>Weight Multiplier</span>
+        </p>
+      ),
+      id: "teamPointsWithMultiplier",
+      cell: (props) => {
+        const contributor = props.row.original;
+        const multiplier = 2;
+        const teamPoints = contributor.teamPoints;
+        return teamPoints ? <span>{(teamPoints * multiplier).toFixed(0)}</span> : null;
       },
     },
     {
