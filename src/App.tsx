@@ -122,7 +122,7 @@ function App() {
       <RainbowKitProvider
         appInfo={{
           appName: "Collabberry",
-          learnMoreUrl: "https://app.collabberry.xyz",
+          learnMoreUrl: "https://beta.collabberry.xyz",
         }}
         avatar={CustomAvatar}
       >
