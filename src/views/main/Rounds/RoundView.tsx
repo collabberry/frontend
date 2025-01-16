@@ -15,7 +15,7 @@ import { useDeployTeamPoints } from "@/services/ContractsService";
 import { apiAddTxHashToRound, apiGetRoundById, apiRemindContributors } from "@/services/OrgService";
 import { RootState, setSelectedRound, setSelectedUser } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
-import { set } from "lodash";
+import { round, set } from "lodash";
 import React, { useState } from "react";
 import Countdown from "react-countdown";
 import { FiClock } from "react-icons/fi";
@@ -24,6 +24,7 @@ import {
 } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import MintStatusTag from "./MintStatusTag";
 
 const RoundView: React.FC = () => {
   const { selectedRound, currentRound } = useSelector(
@@ -366,13 +367,17 @@ const RoundView: React.FC = () => {
             <div className="flex flex-row justify-start items-center gap-2">
               <h1>Round {selectedRound?.roundNumber}</h1>
               <RoundStatusTag roundStatus={selectedRound?.status} />
+              {selectedRound?.status === RoundStatus.Completed && (
+                <MintStatusTag minted={selectedRound?.txHash ? true : false} />
+              )}
+
             </div>
-            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && !selectedRound.txHash && (<div>
+            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && selectedRound.txHash && (<div>
               <Button type="button" onClick={mintTeamPoints} disabled={loading}>
                 Mint Team Points
               </Button>
             </div>)}
-            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && selectedRound.txHash && (<div>
+            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && !selectedRound.txHash && (<div>
 
               <a
                 href={`${txBlockExplorer}${selectedRound.txHash}`}
@@ -382,7 +387,7 @@ const RoundView: React.FC = () => {
 
                 <p className="button flex items-center bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 active:bg-gray-100 dark:active:bg-gray-500 dark:active:border-gray-500 text-gray-600 dark:text-gray-100 radius-round h-9 px-3 py-2 text-sm"
                 >
-                  <span>View Token Transaction</span>
+                  <span>View Team Points Minted</span>
                   <HiExternalLink className="ml-1 h-5 w-5" />
 
                 </p>

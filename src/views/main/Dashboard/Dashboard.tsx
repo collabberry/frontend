@@ -1,21 +1,12 @@
 import Card from "@/components/ui/Card";
 import {
-  apiCreateOrganization,
-  apiGetOrganizationById,
-  apiEditOrganization,
   apiGetInvitationToken,
-  apiGetContributorAgreement,
-  apiCreateContributorAgreement,
   apiRemindContributors,
 } from "@/services/OrgService";
 import { RootState, setInvitationToken } from "@/store";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { apiGetUser } from "@/services/AuthService";
-import { stat } from "fs";
-import { get, set } from "lodash";
-import useAuth from "@/utils/hooks/useAuth";
 import InfoCard from "@/components/collabberry/custom-components/InfoCard";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -27,12 +18,13 @@ import { FiCheckCircle } from "react-icons/fi";
 import { FiDollarSign } from "react-icons/fi";
 import {
   handleError,
-  handleInfo,
   handleSuccess,
-  openToastNotification,
 } from "@/components/collabberry/helpers/ToastNotifications";
-import { Dialog } from "@/components/ui";
+import { Avatar, Dialog, Skeleton } from "@/components/ui";
 import InvitationLink from "./InvitationDialog";
+import { HiOutlineCurrencyDollar, HiUsers } from "react-icons/hi";
+import { useDeployTeamPoints } from "@/services/ContractsService";
+import { ethers } from "ethers";
 
 const Dashboard = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -43,6 +35,9 @@ const Dashboard = () => {
   const invitationToken = useSelector(
     (state: RootState) => state.auth.invite.invitationToken
   );
+  const [loading, setLoading] = useState(false);
+  const [teamPointsBalance, setTeamPointsBalance] = useState('');
+  const { getBalance, ethersSigner } = useDeployTeamPoints();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -137,9 +132,8 @@ const Dashboard = () => {
     const remainingMonths = months % 12;
 
     if (years > 0) {
-      return `${years} year${years > 1 ? "s" : ""} ${remainingMonths} month${
-        remainingMonths !== 1 ? "s" : ""
-      }`;
+      return `${years} year${years > 1 ? "s" : ""} ${remainingMonths} month${remainingMonths !== 1 ? "s" : ""
+        }`;
     } else {
       return `${months} month${months !== 1 ? "s" : ""}`;
     }
@@ -154,6 +148,25 @@ const Dashboard = () => {
     return 0;
   }, []);
 
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (organization?.teamPointsContractAddress && ethersSigner) {
+        setLoading(true);
+        const response = await getBalance(organization.teamPointsContractAddress);
+
+        if (response.status === 'success' && response.data) {
+          const { balance } = response.data;
+          const formattedBalance = Math.floor(Number(ethers.formatUnits(balance, 'ether')));
+          setTeamPointsBalance(formattedBalance.toString());
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
+      }
+    };
+    fetchBalance();
+  }, [organization.teamPointsContractAddress, ethersSigner]);
+
   return (
     <>
       {isInviteDialogOpen && (
@@ -161,10 +174,66 @@ const Dashboard = () => {
           <InvitationLink invitationToken={invitationToken} />
         </Dialog>
       )}
+      <div className="px-4">
+        <Card
+          className="w-1/2 mb-4"
+          bodyClass="h-full flex flex-col justify-between"
+        >
+          <h4>{`Welcome back, ${user.userName}!`}</h4>
+
+          <div className="mt-4 flex flex-col gap-4">
+
+            {loading ? (<>
+              <Skeleton height={49}></Skeleton>
+              <Skeleton height={49}></Skeleton>
+
+            </>) :
+              (
+                <>
+                  <div className="flex items-center gap-2">
+                    <div>
+                      <Avatar
+                        size={45}
+                        className="bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-100"
+                        icon={
+                          <HiOutlineCurrencyDollar className="text-2xl" />
+                        }
+                      />
+                    </div>
+                    <div>
+                      <p>Total Fiat Received</p>
+                      <h5 >
+                        <span className="leading-none mr-1">{user.totalFiat ? +user.totalFiat : 0}</span>
+                        <span className="text-sm leading-none">$</span>
+                      </h5>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div>
+                      <Avatar
+                        size={45}
+                        className="bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-100"
+                        icon={<HiUsers className="text-2xl" />}
+                      />
+                    </div>
+                    <div>
+                      <p>Total Team Points</p>
+                      <h5 >
+                        <span className="leading-none mr-1">{teamPointsBalance}</span>
+                        <span className="text-sm leading-none">TP</span>
+                      </h5>
+                    </div>
+                  </div>
+                </>
+              )}
+
+          </div>
+        </Card>
+      </div>
       <div className="flex flex-col items-start h-full px-4">
         {user?.isAdmin && (
           <div className="w-full max-w-4xl mb-6">
-            <h1 className="text-4xl font-bold mb-4">Steps to Complete</h1>
+            <h1 className="text-2xl font-bold mb-4">Steps to Complete</h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <InfoCard
                 footerAction={
@@ -210,11 +279,10 @@ const Dashboard = () => {
         )}
         <div className="w-full max-w-4xl">
           {user?.isAdmin ? (
-            <h1 className="text-4xl font-bold mb-4">Admin Dashboard</h1>
+            <h1 className="text-2xl font-bold mb-4">My Organization</h1>
           ) : (
             <div className="mb-4">
-              <h1 className="text-4xl font-bold mb-4">Dashboard</h1>
-              <p>{`Welcome back, ${user.userName}!`}</p>
+              <h1 className="text-2xl font-bold mb-4">My Organization</h1>
             </div>
           )}
 
@@ -224,8 +292,8 @@ const Dashboard = () => {
                 //TODO: Implement logic to show correct number of contribitors with assessments
                 footerAction={
                   numberOfContributorsWithAssessments < numberOfContributors &&
-                  currentRound?.id &&
-                  user?.isAdmin
+                    currentRound?.id &&
+                    user?.isAdmin
                     ? assessmentCardAction
                     : undefined
                 }
@@ -250,30 +318,28 @@ const Dashboard = () => {
                 <div>
                   <p>Total distributed</p>
                   <p className="text-lg font-bold">
-                    {`TP ${
-                      organization?.totalDistributedTP
-                        ? organization?.totalDistributedTP.toLocaleString(
-                            "en-US",
-                            {
-                              minimumFractionDigits: 0,
-                              maximumFractionDigits: 0,
-                            }
-                          )
-                        : "0"
-                    }`}
+                    {`TP ${organization?.totalDistributedTP
+                      ? organization?.totalDistributedTP.toLocaleString(
+                        "en-US",
+                        {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }
+                      )
+                      : "0"
+                      }`}
                   </p>
                   <p className="text-lg font-bold">
-                    {`$${
-                      organization?.totalDistributedFiat
-                        ? organization?.totalDistributedFiat.toLocaleString(
-                            "en-US",
-                            {
-                              minimumFractionDigits: 0,
-                              maximumFractionDigits: 0,
-                            }
-                          )
-                        : "0"
-                    }`}
+                    {`$${organization?.totalDistributedFiat
+                      ? organization?.totalDistributedFiat.toLocaleString(
+                        "en-US",
+                        {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }
+                      )
+                      : "0"
+                      }`}
                   </p>
                 </div>
               }
@@ -288,9 +354,9 @@ const Dashboard = () => {
                   <p className="text-lg font-bold">
                     {organization.totalFunds
                       ? organization?.totalFunds.toLocaleString("en-US", {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        })
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })
                       : "Not Set"}
                   </p>
                   <p>Runway</p>

@@ -237,6 +237,7 @@ const SignUp = () => {
                     authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
                     email: response?.data?.email,
                     isAdmin: response?.data?.isAdmin,
+                    totalFiat: response?.data?.totalFiat
                   })
                 );
               }
