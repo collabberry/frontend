@@ -41,8 +41,8 @@ const RoundView: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
-  const txBlockExplorer = 'https://sepolia.arbiscan.io/tx/'
-  const txNetwork = 'Arbitrum Sepolia';
+  const txBlockExplorer = 'https://arbiscan.io/tx/'
+  const txNetwork = 'Arbitrum';
 
   const goToContributorAssessments = (contributor: any) => {
     const orgContributor = organization?.contributors?.find(

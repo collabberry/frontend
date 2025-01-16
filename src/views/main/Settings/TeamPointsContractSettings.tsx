@@ -42,8 +42,8 @@ const TeamPointsContractSettings: React.FC = () => {
     const [errrorDialogVisible, setErrorDialogVisible] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [txHash, setTxHash] = useState<string | null>(null);
-    const txBlockExplorer = 'https://sepolia.arbiscan.io/tx/'
-    const txNetwork = 'Arbitrum Sepolia';
+    const txBlockExplorer = 'https://arbiscan.io/tx/'
+    const txNetwork = 'Arbitrum';
 
     const handleDialogClose = () => {
         setDialogVisible(false);

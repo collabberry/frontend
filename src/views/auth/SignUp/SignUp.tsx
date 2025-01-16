@@ -113,8 +113,8 @@ const SignUp = () => {
   const { deployTeamPoints } = useDeployTeamPoints();
   const [txHash, setTxHash] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const txBlockExplorer = 'https://sepolia.arbiscan.io/tx/'
-  const txNetwork = 'Arbitrum Sepolia';
+  const txBlockExplorer = 'https://arbiscan.io/tx/'
+  const txNetwork = 'Arbitrum';
 
   const shortenedTx = useMemo(() => shortenTxHash(txHash ?? '', txBlockExplorer ?? ''), [txHash, txBlockExplorer]);
 
