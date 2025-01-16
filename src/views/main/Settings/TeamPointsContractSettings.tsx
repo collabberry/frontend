@@ -105,7 +105,7 @@ const TeamPointsContractSettings: React.FC = () => {
                 txHash={txHash || ''}
                 txBlockExplorer={txBlockExplorer}
                 txNetwork={txNetwork}
-                dialogMessage="Yay! Your settings have been updated successfully."
+                dialogMessage="Yay! Your settings have been updated."
                 handleDialogClose={handleDialogClose}>
             </SuccessDialog>
             <ErrorDialog dialogVisible={errrorDialogVisible}
