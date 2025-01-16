@@ -38,7 +38,7 @@ jobs:
     
     - name: Copy the compose file to EC2
       run: |
-        scp -i ~/.ssh/id_rsa docker-compose.ci-dev.yml ${{ vars.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/deployment/docker-compose.fe.yml
+        scp -i ~/.ssh/id_rsa docker-compose.ci-demo-01.yml ${{ vars.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/deployment/docker-compose.fe.yml
 
     - name: Deploy to EC2
       run: |
