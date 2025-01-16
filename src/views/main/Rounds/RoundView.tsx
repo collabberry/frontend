@@ -372,12 +372,12 @@ const RoundView: React.FC = () => {
               )}
 
             </div>
-            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && selectedRound.txHash && (<div>
+            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && !selectedRound.txHash && (<div>
               <Button type="button" onClick={mintTeamPoints} disabled={loading}>
                 Mint Team Points
               </Button>
             </div>)}
-            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && !selectedRound.txHash && (<div>
+            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && selectedRound.txHash && (<div>
 
               <a
                 href={`${txBlockExplorer}${selectedRound.txHash}`}
