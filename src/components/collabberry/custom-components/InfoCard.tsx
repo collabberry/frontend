@@ -32,7 +32,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
         header={
           HeaderIcon && (
             <div className="flex items-center justify-center">
-              <div style={{ height: "40px", width: "40px" }} className="text-berrylavender-400">{HeaderIcon}</div>
+              <div style={{ height: "30px", width: "43px" }} className="text-berrylavender-400">{HeaderIcon}</div>
             </div>
           )
         }

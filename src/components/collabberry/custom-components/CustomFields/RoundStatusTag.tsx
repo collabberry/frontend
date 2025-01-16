@@ -14,7 +14,7 @@ const RoundStatusTag: React.FC<RoundStatusTagProps> = ({ roundStatus }) => {
       case RoundStatus.InProgress:
         return { text: "In Progress", color: "berrylavender" };
       case RoundStatus.NotStarted:
-        return { text: "Not Started", color: "orange" };
+        return { text: "Not Started", color: "amber" };
       default:
         return { text: "Unknown", color: "gray" };
     }

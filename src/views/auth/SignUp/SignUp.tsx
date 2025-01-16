@@ -44,6 +44,8 @@ import { HiOutlineQuestionMarkCircle } from "react-icons/hi";
 import { ContractResponseStatus, useDeployTeamPoints } from "@/services/ContractsService";
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/clock.json";
+import * as successAnimationData from "@/assets/animations/check2.json";
+import { shortenTxHash } from "@/components/collabberry/custom-components/TransactionSuccessDialog";
 
 
 const ValidationStepsSchema = Yup.object().shape({
@@ -108,6 +110,13 @@ const SignUp = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
   const dispatch = useDispatch();
   const { deployTeamPoints } = useDeployTeamPoints();
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const txBlockExplorer = 'https://sepolia.arbiscan.io/tx/'
+  const txNetwork = 'Arbitrum Sepolia';
+
+  const shortenedTx = useMemo(() => shortenTxHash(txHash ?? '', txBlockExplorer ?? ''), [txHash, txBlockExplorer]);
+
 
   const formik = useFormik({
     onSubmit: () => { },
@@ -174,8 +183,15 @@ const SignUp = () => {
     };
 
     try {
+      setDialogOpen(true);
       const contractResponse = await deployTeamPoints(data?.name);
       if (contractResponse.status === ContractResponseStatus.Success && contractResponse.data?.contractAddress) {
+        if (contractResponse.event?.transactionHash) {
+          setTxHash(contractResponse.event?.transactionHash);
+          await new Promise((resolve) => setTimeout(resolve, 6000));
+        }
+
+
         try {
           const orgPostData = {
             ...data,
@@ -221,6 +237,7 @@ const SignUp = () => {
                     authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
                     email: response?.data?.email,
                     isAdmin: response?.data?.isAdmin,
+                    totalFiat: response?.data?.totalFiat
                   })
                 );
               }
@@ -229,6 +246,7 @@ const SignUp = () => {
             }
           }
           formik.setSubmitting(false);
+          setDialogOpen(false);
           formik.setTouched({
             step2: {
               name: true,
@@ -236,6 +254,7 @@ const SignUp = () => {
             },
           });
         } catch (error: any) {
+          setDialogOpen(false);
           handleError(error.response.data.message);
           formik.setSubmitting(false);
           return false;
@@ -243,6 +262,7 @@ const SignUp = () => {
       } else {
         handleError("Error deploying Team Points contract");
         formik.setSubmitting(false);
+        setDialogOpen(false);
         return false;
       }
     }
@@ -437,27 +457,60 @@ const SignUp = () => {
         return (
           <>
             <Dialog
-              isOpen={formik.isSubmitting}
+              isOpen={dialogOpen}
               closable={false}
             >
-              <div className=" flex flex-col items-center justify-center p-2 min-h-[200px]">
-                <div className="flex flex-col items-center">
-                  <h2 className="text-lg mb-3 mt-3 text-center font-normal">
-                    Working our magic on the blockchain...
-                  </h2>
+              <div className=" flex flex-col items-center justify-center p-2 min-h-[200px] relative">
+                {txHash ? (
+                  <div className="flex flex-col items-center ">
+                    <h2 className="text-xl font-bold mb-4 mt-3 text-center">
+                      Yay! Your contract has been deployed.
+                    </h2>
+                    <div className="mb-2 text-center text-md flex flex-col items-center">
+                      <p>See your transaction on {txNetwork}: </p>
+                      <a
+                        href={`${txBlockExplorer}${txHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-1 text-md text-blue-600 underline hover:text-blue-800"
+                      >
+                        {shortenedTx}
+                      </a>
+                    </div>
 
-                  <div className="pointer-events-none select-none">
-                    {animationData && (
-                      <LottieAnimation animationData={animationData} height={150}
-                        width={150} />
-                    )}
+                    <div className="pointer-events-none select-none">
+                      <div className="pointer-events-none select-none">
+                        {successAnimationData && (
+                          <LottieAnimation animationData={successAnimationData} height={150}
+                            width={150} />
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-6 text-center text-md flex flex-col items-center ">
+                      <p>You will be redirected to the next step in just a few seconds...</p>
+                    </div>
                   </div>
-                  {/* <div className="flex justify-end mt-4 gap-4">
-                        <Button type="button" onClick={handleDialogClose}>
-                            Close
-                        </Button>
-                    </div> */}
-                </div>
+                ) : (
+                  <>
+                    <div className="flex flex-col items-center">
+                      <h2 className="text-xl font-bold mb-3 mt-3 text-center">
+                        Please wait ⏳
+                      </h2>
+
+                      <div className="mb-2 text-center text-md flex flex-col items-center">
+                        <p >
+                          We're working our magic on the blockchain...
+                        </p>
+                      </div>
+                      <div className="pointer-events-none select-none">
+                        {animationData && (
+                          <LottieAnimation animationData={animationData} height={200}
+                            width={200} />
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </Dialog>
             <FormContainer>

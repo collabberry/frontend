@@ -4,6 +4,7 @@ import { useEthersSigner } from '@/utils/hooks/useEthersSigner';
 import { ethers, EventLog } from 'ethers';
 import { useAccount } from 'wagmi';
 
+
 function generateSymbol(orgName: string): string {
     let symbol = orgName.replace(/[aeiou\s]/gi, '').toUpperCase();
     const extraConsonants = ['X', 'Y', 'Z'];
@@ -49,8 +50,7 @@ interface ContractResponse {
 
 const _deployTeamPoints = async (ethersSigner: ethers.JsonRpcSigner | undefined, orgName: string): Promise<ContractResponse> => {
     try {
-        const factoryAddress = '0x0e414560fdEeC039c4636b9392176ddc938b182D'
-        // const factoryAddress = import.meta.env.VITE_APP_TEAM_POINTS_FACTORY_ADDRESS;
+        const factoryAddress = import.meta.env.VITE_APP_TEAM_POINTS_FACTORY_ADDRESS;
         const symbol = generateSymbol(orgName);
         const trimmedOrgName = orgName.trim();
         const contract = new ethers.Contract(factoryAddress, teamPointsFactoryAbi, ethersSigner);
@@ -148,7 +148,7 @@ const _batchMint = async (
     contractAddress: string,
     recipients: string[],
     materialContributions: number[],
-    timeContributions: number[],
+    timeContributions: bigint[],
     ethersSigner: ethers.JsonRpcSigner | undefined
 ): Promise<ContractResponse> => {
     try {
@@ -170,6 +170,27 @@ const _batchMint = async (
         status: ContractResponseStatus.Failed,
     };
 };
+
+
+
+const _getBalance = async (contractAddress: string, userAddress: string, ethersSigner: ethers.JsonRpcSigner | undefined): Promise<ContractResponse> => {
+    try {
+        const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
+        const balance = await contract.balanceOf(userAddress);
+        return {
+            data: { balance },
+            message: 'Balance fetched successfully',
+            status: ContractResponseStatus.Success,
+        };
+    } catch (error) {
+        console.error('Error fetching balance:', error);
+    }
+    return {
+        message: DEFAULT_ERROR_MESSAGE,
+        status: ContractResponseStatus.Failed,
+    };
+};
+
 
 export const useDeployTeamPoints = () => {
     const { address } = useAccount();
@@ -232,7 +253,21 @@ export const useDeployTeamPoints = () => {
                 status: ContractResponseStatus.Failed,
             };
         }
-        return await _batchMint(contractAddress, recipients, materialContributions, timeContributions, ethersSigner);
+
+        const timeContributionsInWei = timeContributions.map((contribution) =>
+            ethers.parseUnits(contribution.toString(), 18)
+        );
+        return await _batchMint(contractAddress, recipients, materialContributions, timeContributionsInWei, ethersSigner);
+    };
+
+    const getBalance = async (contractAddress: string): Promise<ContractResponse> => {
+        if (!ethersSigner || !address) {
+            return {
+                message: 'Please connect your wallet',
+                status: ContractResponseStatus.Failed,
+            };
+        }
+        return await _getBalance(contractAddress, address, ethersSigner);
     };
 
 
@@ -241,6 +276,7 @@ export const useDeployTeamPoints = () => {
     return {
         deployTeamPoints,
         readSettings,
+        getBalance,
         updateSettings,
         batchMint,
         ethersSigner,
