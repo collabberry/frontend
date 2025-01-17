@@ -37,13 +37,14 @@ import { fieldRequired } from "@/components/collabberry/helpers/validations";
 const validationSchema = Yup.object().shape({
   roleName: Yup.string().required(fieldRequired),
   responsibilities: Yup.string().required(fieldRequired),
-  marketRate: Yup.number().required(fieldRequired),
+  marketRate: Yup.number().required(fieldRequired).min(1, "Market rate must be at least 1"),
   commitment: Yup.number()
     .min(1, "Commitment must be at least 1%")
     .required(fieldRequired),
   fiatRequested: Yup.number()
     .required(fieldRequired)
     .max(Yup.ref("marketRate"), "Cannot be higher than the market rate.")
+    .min(0, "Monetary compensation must be at least 0")
     .test(
       "is-less-than-market-rate-commitment",
       "Cannot be higher than total compensation",
@@ -73,9 +74,9 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
     initialValues: {
       roleName: "",
       responsibilities: "",
-      marketRate: null,
+      marketRate: 0,
       commitment: 50,
-      fiatRequested: null,
+      fiatRequested: 0,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -234,7 +235,7 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
               invalid={!!formik.errors.marketRate && formik.touched.marketRate}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.marketRate || undefined}
+              value={formik.values.marketRate}
             />
           </FormItem>
           <FormItem
@@ -254,7 +255,7 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
               prefix="$"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.fiatRequested || undefined}
+              value={formik.values.fiatRequested}
             />
           </FormItem>
         </div>

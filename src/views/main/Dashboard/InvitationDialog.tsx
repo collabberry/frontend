@@ -14,7 +14,7 @@ const InvitationLink: React.FC<any> = ({ invitationToken }) => {
       setIsCopied(false);
     }, 5000);
   };
-  const link = `${"https://app.collabberry.xyz/invite"}?invitationToken=${invitationToken}`;
+  const link = `${"https://beta.collabberry.xyz/invite"}?invitationToken=${invitationToken}`;
   return (
     <>
       <h2 className="text-2xl font-bold mb-4 mt-4">Invite Link</h2>

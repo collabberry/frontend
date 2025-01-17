@@ -65,13 +65,14 @@ const ValidationStepsSchema = Yup.object().shape({
   step3: Yup.object().shape({
     roleName: Yup.string().required(fieldRequired),
     responsibilities: Yup.string().required(fieldRequired),
-    marketRate: Yup.number().required(fieldRequired),
+    marketRate: Yup.number().required(fieldRequired).min(1, "Market rate must be at least 1"),
     commitment: Yup.number()
       .min(1, "Commitment must be at least 1%")
       .required(fieldRequired),
     fiatRequested: Yup.number()
       .required(fieldRequired)
       .max(Yup.ref("marketRate"), "Cannot be higher than the market rate.")
+      .min(0, "Monetary compensation must be at least 0")
       .test(
         "is-less-than-market-rate-commitment",
         "Cannot be higher than total compensation",
@@ -99,9 +100,9 @@ const initialValues = {
   step3: {
     roleName: "",
     responsibilities: "",
-    marketRate: null,
+    marketRate: 0,
     commitment: 0,
-    fiatRequested: null,
+    fiatRequested: 0,
   },
 };
 
@@ -672,7 +673,7 @@ const SignUp = () => {
                   prefix="$"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  value={formik.values.step3.marketRate || ""}
+                  value={formik.values.step3.marketRate}
                 />
               </FormItem>
               <FormItem
@@ -691,7 +692,7 @@ const SignUp = () => {
                   prefix="$"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  value={formik.values.step3.fiatRequested || ""}
+                  value={formik.values.step3.fiatRequested}
                 />
               </FormItem>
             </div>
