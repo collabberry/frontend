@@ -7,26 +7,26 @@ import * as animationData from "@/assets/animations/check2.json";
 interface SuccessDialogProps {
     dialogVisible: boolean;
     txHash?: string;
-    txBlockExplorer?: string;
+    blockExplorer?: string;
     txNetwork?: string;
     dialogMessage?: string;
     handleDialogClose: () => void;
 }
 
-export const shortenTxHash = (hash: string, txBlockExplorer: string, start = 6, end = 4,) => {
+export const shortenTxHash = (hash: string, blockExplorer: string, start = 6, end = 4,) => {
     if (!hash) return ''
-    return `${txBlockExplorer}${hash.slice(0, start)}...${hash.slice(-end)}`
+    return `${blockExplorer}/${hash.slice(0, start)}...${hash.slice(-end)}`
 }
 
 const SuccessDialog: React.FC<SuccessDialogProps> = ({
     dialogVisible,
     txHash,
-    txBlockExplorer,
+    blockExplorer,
     txNetwork,
     dialogMessage,
     handleDialogClose,
 }) => {
-    const shortenedTx = useMemo(() => shortenTxHash(txHash ?? '', txBlockExplorer ?? ''), [txHash, txBlockExplorer]);
+    const shortenedTx = useMemo(() => shortenTxHash(txHash ?? '', blockExplorer ?? ''), [txHash, blockExplorer]);
 
     return (
         <Dialog isOpen={dialogVisible} onClose={handleDialogClose} shouldCloseOnOverlayClick>
@@ -38,7 +38,7 @@ const SuccessDialog: React.FC<SuccessDialogProps> = ({
                     <div className="mb-2 text-center text-md flex flex-col items-center">
                         <p>See your transaction on {txNetwork}: </p>
                         <a
-                            href={`${txBlockExplorer}${txHash}`}
+                            href={`${blockExplorer}/${txHash}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="ml-1 text-md text-blue-600 underline hover:text-blue-800"

@@ -1,12 +1,12 @@
 {
   "nav": {
     "admin": {
-      "admin": "Admin",
+      "admin": " ",
       "dashboard": "Dashboard",
       "assessment": "Assessment",
       "assess": "Assess",
-      "scores": "My Scores",
-      "my-scores": "My Scores"
+      "scores": "My Results",
+      "my-scores": "My Results"
     },
     "collapseMenu": {
       "collapseMenu": "Collapse menu item",

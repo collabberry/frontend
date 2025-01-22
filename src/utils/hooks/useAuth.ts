@@ -14,6 +14,7 @@ import {
   saveInvitationToken,
   setAllRounds,
   setRounds,
+  RootState,
 } from "@/store";
 import appConfig from "@/configs/app.config";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -25,6 +26,7 @@ import {
   apiGetRounds,
 } from "@/services/OrgService";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
+import { useSelector } from "react-redux";
 
 type Status = "success" | "failed";
 
@@ -44,13 +46,15 @@ function useAuth() {
     return searchParams.get("invitationToken") || savedInvinationToken;
   }, [searchParams.get("invitationToken"), savedInvinationToken]);
 
+
+
   const signInWithWallet = async (
     token: string
   ): Promise<
     | {
-        status: Status;
-        message: string;
-      }
+      status: Status;
+      message: string;
+    }
     | undefined
   > => {
     try {
@@ -59,7 +63,7 @@ function useAuth() {
         let response: any = await apiGetUser();
         let user = response?.data || {};
         let url = appConfig.authenticatedEntryPath;
-        if (!user) {
+        if (!user || !user.organization) {
           user.username = "Anonymous";
           user.email = "";
           user.profilePicture = "";
@@ -78,6 +82,7 @@ function useAuth() {
             id: user?.id,
             isAdmin: user?.isAdmin,
             totalFiat: user?.totalFiat,
+            organization: user?.organization,
           })
         );
         if (user?.organization?.id) {
@@ -101,13 +106,13 @@ function useAuth() {
             if (allRoundsResponse.data) {
               dispatch(setAllRounds(allRoundsResponse.data));
             }
-          } catch (error: any) {}
+          } catch (error: any) { }
           try {
             const roundResponse = await apiGetCurrentRound();
             if (roundResponse.data) {
               dispatch(setRounds(roundResponse.data));
             }
-          } catch (error: any) {}
+          } catch (error: any) { }
         }
         navigate(url);
         return {

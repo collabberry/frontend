@@ -12,7 +12,6 @@ export type OrgState = {
   name: string;
   logo?: string;
   teamPointsContractAddress?: string;
-  totalFunds?: number;
   totalDistributedFiat?: number;
   totalDistributedTP?: number;
   nextRoundDate?: string;
@@ -25,7 +24,6 @@ const initialState: OrgState = {
   name: "",
   id: "",
   par: undefined,
-  totalFunds: undefined,
   totalDistributedFiat: undefined,
   totalDistributedTP: undefined,
   compensationPeriod: undefined,
@@ -55,7 +53,6 @@ const orgSlice = createSlice({
       state.nextRoundDate = initialState.nextRoundDate;
       state.contributors = initialState.contributors;
       state.roundsActivated = initialState.roundsActivated;
-      state.totalFunds = initialState.totalFunds;
       state.totalDistributedFiat = initialState.totalDistributedFiat;
       state.totalDistributedTP = initialState.totalDistributedTP;
       state.teamPointsContractAddress = initialState.teamPointsContractAddress;
@@ -73,7 +70,6 @@ const orgSlice = createSlice({
       state.nextRoundDate = action.payload?.nextRoundDate;
       state.contributors = action.payload?.contributors || [];
       state.roundsActivated = action.payload?.roundsActivated;
-      state.totalFunds = action.payload?.totalFunds;
       state.totalDistributedFiat = action.payload?.totalDistributedFiat;
       state.totalDistributedTP = action.payload?.totalDistributedTP;
       state.teamPointsContractAddress = action.payload?.teamPointsContractAddress;

@@ -10,6 +10,7 @@ import {
 import Pagination from "@/components/ui/Pagination";
 import type { ColumnDef, ColumnSort } from "@tanstack/react-table";
 import { Select } from "@/components/ui";
+import TFoot from "@/components/ui/Table/TFoot";
 
 type CustomTableWithSortingProps<T> = {
   data: T[];
@@ -74,16 +75,18 @@ const CustomTableWithSorting = <T,>({
                       <div
                         {...{
                           className: header.column.getCanSort()
-                            ? "cursor-pointer select-none"
-                            : "",
+                            ? "cursor-pointer select-none flex items-center"
+                            : "flex items-center",
                           onClick: header.column.getToggleSortingHandler(),
                         }}
                       >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                        {<Sorter sort={header.column.getIsSorted()} />}
+                        <div className="flex">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </div>
+                        {header.column.getCanSort() ? <Sorter sort={header.column.getIsSorted()} /> : null}
                       </div>
                     )}
                   </Th>
@@ -110,27 +113,43 @@ const CustomTableWithSorting = <T,>({
             );
           })}
         </TBody>
+        <TFoot>
+          {table.getFooterGroups().map(group => (
+            <Tr key={group.id}>
+              {group.headers.map((header) => {
+                return (
+                  <Th key={header.id} colSpan={header.colSpan} className="py-2 px-1 text-start">
+                    {flexRender(
+                      header.column.columnDef.footer,
+                      header.getContext()
+                    )}
+                  </Th>
+                );
+              })}
+            </Tr>
+          ))}
+        </TFoot>
       </Table>
       {shouldShowPagination && (
-      <div className="flex items-center justify-between mt-4">
-        <Pagination
-          pageSize={table.getState().pagination.pageSize}
-          currentPage={table.getState().pagination.pageIndex + 1}
-          total={totalData}
-          onChange={onPaginationChange}
-        />
-        <div style={{ minWidth: 130 }}>
-          <Select<Option>
-            size="sm"
-            isSearchable={false}
-            value={pageSizeOption.filter(
-              (option) => option.value === table.getState().pagination.pageSize
-            )}
-            options={pageSizeOption}
-            onChange={(option) => onSelectChange(option?.value)}
+        <div className="flex items-center justify-between mt-4">
+          <Pagination
+            pageSize={table.getState().pagination.pageSize}
+            currentPage={table.getState().pagination.pageIndex + 1}
+            total={totalData}
+            onChange={onPaginationChange}
           />
+          <div style={{ minWidth: 130 }}>
+            <Select<Option>
+              size="sm"
+              isSearchable={false}
+              value={pageSizeOption.filter(
+                (option) => option.value === table.getState().pagination.pageSize
+              )}
+              options={pageSizeOption}
+              onChange={(option) => onSelectChange(option?.value)}
+            />
+          </div>
         </div>
-      </div>
       )}
     </>
   );

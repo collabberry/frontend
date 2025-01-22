@@ -14,19 +14,44 @@ import { ActionLink } from "@/components/shared";
 import PulsingCirclesBackground from "@/components/collabberry/custom-components/PulsingCirclesBackground";
 import { useEffect } from "react";
 import appConfig from "@/configs/app.config";
+import { RootState, useAppSelector } from "@/store";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const SignIn = () => {
+  const user = useSelector((state: RootState) => state.auth.user);
+  const navigate = useNavigate();
   const [isPrivacyPolicyOpen, setIsPrivacyPolicyOpen] = useState(false);
-  const openPrivacyPolicy = () => setIsPrivacyPolicyOpen(true);
-  const closePrivacyPolicy = () => setIsPrivacyPolicyOpen(false);
   const [isTermsAndConditionsOpen, setIsTermsAndConditionsOpen] =
     useState(false);
+  const openPrivacyPolicy = () => setIsPrivacyPolicyOpen(true);
+  const closePrivacyPolicy = () => setIsPrivacyPolicyOpen(false);
   const openTermsAndConditions = () => setIsTermsAndConditionsOpen(true);
   const closeTermsAndConditions = () => setIsTermsAndConditionsOpen(false);
   const [isChecked, setIsChecked] = useState(true);
   const onCheckboxChange = (e: boolean) => {
     setIsChecked(e);
   };
+
+
+
+  const {
+    token,
+    invitationToken,
+  } = useAppSelector((state) => state.auth.session);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      if (token) {
+        const url = invitationToken
+        ? `${appConfig.notRegisteredEntryPath}?invitationToken=${invitationToken}`
+        : appConfig.notRegisteredEntryPath;
+      navigate(url);
+      }
+    };
+
+    checkUser();
+  }, []);
 
   return (
     <>

@@ -19,12 +19,15 @@ import { mainnet, polygon, optimism, arbitrum, base, arbitrumSepolia } from "wag
 import { useAppSelector } from "./store";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import CustomAvatar from "./components/collabberry/custom-components/CustomRainbowKit/CustomAvatar";
+import { Env, environment } from "./api/environment";
+
+
 
 export const config = getDefaultConfig({
   appName: "Collabberry",
   projectId: "dd33813752fd2f608af1325845cc6abc",
   syncConnectedChain: true,
-  chains: [arbitrum, arbitrumSepolia],
+  chains: environment?.env === Env.Production ? [arbitrum] : [arbitrumSepolia],
   // ssr: true, // If your dApp uses server side rendering (SSR)
 });
 
@@ -36,7 +39,7 @@ export const config = getDefaultConfig({
 //   mockServer({ environment });
 // }
 
-const base_url = import.meta.env.VITE_APP_BASE_URL as string;
+const base_url = environment?.apiUrl;
 
 function App() {
   const { signInWithWallet } = useAuth();
@@ -122,7 +125,7 @@ function App() {
       <RainbowKitProvider
         appInfo={{
           appName: "Collabberry",
-          learnMoreUrl: "https://beta.collabberry.xyz",
+          learnMoreUrl: environment?.appUrl
         }}
         avatar={CustomAvatar}
       >

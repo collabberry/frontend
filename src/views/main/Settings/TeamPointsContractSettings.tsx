@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useFormik } from 'formik';
+import { useFormik, useFormikContext } from 'formik';
 import * as Yup from 'yup';
 import { Button, Card, FormContainer, FormItem, Input, Spinner, Alert, Switcher, Skeleton, Dialog } from '@/components/ui';
 import { useDeployTeamPoints } from '@/services/ContractsService';
@@ -10,28 +10,22 @@ import SuccessDialog from '@/components/collabberry/custom-components/Transactio
 import ErrorDialog from '@/components/collabberry/custom-components/TransactionErrorDialog';
 import LoadingDialog from '@/components/collabberry/custom-components/LoadingDialog';
 import { ethers } from 'ethers';
+import { environment } from '@/api/environment';
+
 
 const validationSchema = Yup.object().shape({
     isTransferable: Yup.boolean().required("This field is required."),
-    isOutsideTransferAllowed: Yup.boolean().required("This field is required."),
+    isOutsideTransferAllowed: Yup.boolean(),
     materialWeight: Yup.number()
         .required("This field is required.")
         .max(999999999.999, "The material weight must be at most 999999999.999.")
         .test("is-decimal-places", "The material contribution weight cannot have more than 3 decimal places.", value => {
             if (value) {
-            const decimalPlaces = value.toString().split('.')[1];
-            return !decimalPlaces || decimalPlaces.length <= 3;
+                const decimalPlaces = value.toString().split('.')[1];
+                return !decimalPlaces || decimalPlaces.length <= 3;
             }
             return true;
         })
-    // .test("is-valid-bigint", "The material weight must be a valid BigInt.", value => {
-    //     try {
-    //         BigInt(value || 0);
-    //         return true;
-    //     } catch {
-    //         return false;
-    //     }
-    // })
 });
 
 const TeamPointsContractSettings: React.FC = () => {
@@ -42,8 +36,7 @@ const TeamPointsContractSettings: React.FC = () => {
     const [errrorDialogVisible, setErrorDialogVisible] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [txHash, setTxHash] = useState<string | null>(null);
-    const txBlockExplorer = 'https://arbiscan.io/tx/'
-    const txNetwork = 'Arbitrum';
+    const { network, blockExplorer } = environment;
 
     const handleDialogClose = () => {
         setDialogVisible(false);
@@ -57,6 +50,7 @@ const TeamPointsContractSettings: React.FC = () => {
             isOutsideTransferAllowed: false,
             materialWeight: 0,
         },
+
         validationSchema,
         onSubmit: async (values) => {
 
@@ -91,6 +85,7 @@ const TeamPointsContractSettings: React.FC = () => {
         }
     });
 
+
     useEffect(() => {
         const fetchSettings = async () => {
             if (organization?.teamPointsContractAddress && ethersSigner) {
@@ -114,13 +109,14 @@ const TeamPointsContractSettings: React.FC = () => {
         fetchSettings();
     }, [organization.teamPointsContractAddress, ethersSigner]);
 
+
     return (
         <Card className="w-3/4">
             <SuccessDialog
                 dialogVisible={dialogVisible}
                 txHash={txHash || ''}
-                txBlockExplorer={txBlockExplorer}
-                txNetwork={txNetwork}
+                blockExplorer={blockExplorer}
+                txNetwork={network}
                 dialogMessage="Yay! Your settings have been updated."
                 handleDialogClose={handleDialogClose}>
             </SuccessDialog>
@@ -149,30 +145,41 @@ const TeamPointsContractSettings: React.FC = () => {
                                 asterisk={true}
                                 errorMessage={formik.errors.isTransferable}
                                 invalid={formik.touched.isTransferable && !!formik.errors.isTransferable}
+                                extraTooltip="If enabled, contributors can transfer their team points to other contributors."
+
                             >
                                 <Switcher
                                     name="isTransferable"
                                     defaultChecked={formik.values.isTransferable}
-                                    onChange={(value: any) => formik.setFieldValue('isTransferable', value)}
+                                    onChange={(value: any) => {
+                                        formik.setFieldValue('isTransferable', value);
+                                        if (value === false) {
+                                            formik.setFieldValue('isOutsideTransferAllowed', false);
+                                        }
+                                    }}
+
                                 />
                             </FormItem>
                             <FormItem
                                 label="Transfer Outside Allowed"
-                                asterisk={true}
                                 errorMessage={formik.errors.isOutsideTransferAllowed}
                                 invalid={formik.touched.isOutsideTransferAllowed && !!formik.errors.isOutsideTransferAllowed}
+                                extraTooltip="If enabled, contributors can transfer their team points to people outside of their organization."
                             >
                                 <Switcher
                                     name="isOutsideTransferAllowed"
-                                    defaultChecked={formik.values.isOutsideTransferAllowed}
-                                    onChange={(value: any) => formik.setFieldValue('isOutsideTransferAllowed', value)}
-                                />
+                                    disabled={!formik.values.isTransferable}
+                                    checked={formik.values.isOutsideTransferAllowed}
+                                    onChange={() => {
+                                        formik.setFieldValue('isOutsideTransferAllowed', !formik.values.isOutsideTransferAllowed);
+                                    }} />
                             </FormItem>
                             <FormItem
-                                label="Material Contribution Weight"
+                                label="Material Contribution Multiplier"
                                 asterisk={true}
                                 errorMessage={formik.errors.materialWeight}
                                 invalid={formik.touched.materialWeight && !!formik.errors.materialWeight}
+                                extraTooltip="This is the multiplier used to calculate the team points earned by a contributor based on their material contribution."
                             >
                                 <Input
                                     type="text"

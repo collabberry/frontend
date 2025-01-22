@@ -9,6 +9,7 @@ export type UserState = {
   authority?: string[];
   isAdmin?: boolean;
   totalFiat?: string;
+  organization?: any
 };
 
 const initialState: UserState = {
@@ -18,7 +19,8 @@ const initialState: UserState = {
   email: "",
   authority: [],
   isAdmin: false,
-  totalFiat: ''
+  totalFiat: '',
+  organization: null
 };
 
 const userSlice = createSlice({
@@ -33,6 +35,7 @@ const userSlice = createSlice({
       state.id = initialState.id;
       state.isAdmin = initialState.isAdmin;
       state.totalFiat = initialState.totalFiat;
+      state.organization = initialState.organization;
     },
     setUser(state, action: PayloadAction<UserState>) {
       state.profilePicture = action.payload?.profilePicture;
@@ -42,6 +45,7 @@ const userSlice = createSlice({
       state.id = action.payload?.id;
       state.isAdmin = action.payload?.isAdmin;
       state.totalFiat = action.payload?.totalFiat;
+      state.organization = action.payload?.organization;
     },
   },
 });

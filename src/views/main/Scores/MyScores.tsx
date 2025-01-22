@@ -56,29 +56,28 @@ export const ScoreDetailCard: React.FC<ScoreDetailProps> = ({
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <h3 className="text-sm font-semibold">Culture</h3>
+            <h3 className="text-sm font-semibold">Culture Impact</h3>
             <p className="text-2xl">{cultureScore.toFixed(1)}</p>
           </div>
           <div>
-            <h3 className="text-sm font-semibold">Work Delivered</h3>
+            <h3 className="text-sm font-semibold">Work Contribution</h3>
             <p className="text-2xl">{workScore.toFixed(1)}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {feedbackPositive && (
-          <div className="mt-4">
-            <h3 className="font-semibold text-sm uppercase">Did well</h3>
-            <p className="mt-1">{feedbackPositive}</p>
-          </div>
-        )}
-      {feedbackNegative && (
-          <div className="mt-4">
-          <h3 className="font-semibold text-sm uppercase">Could Improve</h3>
-          <p className="mt-1">{feedbackNegative}</p>
+
+        <div className="mt-4">
+          <h3 className="font-semibold text-sm uppercase">Did well</h3>
+          <p className="mt-1">{feedbackPositive || '-'}</p>
         </div>
-      )}
+
+
+        <div className="mt-4">
+          <h3 className="font-semibold text-sm uppercase">Could Improve</h3>
+          <p className="mt-1">{feedbackNegative || '-'}</p>
+        </div>
       </div>
     </Card>
   );
@@ -113,10 +112,14 @@ const MyScores: React.FC = () => {
       {selectedRound && scores && (
         <div>
           <div className="flex flex-row justify-between">
-            <h1>Round {scores?.roundNumber}</h1>
+            <h1>Round {scores?.roundName}</h1>
           </div>
           <div className="mt-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
+            <ScoreCard
+                title="Total Score"
+                score={scores?.totalScore || (scores?.totalCultureScore + scores?.totalWorkScore) / 2}
+              ></ScoreCard>
               <ScoreCard
                 title="Culture Score"
                 score={scores?.totalCultureScore}
