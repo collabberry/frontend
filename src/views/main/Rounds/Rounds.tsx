@@ -3,7 +3,7 @@ import RoundStatusTag from "@/components/collabberry/custom-components/CustomFie
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
-import { Alert, Button, Switcher } from "@/components/ui";
+import { Alert, Button, Skeleton, Switcher } from "@/components/ui";
 import {
   apiActivateRounds,
   apiAddAssessment,
@@ -32,113 +32,25 @@ const Rounds: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
-  const organization = useSelector((state: RootState) => state.auth.org);
-  const { isAdmin } = useSelector((state: RootState) => state.auth.user);
-  const { allRounds, currentRound } = useSelector(
+  const { allRounds } = useSelector(
     (state: RootState) => state.auth.rounds
   );
 
-  // React.useEffect(() => {
-  //   const initializeRounds = async () => {
-  //     await fetchAllRounds();
-  //     await fetchCurrentRound();
-  //   };
 
-  //   initializeRounds();
-  // }, []);
 
-  const fetchAllRounds = async () => {
-    setLoading(true);
-    try {
-      const allRoundsResponse = await apiGetRounds();
-      if (allRoundsResponse?.data) {
-        dispatch(setAllRounds(allRoundsResponse.data));
+  React.useEffect(() => {
+    const fetchAllRounds = async () => {
+      try {
+        const allRoundsResponse = await apiGetRounds();
+        if (allRoundsResponse.data) {
+          dispatch(setAllRounds(allRoundsResponse.data));
+        }
+      } catch (error: any) {
+        handleError(error.response.data.message);
       }
-    } catch (error: any) {
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchCurrentRound = async () => {
-    setLoading(true);
-    try {
-      const currentRoundResponse = await apiGetCurrentRound();
-      if (currentRoundResponse?.data) {
-        dispatch(setRounds(currentRoundResponse.data));
-      } else {
-      }
-    } catch (error: any) {
-    } finally {
-      setLoading(false);
-    }
-  };
-  const isCurrentRound = (round: any) => {
-    return round?.id === currentRound?.id;
-  };
-
-  const handleReload = async () => {
-    try {
-      const allRoundsResponse = await apiGetRounds();
-      if (allRoundsResponse.data) {
-        dispatch(setAllRounds(allRoundsResponse.data));
-      }
-    } catch (error: any) {
-      handleError(error.response.data.message);
-    }
-
-    try {
-      const roundResponse = await apiGetCurrentRound();
-      if (roundResponse.data) {
-        dispatch(setRounds(roundResponse.data));
-      }
-    } catch (error: any) {
-      handleError(error.response.data.message);
-    }
-  };
-  // const handleRoundActivation = async (event: boolean) => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await apiActivateRounds({
-  //       isActive: event,
-  //     });
-  //     if (organization?.id) {
-  //       try {
-  //         const roundResponse = await apiGetCurrentRound();
-  //         if (roundResponse?.data) {
-  //           dispatch(setRounds(roundResponse.data));
-  //         }
-  //       } catch (error: any) {
-  //         setLoading(false);
-  //         handleError(error.response.data.message);
-  //       }
-
-  //       try {
-  //         const allRoundsResponse = await apiGetAllRounds();
-  //         if (allRoundsResponse?.data) {
-  //           dispatch(setAllRounds(allRoundsResponse.data));
-  //         }
-  //       } catch (error: any) {
-  //         setLoading(false);
-  //         handleError(error.response.data.message);
-  //       }
-  //       try {
-  //         const orgResponse = await apiGetOrganizationById(organization.id);
-  //         if (orgResponse?.data) {
-  //           dispatch(setOrganization(orgResponse.data));
-  //         }
-  //       } catch (error: any) {
-  //         setLoading(false);
-  //         handleError(error.response.data.message);
-  //       }
-  //     }
-  //     setRoundsStatus(event);
-  //     setLoading(false);
-  //   } catch (error: any) {
-  //     setLoading(false);
-  //     handleError(error.response.data.message);
-  //   }
-  // };
+    };
+    fetchAllRounds();
+  }, []);
 
   const goToRound = async (round: any) => {
     try {
@@ -253,36 +165,23 @@ const Rounds: React.FC = () => {
     <div>
       <div className="flex flex-row gap-2 items-center">
         <h1>Rounds</h1>
-        <Button
-          shape="circle"
-          size="xs"
-          variant="twoTone"
-          icon={<FiRefreshCw />}
-          onClick={handleReload}
-        />
       </div>
 
       <div className="mt-4">
         {allRounds.length ? (
           <>
-            {/* {isAdmin && (
-              <div className="flex flex-col space-y-4 items-end justify-center mt-4">
-                <div className="mb-4">
-                  <Switcher
-                    checkedContent="Active"
-                    unCheckedContent="Paused"
-                    isLoading={loading}
-                    onChange={handleRoundActivation}
-                    defaultChecked={roundsStatus}
-                  />
-                </div>
-              </div>
-            )} */}
+            {/* {
+              loading ? (<>
+                <Skeleton height={40} />
+                <Skeleton height={67} className="mt-2" />
+              </>) : ()
+            } */}
             <CustomTableWithSorting
-              data={allRounds || []}
-              columns={columns}
-              initialSort={[{ id: "roundNumber", desc: true }]}
-            />
+                data={allRounds || []}
+                columns={columns}
+                initialSort={[{ id: "roundNumber", desc: true }]}
+              />
+
           </>
         ) : (
           <>

@@ -46,6 +46,7 @@ import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/clock.json";
 import * as successAnimationData from "@/assets/animations/check2.json";
 import { shortenTxHash } from "@/components/collabberry/custom-components/TransactionSuccessDialog";
+import { environment } from "@/api/environment";
 
 
 const ValidationStepsSchema = Yup.object().shape({
@@ -54,10 +55,10 @@ const ValidationStepsSchema = Yup.object().shape({
       .min(3, "Username must be at least 3 characters.")
       .required(fieldRequired),
     email: Yup.string().email("Invalid e-mail.").required(fieldRequired),
-    image: Yup.mixed().required("Image is required."),
+    image: Yup.mixed()
   }),
   step2: Yup.object().shape({
-    logo: Yup.mixed().required(fieldRequired),
+    logo: Yup.mixed(),
     name: Yup.string()
       .min(3, "Name must be at least 3 characters.")
       .required(fieldRequired),
@@ -109,14 +110,13 @@ const initialValues = {
 const SignUp = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const organization = useSelector((state: RootState) => state.auth.org);
+  const { network, blockExplorer } = environment;
   const dispatch = useDispatch();
   const { deployTeamPoints } = useDeployTeamPoints();
   const [txHash, setTxHash] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const txBlockExplorer = 'https://arbiscan.io/tx/'
-  const txNetwork = 'Arbitrum';
 
-  const shortenedTx = useMemo(() => shortenTxHash(txHash ?? '', txBlockExplorer ?? ''), [txHash, txBlockExplorer]);
+  const shortenedTx = useMemo(() => shortenTxHash(txHash ?? '', blockExplorer ?? ''), [txHash, blockExplorer]);
 
 
   const formik = useFormik({
@@ -127,6 +127,17 @@ const SignUp = () => {
   });
   const steps = ["Profile", "Organization", "Agreement"];
   const [currentStep, setCurrentStep] = useState(0);
+
+  useEffect(() => {
+    if (user.id && !user.organization) {
+      setCurrentStep(1);
+    } else if (user.id && user.organization) {
+      setCurrentStep(2) 
+    } else {
+      setCurrentStep(0);
+    }
+  }, []);
+
 
   const createProfile = async () => {
     formik.setSubmitting(true);
@@ -158,6 +169,8 @@ const SignUp = () => {
                 authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
                 email: response?.data?.email,
                 isAdmin: response?.data?.isAdmin,
+                organization: response?.data?.organization,
+                totalFiat: response?.data?.totalFiat
               })
             );
           }
@@ -209,7 +222,6 @@ const SignUp = () => {
                     name: org?.data?.name,
                     id: org?.data?.id,
                     par: org?.data?.par,
-                    totalFunds: org?.data?.totalFunds,
                     totalDistributedFiat: org?.data?.totalDistributedFiat,
                     totalDistributedTP: org?.data?.totalDistributedTP,
                     teamPointsContractAddress: org?.data?.teamPointsContractAddress,
@@ -326,7 +338,6 @@ const SignUp = () => {
                         par: org?.data?.par,
                         compensationPeriod: org?.data?.compensationPeriod,
                         compensationStartDay: org?.data?.compensationStartDay,
-                        totalFunds: org?.data?.totalFunds,
                         totalDistributedFiat: org?.data?.totalDistributedFiat,
                         totalDistributedTP: org?.data?.totalDistributedTP,
                         teamPointsContractAddress:
@@ -468,9 +479,9 @@ const SignUp = () => {
                       Yay! Your contract has been deployed.
                     </h2>
                     <div className="mb-2 text-center text-md flex flex-col items-center">
-                      <p>See your transaction on {txNetwork}: </p>
+                      <p>See your transaction on {network}: </p>
                       <a
-                        href={`${txBlockExplorer}${txHash}`}
+                        href={`${blockExplorer}/${txHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="ml-1 text-md text-blue-600 underline hover:text-blue-800"

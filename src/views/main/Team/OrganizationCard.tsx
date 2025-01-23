@@ -13,14 +13,12 @@ interface Organization {
 interface OrganizationCardProps {
   organization: OrgState;
   onEdit: () => void;
-  onReload: () => void;
   isAdmin: boolean;
 }
 
 const OrganizationCard: React.FC<OrganizationCardProps> = ({
   organization,
   onEdit,
-  onReload,
   isAdmin,
 }) => {
   return (
@@ -39,13 +37,7 @@ const OrganizationCard: React.FC<OrganizationCardProps> = ({
           onClick={onEdit}
         />
       )}
-          <Button
-          shape="circle"
-          size="sm"
-          variant="twoTone"
-          icon={<FiRefreshCw />}
-          onClick={onReload}
-        />
+
     </div>
   );
 };

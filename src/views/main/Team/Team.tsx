@@ -1,7 +1,7 @@
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
 import { Contributor } from "@/models/Organization.model";
 import { ColumnDef } from "@tanstack/react-table";
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, setOrganization } from "@/store";
 import { useState } from "react";
@@ -21,6 +21,7 @@ import { handleError } from "@/components/collabberry/helpers/ToastNotifications
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
+  const user = useSelector((state: RootState) => state.auth.user);
   const { isAdmin } = useSelector((state: RootState) => state.auth.user);
   const location = useLocation();
   const dispatch = useDispatch();
@@ -32,28 +33,26 @@ const Team: React.FC = () => {
   const [selectedContributor, setSelectedContributor] = useState(
     {} as Contributor
   );
-  // const viewAgreement = async (contributor: Contributor) => {
-  //   if (contributor && Object.keys(contributor).length > 0) {
-  //     const agreement = await apiGetContributorAgreement(contributor.id);
-  //     setSelectedAgreement(agreement);
-  //     setIsViewAgreementDialogOpen(true);
-  //   }
-  // };
 
-  const handleReload = async () => {
-    try {
-      if (organization.id) {
-        const orgResponse = await apiGetOrganizationById(organization.id);
-        if (orgResponse.data) {
-          dispatch(setOrganization(orgResponse.data));
+  useEffect(() => {
+    const fetchOrganization = async () => {
+      const orgId = user?.organization?.id
+      try {
+
+        if (orgId) {
+          const orgResponse = await apiGetOrganizationById(orgId);
+          if (orgResponse.data) {
+            dispatch(setOrganization(orgResponse.data));
+          }
+        } else {
+          handleError("Organization ID not found");
         }
-      } else {
-        handleError("Organization ID not found");
+      } catch (error: any) {
+        handleError(error.response.data.message);
       }
-    } catch (error: any) {
-      handleError(error.response.data.message);
-    }
-  };
+    };
+    fetchOrganization();
+  }, [])
 
   const viewAgreement = (contributor: Contributor) => {
     if (contributor && Object.keys(contributor).length > 0) {
@@ -234,14 +233,13 @@ const Team: React.FC = () => {
         </Dialog>
       )}
       <div className="mb-4">
-        <h1>Organization</h1>
+        <h1>Team</h1>
       </div>
 
       <div className="mb-4">
         <OrganizationCard
           organization={organization}
           onEdit={handleEdit}
-          onReload={handleReload}
           isAdmin={isAdmin as boolean}
         />
       </div>

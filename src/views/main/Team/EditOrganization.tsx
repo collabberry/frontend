@@ -17,7 +17,7 @@ import {
 } from "@/components/collabberry/helpers/ToastNotifications";
 
 const validationSchema = Yup.object().shape({
-  logo: Yup.mixed().required("Logo is required"),
+  logo: Yup.mixed(),
   name: Yup.string()
     .min(3, "Name must be at least 3 characters")
     .required("Organization Name is required"),
@@ -49,7 +49,7 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
       }
       const dateString = today ? today.toISOString() : null;
 
-      const { contributors, nextRoundDate, roundsActivated, cycle, startDate, ...restOrganization } = initialData as any;
+      const { contributors, nextRoundDate, roundsActivated, cycle, startDate, teamPointsContractAddress, totalDistributedFiat, totalDistributedTP, ...restOrganization } = initialData as any;
       const body = {
         ...restOrganization,
         ...values,
@@ -68,20 +68,6 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
             handleError(error.response.data.message);
             onSubmit();
           }
-          
-          // try {
-          //   const allRoundsResponse = await apiGetRounds();
-          //   if (allRoundsResponse.data) {
-          //     dispatch(setAllRounds(allRoundsResponse.data));
-          //   }
-          // } catch (error: any) {}
-
-          // try {
-          //   const roundResponse = await apiGetCurrentRound();
-          //   if (roundResponse.data) {
-          //     dispatch(setRounds(roundResponse.data));
-          //   }
-          // } catch (error: any) {}
           
         }
 

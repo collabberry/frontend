@@ -18,7 +18,13 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_APP_BASE_URL=https://beta-api.collabberry.xyz
-        - VITE_APP_TEAM_POINTS_FACTORY_ADDRESS=0x69a99AeAc1F2410e82A84E08268b336116Ab3B5a
+        - VITE_APP_TEAM_POINTS_FACTORY_ADDRESS=0x4A30F2e53e162eC6cc9794D6C68BFAE174bB4872
+        - VITE_NODE_ENV=production
+        - VITE_APP_URL=https://beta.collabberry.xyz
+        - VITE_APP_NETWORK=Arbitrum
+        - VITE_APP_BLOCK_EXPLORER=https://arbiscan.io/tx
+        
+
     image: collabberry/frontend-app-demo-01:latest
 
 networks:

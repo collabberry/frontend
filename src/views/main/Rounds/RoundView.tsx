@@ -25,6 +25,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import MintStatusTag from "./MintStatusTag";
+import { environment } from "@/api/environment";
 
 const RoundView: React.FC = () => {
   const { selectedRound, currentRound } = useSelector(
@@ -41,8 +42,7 @@ const RoundView: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
-  const txBlockExplorer = 'https://arbiscan.io/tx/'
-  const txNetwork = 'Arbitrum';
+  const { network, blockExplorer } = environment;
 
   const goToContributorAssessments = (contributor: any) => {
     const orgContributor = organization?.contributors?.find(
@@ -111,7 +111,7 @@ const RoundView: React.FC = () => {
       },
     },
     {
-      header: "Total score",
+      header: "Total Score",
       accessorKey: "totalScore",
       cell: (props) => {
         const value = props.getValue() as number;
@@ -119,7 +119,7 @@ const RoundView: React.FC = () => {
       },
     },
     {
-      header: "Culture",
+      header: "Culture Score",
       accessorKey: "cultureScore",
       cell: (props) => {
         const value = props.getValue() as number;
@@ -127,38 +127,49 @@ const RoundView: React.FC = () => {
       },
     },
     {
-      header: "Work",
+      header: "Work Score",
       accessorKey: "workScore",
       cell: (props) => {
         const value = props.getValue() as number;
         return value ? <span>{value.toFixed(1)}</span> : null;
       },
     },
+    // {
+    //   header: "Team Points",
+    //   accessorKey: "teamPoints",
+    //   cell: (props) => {
+    //     const value = props.getValue() as number;
+    //     return value ? <span>{value.toFixed(0)}</span> : null;
+    //   },
+    // },
     {
-      header: "Team Points",
-      accessorKey: "teamPoints",
-      cell: (props) => {
-        const value = props.getValue() as number;
-        return value ? <span>{value.toFixed(0)}</span> : null;
+      header: 'Team Points',
+      id: "teamPoints",
+      accessorFn: (row) => {
+        return row.teamPoints * 2;
       },
-    },
-    {
-      header: () => (
-        <p className="flex flex-col justify-start">
-          <span>Points with</span>
-          <span>Weight Multiplier</span>
-        </p>
-      ),
-      id: "teamPointsWithMultiplier",
+      footer: ({ table }) => {
+        const sum = table.getFilteredRowModel().rows.reduce((total, row) => total + (Number(row.original.teamPoints * 2)), 0)
+        return 'Total: ' + sum.toLocaleString("en-US", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        });
+      },
       cell: (props) => {
         const contributor = props.row.original;
         const multiplier = 2;
         const teamPoints = contributor.teamPoints;
-        return teamPoints ? <span>{(teamPoints * multiplier).toFixed(0)}</span> : null;
+        return teamPoints ? <span>
+          {Number((teamPoints * multiplier)).toLocaleString("en-US", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          })}
+        </span> : null;
       },
+      sortingFn: 'auto'
     },
     {
-      header: "Fiat",
+      header: "Monetary Compensation",
       accessorKey: "fiat",
       cell: (props) => {
         const value = props.getValue() as number;
@@ -174,6 +185,13 @@ const RoundView: React.FC = () => {
           );
         }
       },
+      footer: ({ table }) => {
+        const sum = table.getFilteredRowModel().rows.reduce((total, row) => total + (Number(row.original.fiat)), 0)
+        return 'Total: ' + '$' + sum.toLocaleString("en-US", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        });
+      },
     },
   ];
 
@@ -182,6 +200,7 @@ const RoundView: React.FC = () => {
     {
       header: "Assessments",
       id: "viewAssessments",
+
       cell: (props) => {
         const contributor = props.row.original;
         const reminded = contributor.reminded;
@@ -353,8 +372,8 @@ const RoundView: React.FC = () => {
           <SuccessDialog
             dialogVisible={dialogVisible}
             txHash={txHash || ''}
-            txBlockExplorer={txBlockExplorer}
-            txNetwork={txNetwork}
+            blockExplorer={blockExplorer}
+            txNetwork={network}
             dialogMessage="Yay! The tokens have been minted successfully."
             handleDialogClose={handleDialogClose}>
           </SuccessDialog>
@@ -395,7 +414,7 @@ const RoundView: React.FC = () => {
             {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && selectedRound.txHash && (<div>
 
               <a
-                href={`${txBlockExplorer}${selectedRound.txHash}`}
+                href={`${blockExplorer}/${selectedRound.txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -67,6 +67,12 @@ const ContributorScoreView: React.FC = () => {
                       {selectedUser?.username}
                     </div>
                     <div>
+                    <div className="flex justify-between">
+                        <span>Total Score:</span>
+                        <span className="font-bold ml-1">
+                          {selectedUser?.totalScore.toFixed(1) || 0}
+                        </span>
+                      </div>
                       <div className="flex justify-between">
                         <span> Work Score:</span>
                         <span className="font-bold ml-1">
