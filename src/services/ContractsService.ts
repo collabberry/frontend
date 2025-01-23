@@ -172,7 +172,36 @@ const _batchMint = async (
     };
 };
 
+const _manualAllocation = async (
+    contractAddress: string,
+    recipients: string[],
+    amounts: number[],
+    ethersSigner: ethers.JsonRpcSigner | undefined
+): Promise<ContractResponse> => {
+    try {
+        const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
+        // Convert amounts to the appropriate unit
+        const amountsInWei = amounts.map((amount) =>
+            ethers.parseUnits(amount.toString(), 18)
+        );
+        const tx = await contract.manualAllocation(recipients, amountsInWei);
+        const receipt = await tx.wait();
 
+        return {
+            message: 'Manual allocation successful',
+            status: ContractResponseStatus.Success,
+            data: {
+                transactionHash: receipt.hash,
+            }
+        };
+    } catch (error) {
+        console.error('Error in manual allocation:', error);
+    }
+    return {
+        message: DEFAULT_ERROR_MESSAGE,
+        status: ContractResponseStatus.Failed,
+    };
+};
 
 const _getBalance = async (contractAddress: string, userAddress: string, ethersSigner: ethers.JsonRpcSigner | undefined): Promise<ContractResponse> => {
     try {
@@ -292,6 +321,27 @@ export const useDeployTeamPoints = () => {
         return await _batchMint(contractAddress, recipients, materialContributions, timeContributionsInWei, ethersSigner);
     };
 
+    const manualAllocation = async (
+        contractAddress: string,
+        recipients: string[],
+        amounts: number[]
+    ): Promise<ContractResponse> => {
+        if (!ethersSigner || !address) {
+            return {
+                message: 'Please connect your wallet',
+                status: ContractResponseStatus.Failed,
+            };
+        }
+        if (recipients.length !== amounts.length) {
+            return {
+                message: 'Input arrays must have the same length.',
+                status: ContractResponseStatus.Failed,
+            };
+        }
+
+        return await _manualAllocation(contractAddress, recipients, amounts, ethersSigner);
+    };
+
     const getBalance = async (contractAddress: string): Promise<ContractResponse> => {
         if (!ethersSigner || !address) {
             return {
@@ -315,6 +365,10 @@ export const useDeployTeamPoints = () => {
 
 
 
+
+
+
+
     return {
         deployTeamPoints,
         readSettings,
@@ -322,6 +376,7 @@ export const useDeployTeamPoints = () => {
         fetchTotalSupply,
         updateSettings,
         batchMint,
+        manualAllocation,
         ethersSigner,
     };
 }
