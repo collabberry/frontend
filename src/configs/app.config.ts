@@ -1,3 +1,5 @@
+import { environment } from "@/api/environment";
+
 export type AppConfig = {
   apiPrefix: string;
   authenticatedEntryPath: string;
@@ -11,7 +13,7 @@ export type AppConfig = {
 };
 
 const appConfig: AppConfig = {
-  apiPrefix: `${import.meta.env.VITE_APP_BASE_URL}/api`,
+  apiPrefix: `${environment.apiUrl}/api`,
   authenticatedEntryPath: "/dashboard",
   unAuthenticatedEntryPath: "/sign-in",
   notRegisteredEntryPath: "/sign-up",

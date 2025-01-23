@@ -1,6 +1,6 @@
 import CustomSelectTable from "@/components/collabberry/custom-components/CustomTables/CustomSelectTable";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState, setReviewedMembers, setSelectedTeamMembers } from "@/store";
+import { RootState, setReviewedMembers, setRounds, setSelectedTeamMembers } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { Contributor } from "@/models/Organization.model";
 import { Alert, Avatar, Button } from "@/components/ui";
@@ -15,7 +15,7 @@ import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/tea.json";
 
 import { useEffect } from "react";
-import { apiGetAssessmentsByAssessor } from "@/services/OrgService";
+import { apiGetAssessmentsByAssessor, apiGetCurrentRound } from "@/services/OrgService";
 import { set } from "lodash";
 
 const Assessment = () => {
@@ -36,6 +36,18 @@ const Assessment = () => {
   };
 
   useEffect(() => {
+    const fetchCurrentRound = async () => {
+      try {
+        const roundResponse = await apiGetCurrentRound();
+        if (roundResponse.data) {
+          dispatch(setRounds(roundResponse.data));
+        }
+      } catch (error) { }
+    };
+    fetchCurrentRound();
+  }, []);
+
+  useEffect(() => {
     if (currentRound?.id && user?.id) {
       const fetchMyAssessments = async () => {
         const assessedByMe = await apiGetAssessmentsByAssessor(
@@ -47,6 +59,8 @@ const Assessment = () => {
       fetchMyAssessments();
     }
   }, []);
+
+
 
   const isTableDisabled = useMemo(() => {
     return currentRound?.status !== RoundStatus.InProgress;

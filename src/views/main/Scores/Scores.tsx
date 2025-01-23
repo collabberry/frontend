@@ -9,19 +9,27 @@ import CustomTableWithSorting from "@/components/collabberry/custom-components/C
 import RoundStatusTag from "@/components/collabberry/custom-components/CustomFields/RoundStatusTag";
 import { all } from "axios";
 import { HiInformationCircle } from "react-icons/hi";
+import { apiGetRounds } from "@/services/OrgService";
 
 const Scores: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { currentRound, selectedRound, allRounds } = useSelector(
+  const { allRounds } = useSelector(
     (state: RootState) => state.auth.rounds
   );
 
   React.useEffect(() => {
-    if (!allRounds || (allRounds.length === 0 && currentRound)) {
-      dispatch(setAllRounds([currentRound]));
-    }
-  }, [allRounds, currentRound]);
+    const fetchAllRounds = async () => {
+      try {
+        const allRoundsResponse = await apiGetRounds();
+        if (allRoundsResponse.data) {
+          dispatch(setAllRounds(allRoundsResponse.data));
+        }
+      } catch (error: any) { }
+    };
+    fetchAllRounds();
+  }, []);
+
 
   const seeMyScores = (round: any) => {
     dispatch(setSelectedRound(round));
@@ -108,7 +116,7 @@ const Scores: React.FC = () => {
     // },
 
     {
-      header: "My Scores",
+      header: "My Results",
       id: "round",
       cell: (props) => {
         const round = props.row.original;
@@ -120,7 +128,7 @@ const Scores: React.FC = () => {
                 variant="plain"
                 onClick={() => seeMyScores(round)}
               >
-                See My Scores
+                See My Results
               </Button>
             ) : null}
           </div>
@@ -131,7 +139,7 @@ const Scores: React.FC = () => {
 
   return (
     <div>
-      <h1>Scores</h1>
+      <h1>Results</h1>
       <div className="mt-4">
         {allRounds && allRounds.length ? (
           <CustomTableWithSorting data={allRounds || []} columns={columns} />

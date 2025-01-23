@@ -3,7 +3,7 @@ import {
   apiGetInvitationToken,
   apiRemindContributors,
 } from "@/services/OrgService";
-import { RootState, setInvitationToken } from "@/store";
+import { RootState, setInvitationToken, setUser } from "@/store";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -25,6 +25,8 @@ import InvitationLink from "./InvitationDialog";
 import { HiOutlineCurrencyDollar, HiUsers } from "react-icons/hi";
 import { useDeployTeamPoints } from "@/services/ContractsService";
 import { ethers } from "ethers";
+import { set } from "lodash";
+import { apiGetUser } from "@/services/AuthService";
 
 const Dashboard = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -36,8 +38,9 @@ const Dashboard = () => {
     (state: RootState) => state.auth.invite.invitationToken
   );
   const [loading, setLoading] = useState(false);
-  const [teamPointsBalance, setTeamPointsBalance] = useState('');
-  const { getBalance, ethersSigner } = useDeployTeamPoints();
+  const [teamPointsBalance, setTeamPointsBalance] = useState(0);
+  const [totalSupply, setTotalSupply] = useState(0);
+  const { getBalance, fetchTotalSupply, ethersSigner } = useDeployTeamPoints();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -104,40 +107,6 @@ const Dashboard = () => {
     );
   }, [organization]);
 
-  const remainingFunds = useMemo(() => {
-    return (
-      (organization?.totalFunds ?? 0) -
-      (organization?.totalDistributedFiat ?? 0)
-    );
-  }, [organization]);
-
-  const runway = useMemo(() => {
-    const contributorFiat = organization?.contributors?.reduce(
-      (acc, contributor) => {
-        return (
-          acc +
-          (contributor.agreement?.fiatRequested
-            ? +contributor.agreement.fiatRequested
-            : 0)
-        );
-      },
-      0
-    );
-
-    const runway =
-      contributorFiat && remainingFunds ? remainingFunds / contributorFiat : 0;
-
-    const months = Math.floor(runway);
-    const years = Math.floor(months / 12);
-    const remainingMonths = months % 12;
-
-    if (years > 0) {
-      return `${years} year${years > 1 ? "s" : ""} ${remainingMonths} month${remainingMonths !== 1 ? "s" : ""
-        }`;
-    } else {
-      return `${months} month${months !== 1 ? "s" : ""}`;
-    }
-  }, [organization, remainingFunds]);
 
   const numberOfContributorsWithAssessments = useMemo(() => {
     if (currentRound?.contributors) {
@@ -152,20 +121,63 @@ const Dashboard = () => {
     const fetchBalance = async () => {
       if (organization?.teamPointsContractAddress && ethersSigner) {
         setLoading(true);
-        const response = await getBalance(organization.teamPointsContractAddress);
-
+        const response = await getBalance(organization?.teamPointsContractAddress);
         if (response.status === 'success' && response.data) {
           const { balance } = response.data;
           const formattedBalance = Math.floor(Number(ethers.formatUnits(balance, 'ether')));
-          setTeamPointsBalance(formattedBalance.toString());
+          setTeamPointsBalance(formattedBalance);
           setLoading(false);
         } else {
           setLoading(false);
         }
       }
     };
+
+    const fetchSupply = async () => {
+      if (organization?.teamPointsContractAddress && ethersSigner) {
+        setLoading(true);
+        const response = await fetchTotalSupply(organization?.teamPointsContractAddress);
+        if (response.status === 'success' && response.data) {
+          const { totalSupply } = response.data;
+          const formattedTotalSupply = Math.floor(Number(ethers.formatUnits(totalSupply, 'ether')));
+          setTotalSupply(formattedTotalSupply);
+          setLoading(false);
+        } else {
+          setLoading(false);
+
+        }
+      }
+    }
     fetchBalance();
+    fetchSupply();
   }, [organization.teamPointsContractAddress, ethersSigner]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        let response: any = await apiGetUser();
+        let user = response?.data || {};
+        if (user) {
+          dispatch(
+            setUser({
+              id: user.id,
+              profilePicture: user?.profilePicture,
+              userName: response?.data?.username,
+              authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
+              email: response?.data?.email,
+              isAdmin: response?.data?.isAdmin,
+              totalFiat: response?.data?.totalFiat,
+              organization: response?.data?.organization,
+            })
+          );
+        }
+      } catch (error) {
+        console.error("Error getting user:", error);
+      }
+    };
+    fetchUser();
+  }, [])
+
 
   return (
     <>
@@ -176,7 +188,7 @@ const Dashboard = () => {
       )}
       <div className="px-4">
         <Card
-          className="w-1/2 mb-4"
+          className="w-full sm:w-full md:w-full lg:w-1/2 mb-4"
           bodyClass="h-full flex flex-col justify-between"
         >
           <h4>{`Welcome back, ${user.userName}!`}</h4>
@@ -201,9 +213,9 @@ const Dashboard = () => {
                       />
                     </div>
                     <div>
-                      <p>Total Fiat Received</p>
+                      <p>My Total Monetary Compensation</p>
                       <h5 >
-                        <span className="leading-none mr-1">{user.totalFiat ? +user.totalFiat : 0}</span>
+                        <span className="leading-none mr-0.5">{user.totalFiat ? +user.totalFiat : 0}</span>
                         <span className="text-sm leading-none">$</span>
                       </h5>
                     </div>
@@ -217,10 +229,23 @@ const Dashboard = () => {
                       />
                     </div>
                     <div>
-                      <p>Total Team Points</p>
+                      <p>My Total Team Points</p>
                       <h5 >
-                        <span className="leading-none mr-1">{teamPointsBalance}</span>
+                        <span className="leading-none mr-0.5">{(teamPointsBalance.toLocaleString(
+                          "en-US", {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }
+                        ))}/{(totalSupply.toLocaleString(
+                          "en-US", {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }
+                        ))}</span>
                         <span className="text-sm leading-none">TP</span>
+                        <span className="text-sm leading-none ml-1 font-semibold">
+                          ({((teamPointsBalance && totalSupply ? teamPointsBalance / totalSupply : 0) * 100).toFixed(2)}%)
+                        </span>
                       </h5>
                     </div>
                   </div>
@@ -236,22 +261,12 @@ const Dashboard = () => {
             <h1 className="text-2xl font-bold mb-4">Steps to Complete</h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <InfoCard
-                footerAction={
-                  numberOfContributorsWithAgreements < numberOfContributors
-                    ? contributorsCardAction
-                    : undefined
-                }
-                footerButtonTitle="Add all agreements"
+                footerAction={inviteCardAction}
+                footerButtonTitle="Invite Members"
                 HeaderIcon={
-                  <FiFileText style={{ height: "100%", width: "100%" }} />
+                  <FiUserPlus style={{ height: "100%", width: "100%" }} />
                 }
-                cardContent={
-                  <>
-                    <strong>{numberOfContributorsWithAgreements}</strong> out of{" "}
-                    <strong>{numberOfContributors}</strong> members of your
-                    organisation have added agreements
-                  </>
-                }
+                cardContent={<>Add more people to your organisation</>}
               />
               <InfoCard
                 footerAction={settingsCardAction}
@@ -266,14 +281,28 @@ const Dashboard = () => {
                   </>
                 }
               />
-              <InfoCard
-                footerAction={inviteCardAction}
-                footerButtonTitle="Invite Members"
-                HeaderIcon={
-                  <FiUserPlus style={{ height: "100%", width: "100%" }} />
-                }
-                cardContent={<>Add more people to your organisation</>}
-              />
+              {numberOfContributorsWithAgreements < numberOfContributors &&
+                <InfoCard
+                  footerAction={
+                    numberOfContributorsWithAgreements < numberOfContributors
+                      ? contributorsCardAction
+                      : undefined
+                  }
+                  footerButtonTitle="Add all agreements"
+                  HeaderIcon={
+                    <FiFileText style={{ height: "100%", width: "100%" }} />
+                  }
+                  cardContent={
+                    <>
+                      <strong>{numberOfContributorsWithAgreements}</strong> out of{" "}
+                      <strong>{numberOfContributors}</strong> members of your
+                      organisation have added agreements
+                    </>
+                  }
+                />
+              }
+
+
             </div>
           </div>
         )}
@@ -318,8 +347,8 @@ const Dashboard = () => {
                 <div>
                   <p>Total distributed</p>
                   <p className="text-lg font-bold">
-                    {`TP ${organization?.totalDistributedTP
-                      ? organization?.totalDistributedTP.toLocaleString(
+                    {`TP ${totalSupply
+                      ? totalSupply.toLocaleString(
                         "en-US",
                         {
                           minimumFractionDigits: 0,
@@ -341,26 +370,6 @@ const Dashboard = () => {
                       : "0"
                       }`}
                   </p>
-                </div>
-              }
-            />
-            <InfoCard
-              HeaderIcon={
-                <FiDollarSign style={{ height: "100%", width: "100%" }} />
-              }
-              cardContent={
-                <div>
-                  <p>Treasury</p>
-                  <p className="text-lg font-bold">
-                    {organization.totalFunds
-                      ? organization?.totalFunds.toLocaleString("en-US", {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      })
-                      : "Not Set"}
-                  </p>
-                  <p>Runway</p>
-                  <p className="text-lg font-bold">{runway}</p>
                 </div>
               }
             />

@@ -1,3 +1,4 @@
+import { environment } from "@/api/environment";
 import { handleSuccess } from "@/components/collabberry/helpers/ToastNotifications";
 import { Button, FormItem, Input } from "@/components/ui";
 import React from "react";
@@ -14,7 +15,7 @@ const InvitationLink: React.FC<any> = ({ invitationToken }) => {
       setIsCopied(false);
     }, 5000);
   };
-  const link = `${"https://beta.collabberry.xyz/invite"}?invitationToken=${invitationToken}`;
+  const link = `${environment?.appUrl}/invite?invitationToken=${invitationToken}`;
   return (
     <>
       <h2 className="text-2xl font-bold mb-4 mt-4">Invite Link</h2>

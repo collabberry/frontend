@@ -34,7 +34,7 @@ const ValidationStepsSchema = Yup.object().shape({
     .min(3, "Username must be at least 3 characters")
     .required("Name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
-  image: Yup.mixed().required("Image is required"),
+  image: Yup.mixed()
 });
 
 const initialValues = {
@@ -113,6 +113,7 @@ const SignUpWithInviteLink = () => {
                   email: response?.data?.email,
                   isAdmin: response?.data?.isAdmin,
                   totalFiat: response?.data?.totalFiat,
+                  organization: response?.data?.organization,
                 })
               );
             }

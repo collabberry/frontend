@@ -18,8 +18,8 @@ const Settings: React.FC = () => {
                 <Tabs defaultValue="tab1" variant="pill">
 
                     <TabList>
-                        <TabNav value="tab1">Compensation Settings</TabNav>
-                        <TabNav value="tab2">Team Points Contract Settings</TabNav>
+                        <TabNav value="tab1">Compensation</TabNav>
+                        <TabNav value="tab2">Team Points Contract</TabNav>
                     </TabList>
                     <div className="p-4">
                         <TabContent value="tab1">

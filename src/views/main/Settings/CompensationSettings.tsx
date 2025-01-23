@@ -31,7 +31,7 @@ import {
   CompensationPeriod,
   RoundStatus,
 } from "@/components/collabberry/utils/collabberry-constants";
-import { generateSymbol } from "@/services/ContractsService";
+import { get } from "lodash";
 
 const validationSchema = Yup.object().shape({
   compensationStartDay: Yup.mixed().required("Start date is required"),
@@ -86,12 +86,7 @@ const validationSchema = Yup.object().shape({
     .integer("The rate must be a whole number.")
     .required("This field is required.")
     .max(100, "The rate cannot exceed 100%")
-    .min(0, "The rate cannot be less than 0%"),
-  totalFunds: Yup.number()
-    .integer("The amount must be a whole number.")
-    .required("This field is required.")
-    .min(0, "The amount cannot be less than 0")
-    .max(10000000, "The amount cannot exceed $10,000,000"),
+    .min(0, "The rate cannot be less than 0%")
 });
 
 const TextInfoBlock: React.FC<{ title: string; value: string }> = ({
@@ -113,17 +108,19 @@ const CompensationSettings: React.FC<any> = () => {
     (state: RootState) => state.auth.rounds.currentRound
   );
   const organization = useSelector((state: RootState) => state.auth.org);
+  const getFirstOfCurrentMonth = () => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  };
+
 
   const formik = useFormik({
     initialValues: {
-      compensationStartDay: organization?.compensationStartDay,
-      compensationPeriod: organization?.compensationPeriod,
-      assessmentStartDelayInDays: organization?.assessmentStartDelayInDays,
-      assessmentDurationInDays: organization?.assessmentDurationInDays,
-      par: organization?.par ? Number(organization.par) : undefined,
-      totalFunds: organization?.totalFunds
-        ? Number(organization.totalFunds)
-        : undefined,
+      compensationStartDay: organization?.compensationStartDay || getFirstOfCurrentMonth(),
+      compensationPeriod: organization?.compensationPeriod || CompensationPeriod.Monthly,
+      assessmentStartDelayInDays: organization?.assessmentStartDelayInDays || 0,
+      assessmentDurationInDays: organization?.assessmentDurationInDays || 5,
+      par: organization?.par ? Number(organization.par) : 20,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -227,7 +224,7 @@ const CompensationSettings: React.FC<any> = () => {
                 />
               </FormItem>
               <FormItem
-                label="Compensation Start Date"
+                label="Compensation Period Start Date"
                 className="w-full lg:w-2/3"
                 asterisk={true}
               >
@@ -244,9 +241,6 @@ const CompensationSettings: React.FC<any> = () => {
                                value={formik.values.compensationStartDay ?? null}
                              />  */}
               </FormItem>
-            </div>
-            <div className="text-xl font-semibold text-gray-900 mb-2">
-              Assessment Rounds Settings
             </div>
             <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
               <FormItem
@@ -299,7 +293,7 @@ const CompensationSettings: React.FC<any> = () => {
             </div>
             <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
               <FormItem
-                label="Performance Adjustment Rate"
+                label="Peer Assessment Weight"
                 className="w-1/2"
                 asterisk={true}
                 invalid={formik.touched.par && !!formik.errors.par}
@@ -313,27 +307,6 @@ const CompensationSettings: React.FC<any> = () => {
                   value={formik.values.par}
                   invalid={formik.touched.par && !!formik.errors.par}
                   suffix="%"
-                />
-              </FormItem>
-              <FormItem
-                label="Treasury Funds"
-                className="w-1/2"
-                asterisk={true}
-                invalid={
-                  formik.touched.totalFunds && !!formik.errors.totalFunds
-                }
-                errorMessage={formik.errors.totalFunds}
-                extraTooltip="This is the amount of money in the treasury that will be used to pay contributors."
-              >
-                <Input
-                  name="totalFunds"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  value={formik.values.totalFunds}
-                  invalid={
-                    formik.touched.totalFunds && !!formik.errors.totalFunds
-                  }
-                  suffix="$"
                 />
               </FormItem>
             </div>
@@ -382,7 +355,7 @@ const CompensationSettings: React.FC<any> = () => {
                   ? `${organization.par.toFixed(0)}%`
                   : "Not Set"
               }
-              title="Performance Adjustment Rate"
+              title="Peer Assessment Weight"
             />
             <TextInfoBlock
               value={
@@ -396,7 +369,7 @@ const CompensationSettings: React.FC<any> = () => {
                   })
                   : "Not Set"
               }
-              title="Compensation Start Date"
+              title="Compensation Period Start Date"
             />
             <TextInfoBlock
               value={
@@ -413,17 +386,6 @@ const CompensationSettings: React.FC<any> = () => {
                   : "Not Set"
               }
               title="Assessment Duration"
-            />
-            <TextInfoBlock
-              value={
-                organization?.totalFunds
-                  ? `$${organization.totalFunds.toLocaleString("en-US", {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  })}`
-                  : "Not Set"
-              }
-              title="Treasury Funds"
             />
           </div>
         </Card>

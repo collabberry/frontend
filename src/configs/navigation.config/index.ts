@@ -10,7 +10,7 @@ const navigationConfig: NavigationTree[] = [
   {
     key: "admin",
     path: "",
-    title: "Admin",
+    title: " ",
     translateKey: "nav.admin.admin",
     icon: "",
     type: NAV_ITEM_TYPE_TITLE,
@@ -40,7 +40,7 @@ const navigationConfig: NavigationTree[] = [
       {
         key: "admin.scores",
         path: "/scores",
-        title: "My Scores",
+        title: "My Results",
         translateKey: "nav.admin.scores",
         icon: "scores",
         type: NAV_ITEM_TYPE_ITEM,
