@@ -74,9 +74,9 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
     initialValues: {
       roleName: "",
       responsibilities: "",
-      marketRate: 0,
+      marketRate: "",
       commitment: 50,
-      fiatRequested: 0,
+      fiatRequested: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -215,7 +215,7 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
             formik.values.marketRate &&
             !formik.errors.marketRate
               ? `Based on the commitment and market rate, the total compensation is $${(
-                  formik.values.marketRate *
+                  +formik.values.marketRate *
                   (formik.values.commitment / 100)
                 ).toFixed(0)}.`
               : "Please input commitment and market rate to calculate the total compensation."}

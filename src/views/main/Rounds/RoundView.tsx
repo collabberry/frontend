@@ -11,7 +11,7 @@ import {
 } from "@/components/collabberry/helpers/ToastNotifications";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
 import { Avatar, Button, Tag } from "@/components/ui";
-import { useDeployTeamPoints } from "@/services/ContractsService";
+import { useContractService } from "@/services/ContractsService";
 import { apiAddTxHashToRound, apiGetRoundById, apiRemindContributors } from "@/services/OrgService";
 import { RootState, setSelectedRound, setSelectedUser } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
@@ -33,7 +33,7 @@ const RoundView: React.FC = () => {
   );
   const organization = useSelector((state: RootState) => state.auth.org);
   const user = useSelector((state: RootState) => state.auth.user);
-  const { batchMint, ethersSigner } = useDeployTeamPoints();
+  const { batchMint, ethersSigner } = useContractService();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [contributors, setContributors] = React.useState<any[]>([]);
@@ -298,7 +298,6 @@ const RoundView: React.FC = () => {
 
   const mintTeamPoints = async () => {
     if (organization?.teamPointsContractAddress) {
-
       //TODO: Replace when contributors returns walletAddress
       const enhancedContributors = contributors.map((contributor) => {
         const orgContributor = organization?.contributors?.find(

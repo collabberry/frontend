@@ -106,19 +106,27 @@ const _readSettings = async (contractAddress: string, ethersSigner: ethers.JsonR
     };
 };
 
-const _updateSettings = async (
+const _updateConfig = async (
     contractAddress: string,
     isTransferable: boolean,
     isOutsideTransferAllowed: boolean,
     materialWeight: BigInt,
+    baseTimeWeight: BigInt,
+    enableTimeScaling: boolean,
+    maxTimeScaling: BigInt,
     ethersSigner: ethers.JsonRpcSigner | undefined
 ): Promise<ContractResponse> => {
     try {
         const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
-        const tx = await contract.updateSettings(isTransferable, isOutsideTransferAllowed, materialWeight);
+        const tx = await contract.updateConfig(isTransferable,
+            isOutsideTransferAllowed,
+            materialWeight,
+            baseTimeWeight,
+            enableTimeScaling,
+            maxTimeScaling);
         const receipt = await tx.wait();
         // Extract the event from the transaction logs
-        const event = getEvent(receipt.logs, 'SettingsUpdated');
+        const event = getEvent(receipt.logs, 'ConfigUpdated');
         if (!event) {
             return {
                 message: DEFAULT_ERROR_MESSAGE,
@@ -131,6 +139,9 @@ const _updateSettings = async (
                 isTransferable: event.args.isTransferable,
                 isOutsideTransferAllowed: event.args.isOutsideTransferAllowed,
                 materialWeight: event.args.materialWeight,
+                baseTimeWeight: event.args.baseTimeWeight,
+                enableTimeScaling: event.args.enableTimeScaling,
+                maxTimeScaling: event.args.maxTimeScaling,
             },
             event,
             message: 'Settings updated successfully',
@@ -253,7 +264,7 @@ const _getTotalSupply = async (
 }
 
 
-export const useDeployTeamPoints = () => {
+export const useContractService = () => {
     const { address } = useAccount();
     const ethersSigner = useEthersSigner();
 
@@ -278,11 +289,15 @@ export const useDeployTeamPoints = () => {
         return await _readSettings(contractAddress, ethersSigner);
     };
 
-    const updateSettings = async (
+    const updateConfig = async (
         contractAddress: string,
         isTransferable: boolean,
         isOutsideTransferAllowed: boolean,
-        materialWeight: BigInt
+        materialWeight: BigInt,
+        baseTimeWeight: BigInt,
+        enableTimeScaling: boolean,
+        maxTimeScaling: BigInt,
+
     ): Promise<ContractResponse> => {
         if (!ethersSigner || !address) {
             return {
@@ -290,7 +305,14 @@ export const useDeployTeamPoints = () => {
                 status: ContractResponseStatus.Failed,
             };
         }
-        return await _updateSettings(contractAddress, isTransferable, isOutsideTransferAllowed, materialWeight, ethersSigner);
+        return await _updateConfig(contractAddress, 
+            isTransferable, 
+            isOutsideTransferAllowed, 
+            materialWeight, 
+            baseTimeWeight,
+            enableTimeScaling,
+            maxTimeScaling, 
+            ethersSigner);
     };
 
     const batchMint = async (
@@ -374,7 +396,7 @@ export const useDeployTeamPoints = () => {
         readSettings,
         getBalance,
         fetchTotalSupply,
-        updateSettings,
+        updateConfig,
         batchMint,
         manualAllocation,
         ethersSigner,

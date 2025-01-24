@@ -23,7 +23,7 @@ import {
 import { Avatar, Dialog, Skeleton } from "@/components/ui";
 import InvitationLink from "./InvitationDialog";
 import { HiOutlineCurrencyDollar, HiUsers } from "react-icons/hi";
-import { useDeployTeamPoints } from "@/services/ContractsService";
+import { useContractService } from "@/services/ContractsService";
 import { ethers } from "ethers";
 import { set } from "lodash";
 import { apiGetUser } from "@/services/AuthService";
@@ -40,7 +40,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [teamPointsBalance, setTeamPointsBalance] = useState(0);
   const [totalSupply, setTotalSupply] = useState(0);
-  const { getBalance, fetchTotalSupply, ethersSigner } = useDeployTeamPoints();
+  const { getBalance, fetchTotalSupply, ethersSigner } = useContractService();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -52,6 +52,11 @@ const Dashboard = () => {
   const settingsCardAction = () => {
     navigate("/settings");
   };
+
+  const manualAllocationAction = () => {
+    navigate("/team/manual-allocation");
+  }
+
 
   const [isInviteDialogOpen, setInviteDialogOpen] = useState(false);
 
@@ -257,9 +262,9 @@ const Dashboard = () => {
       </div>
       <div className="flex flex-col items-start h-full px-4">
         {user?.isAdmin && (
-          <div className="w-full max-w-4xl mb-6">
+          <div className="w-full mb-6">
             <h1 className="text-2xl font-bold mb-4">Steps to Complete</h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <InfoCard
                 footerAction={inviteCardAction}
                 footerButtonTitle="Invite Members"
@@ -267,6 +272,18 @@ const Dashboard = () => {
                   <FiUserPlus style={{ height: "100%", width: "100%" }} />
                 }
                 cardContent={<>Add more people to your organisation</>}
+              />
+              <InfoCard
+                footerAction={manualAllocationAction}
+                footerButtonTitle="Manual Allocation"
+                HeaderIcon={
+                  <FiPieChart style={{ height: "100%", width: "100%" }} />
+                }
+                cardContent={
+                  <>
+                    Manually allocate team points to contributors
+                  </>
+                }
               />
               <InfoCard
                 footerAction={settingsCardAction}
@@ -281,6 +298,8 @@ const Dashboard = () => {
                   </>
                 }
               />
+
+
               {numberOfContributorsWithAgreements < numberOfContributors &&
                 <InfoCard
                   footerAction={
@@ -316,7 +335,7 @@ const Dashboard = () => {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {currentRound && (
+            {currentRound && user?.isAdmin && (
               <InfoCard
                 //TODO: Implement logic to show correct number of contribitors with assessments
                 footerAction={
