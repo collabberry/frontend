@@ -41,7 +41,7 @@ import { useSelector } from "react-redux";
 import { fieldRequired } from "@/components/collabberry/helpers/validations";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi";
-import { ContractResponseStatus, useDeployTeamPoints } from "@/services/ContractsService";
+import { ContractResponseStatus, useContractService } from "@/services/ContractsService";
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/clock.json";
 import * as successAnimationData from "@/assets/animations/check2.json";
@@ -101,9 +101,9 @@ const initialValues = {
   step3: {
     roleName: "",
     responsibilities: "",
-    marketRate: 0,
-    commitment: 0,
-    fiatRequested: 0,
+    marketRate: "",
+    commitment: 50,
+    fiatRequested: "",
   },
 };
 
@@ -112,7 +112,7 @@ const SignUp = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
   const { network, blockExplorer } = environment;
   const dispatch = useDispatch();
-  const { deployTeamPoints } = useDeployTeamPoints();
+  const { deployTeamPoints } = useContractService();
   const [txHash, setTxHash] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -659,7 +659,7 @@ const SignUp = () => {
                   formik.values.step3?.marketRate &&
                   !formik.errors.step3?.marketRate
                   ? `Based on the commitment and market rate, the total compensation is $${(
-                    formik.values.step3?.marketRate *
+                    +formik.values.step3?.marketRate *
                     (formik.values.step3.commitment / 100)
                   ).toFixed(0)}.`
                   : "Please input commitment and market rate to calculate the total compensation."}

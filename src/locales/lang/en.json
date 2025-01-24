@@ -6,7 +6,8 @@
       "assessment": "Assessment",
       "assess": "Assess",
       "scores": "My Results",
-      "my-scores": "My Results"
+      "my-scores": "My Results",
+      "manual-allocation": "Manual Allocation"
     },
     "collapseMenu": {
       "collapseMenu": "Collapse menu item",
