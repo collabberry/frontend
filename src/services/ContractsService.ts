@@ -253,7 +253,7 @@ const _getTotalSupply = async (
 }
 
 
-export const useDeployTeamPoints = () => {
+export const useContractService = () => {
     const { address } = useAccount();
     const ethersSigner = useEthersSigner();
 

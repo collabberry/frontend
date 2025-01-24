@@ -3,6 +3,7 @@ import React from "react";
 interface CustomAvatarAndUsernameProps {
   imageUrl?: string;
   userName?: string;
+  avatarSize?: number;
   displayName?: string;
   userNameBold?: boolean;
 }
@@ -11,6 +12,7 @@ const CustomAvatarAndUsername: React.FC<CustomAvatarAndUsernameProps> = ({
   imageUrl,
   userName,
   displayName,
+  avatarSize = 40,
   userNameBold = false,
 }) => {
   return (
@@ -26,8 +28,8 @@ const CustomAvatarAndUsername: React.FC<CustomAvatarAndUsernameProps> = ({
           src={imageUrl}
           alt="User Avatar"
           style={{
-            width: 40,
-            height: 40,
+            width: avatarSize,
+            height: avatarSize,
             borderRadius: "50%",
             marginRight: 8,
             objectFit: "cover",

@@ -47,6 +47,12 @@ export const protectedRoutes = [
     authority: [],
   },
   {
+    key: "org.team",
+    path: "/team/manual-allocation",
+    component: lazy(() => import("@/views/main/Team/ManualAllocation")),
+    authority: [],
+  },
+  {
     key: "org.settings",
     path: "/settings",
     component: lazy(() => import("@/views/main/Settings/Settings")),
