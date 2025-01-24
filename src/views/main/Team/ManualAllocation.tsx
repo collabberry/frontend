@@ -74,8 +74,6 @@ const ManualAllocation: React.FC = () => {
     }
 
     const onSubmit = async (values: any) => {
-        console.log(values, 'values');
-
         const recipients = values.contributors.map((contributor: { walletAddress: any; }) => contributor.walletAddress);
         const amounts = values.contributors.map((contributor: { amount: any; }) => contributor.amount);
 

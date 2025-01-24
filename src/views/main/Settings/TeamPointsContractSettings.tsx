@@ -29,7 +29,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const TeamPointsContractSettings: React.FC = () => {
-    const { readSettings, updateSettings, ethersSigner } = useContractService();
+    const { readSettings, updateConfig, ethersSigner } = useContractService();
     const [loading, setLoading] = useState(false)
     const [dialogLoading, setDialogLoading] = useState(false);
     const [dialogVisible, setDialogVisible] = useState(false);
@@ -59,12 +59,20 @@ const TeamPointsContractSettings: React.FC = () => {
                 setDialogLoading(true);
                 try {
                     const materialWeightWei = ethers.parseUnits(values.materialWeight.toString(), 3);
+
+                    //TODO: Hardcoded value for now, need to change it 
+                    const baseTimeWeightWei = ethers.parseUnits('2', 3);
+                    const maxTimeScalingWei = ethers.parseUnits('4', 3);
+                    const enableTimeScaling = false;
                     // const materialWeightBigInt = BigInt(values.materialWeight);
-                    const response = await updateSettings(
+                    const response = await updateConfig(
                         organization.teamPointsContractAddress,
                         values.isTransferable,
                         values.isOutsideTransferAllowed,
-                        materialWeightWei
+                        materialWeightWei,
+                        baseTimeWeightWei,
+                        enableTimeScaling,
+                        maxTimeScalingWei
                     );
 
                     if (response?.status === 'success') {

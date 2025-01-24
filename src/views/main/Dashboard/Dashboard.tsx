@@ -274,6 +274,18 @@ const Dashboard = () => {
                 cardContent={<>Add more people to your organisation</>}
               />
               <InfoCard
+                footerAction={manualAllocationAction}
+                footerButtonTitle="Manual Allocation"
+                HeaderIcon={
+                  <FiPieChart style={{ height: "100%", width: "100%" }} />
+                }
+                cardContent={
+                  <>
+                    Manually allocate team points to contributors
+                  </>
+                }
+              />
+              <InfoCard
                 footerAction={settingsCardAction}
                 footerButtonTitle="Settings"
                 HeaderIcon={
@@ -286,18 +298,7 @@ const Dashboard = () => {
                   </>
                 }
               />
-               <InfoCard
-                footerAction={manualAllocationAction}
-                footerButtonTitle="Manual Allocation"
-                HeaderIcon={
-                  <FiPieChart style={{ height: "100%", width: "100%" }} />
-                }
-                cardContent={
-                  <>
-                    Manually allocate team points to contributors
-                  </>
-                }
-              />
+
 
               {numberOfContributorsWithAgreements < numberOfContributors &&
                 <InfoCard
