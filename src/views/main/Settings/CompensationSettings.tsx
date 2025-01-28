@@ -116,7 +116,7 @@ const CompensationSettings: React.FC<any> = () => {
 
   const formik = useFormik({
     initialValues: {
-      compensationStartDay: organization?.compensationStartDay || getFirstOfCurrentMonth(),
+      compensationStartDay: (organization?.compensationStartDay ? new Date(organization?.compensationStartDay) : null) || getFirstOfCurrentMonth(),
       compensationPeriod: organization?.compensationPeriod || CompensationPeriod.Monthly,
       assessmentStartDelayInDays: organization?.assessmentStartDelayInDays || 0,
       assessmentDurationInDays: organization?.assessmentDurationInDays || 5,
@@ -229,10 +229,13 @@ const CompensationSettings: React.FC<any> = () => {
                 asterisk={true}
               >
                 <DatePicker
+
                   name="compensationStartDay"
                   value={formik.values.compensationStartDay as any}
-                  onChange={(date) =>
-                    formik.setFieldValue("compensationStartDay", date)
+                  onChange={(date: Date | null) => {
+                    const utcDate = date ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())) : null;
+                    formik.setFieldValue("compensationStartDay", utcDate);
+                  }
                   }
                 />
                 {/* <CustomCalendar
