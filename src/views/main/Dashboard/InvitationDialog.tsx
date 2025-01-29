@@ -18,7 +18,7 @@ const InvitationLink: React.FC<any> = ({ invitationToken }) => {
   const link = `${environment?.appUrl}/invite?invitationToken=${invitationToken}`;
   return (
     <>
-      <h2 className="text-2xl font-bold mb-4 mt-4">Invite Link</h2>
+      <h2 className="text-2xl font-bold mb-4 mt-4">Invite Team Members</h2>
       <div className="flex flex-row items-center space-x-2">
         <Input value={link} readOnly />
         <Button

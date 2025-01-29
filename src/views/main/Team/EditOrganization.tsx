@@ -17,7 +17,7 @@ import {
 } from "@/components/collabberry/helpers/ToastNotifications";
 
 const validationSchema = Yup.object().shape({
-  logo: Yup.mixed(),
+  logo: Yup.mixed().notRequired(),
   name: Yup.string()
     .min(3, "Name must be at least 3 characters")
     .required("Organization Name is required"),
@@ -55,6 +55,11 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
         ...values,
         compensationStartDay: initialData.compensationStartDay || dateString || undefined,
       };
+
+      if (values?.logo) {
+        body.logo = values.logo;
+      }
+
       try {
         const response = await apiEditOrganization(body);
         const { data } = response;
@@ -68,10 +73,10 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
             handleError(error.response.data.message);
             onSubmit();
           }
-          
+
         }
 
-        handleSuccess("You have successfully edited your community");
+        handleSuccess("You have successfully edited your organization");
         onSubmit();
       } catch (error: any) {
         handleError(error.response.data.message);

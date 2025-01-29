@@ -31,7 +31,7 @@ import {
   CompensationPeriod,
   RoundStatus,
 } from "@/components/collabberry/utils/collabberry-constants";
-import { get } from "lodash";
+import { StatisticCard } from "./StatisticCard";
 
 const validationSchema = Yup.object().shape({
   compensationStartDay: Yup.mixed().required("Start date is required"),
@@ -89,17 +89,7 @@ const validationSchema = Yup.object().shape({
     .min(0, "The rate cannot be less than 0%")
 });
 
-const TextInfoBlock: React.FC<{ title: string; value: string }> = ({
-  title,
-  value,
-}) => {
-  return (
-    <div className="flex flex-col">
-      <h3 className="text-berrylavender-600 font-bold">{value}</h3>
-      <span className="text-sm">{title}</span>
-    </div>
-  );
-};
+
 
 const CompensationSettings: React.FC<any> = () => {
   const dispatch = useDispatch();
@@ -340,58 +330,57 @@ const CompensationSettings: React.FC<any> = () => {
           </FormContainer>
         </Card>
       ) : (
-        <Card className="w-3/4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <TextInfoBlock
-              value={
-                organization?.compensationPeriod
-                  ? `${getCompensationPeriodLabel(
-                    organization?.compensationPeriod
-                  )}`
-                  : "Not Set"
-              }
-              title="Compensation Period"
-            />
-            <TextInfoBlock
-              value={
-                organization?.par
-                  ? `${organization.par.toFixed(0)}%`
-                  : "Not Set"
-              }
-              title="Peer Assessment Weight"
-            />
-            <TextInfoBlock
-              value={
-                organization?.compensationStartDay
-                  ? new Date(
-                    organization.compensationStartDay
-                  ).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
-                  : "Not Set"
-              }
-              title="Compensation Period Start Date"
-            />
-            <TextInfoBlock
-              value={
-                organization?.assessmentStartDelayInDays
-                  ? `${organization.assessmentStartDelayInDays} days`
-                  : "Not Set"
-              }
-              title="Assessment Start Delay"
-            />
-            <TextInfoBlock
-              value={
-                organization?.assessmentDurationInDays
-                  ? `${organization.assessmentDurationInDays} days`
-                  : "Not Set"
-              }
-              title="Assessment Duration"
-            />
-          </div>
-        </Card>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <StatisticCard
+            value={
+              organization?.compensationPeriod
+                ? `${getCompensationPeriodLabel(
+                  organization?.compensationPeriod
+                )}`
+                : "Not Set"
+            }
+            title="Compensation Period"
+          />
+          <StatisticCard
+            value={
+              organization?.par
+                ? `${organization.par.toFixed(0)}%`
+                : "Not Set"
+            }
+            title="Peer Assessment Weight"
+          />
+          <StatisticCard
+            value={
+              organization?.compensationStartDay
+                ? new Date(
+                  organization.compensationStartDay
+                ).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+                : "Not Set"
+            }
+            title="Compensation Period Start Date"
+          />
+          <StatisticCard
+            value={
+              organization?.assessmentStartDelayInDays
+                ? `${organization.assessmentStartDelayInDays} days`
+                : "Not Set"
+            }
+            title="Assessment Start Delay"
+          />
+          <StatisticCard
+            value={
+              organization?.assessmentDurationInDays
+                ? `${organization.assessmentDurationInDays} days`
+                : "Not Set"
+            }
+            title="Assessment Duration"
+          />
+        </div>
       )}
     </>
   );

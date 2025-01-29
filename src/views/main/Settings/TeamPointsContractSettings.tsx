@@ -11,6 +11,7 @@ import ErrorDialog from '@/components/collabberry/custom-components/TransactionE
 import LoadingDialog from '@/components/collabberry/custom-components/LoadingDialog';
 import { ethers } from 'ethers';
 import { environment } from '@/api/environment';
+import { StatisticCard } from './StatisticCard';
 
 
 const validationSchema = Yup.object().shape({
@@ -32,6 +33,7 @@ const TeamPointsContractSettings: React.FC = () => {
     const { readSettings, updateConfig, ethersSigner } = useContractService();
     const [loading, setLoading] = useState(false)
     const [dialogLoading, setDialogLoading] = useState(false);
+    const [contractSettings, setContractSettings] = useState<any | null>(null);
     const [dialogVisible, setDialogVisible] = useState(false);
     const [errrorDialogVisible, setErrorDialogVisible] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -59,7 +61,6 @@ const TeamPointsContractSettings: React.FC = () => {
                 setDialogLoading(true);
                 try {
                     const materialWeightWei = ethers.parseUnits(values.materialWeight.toString(), 3);
-
                     //TODO: Hardcoded value for now, need to change it 
                     const baseTimeWeightWei = ethers.parseUnits('2', 3);
                     const maxTimeScalingWei = ethers.parseUnits('4', 3);
@@ -108,6 +109,11 @@ const TeamPointsContractSettings: React.FC = () => {
                         isOutsideTransferAllowed: response.data.isOutsideTransferAllowed,
                         materialWeight: humanReadableMaterialWeight,
                     });
+                    setContractSettings({
+                        isTransferable: response.data.isTransferable,
+                        isOutsideTransferAllowed: response.data.isOutsideTransferAllowed,
+                        materialWeight: humanReadableMaterialWeight
+                    })
                     setLoading(false);
                 } else {
                     setLoading(false);
@@ -121,7 +127,7 @@ const TeamPointsContractSettings: React.FC = () => {
 
     return (
         <>
-            {isAdmin && (
+            {isAdmin ? (
                 <Card className="w-3/4">
                     <SuccessDialog
                         dialogVisible={dialogVisible}
@@ -152,11 +158,11 @@ const TeamPointsContractSettings: React.FC = () => {
                             <>
                                 <>
                                     <FormItem
-                                        label="Transferable"
+                                        label="Transferable Within the Team"
                                         asterisk={true}
                                         errorMessage={formik.errors.isTransferable}
                                         invalid={formik.touched.isTransferable && !!formik.errors.isTransferable}
-                                        extraTooltip="If enabled, contributors can transfer their team points to other contributors."
+                                        extraTooltip="If enabled, team members can transfer their team points to other team members."
 
                                     >
                                         <Switcher
@@ -172,10 +178,10 @@ const TeamPointsContractSettings: React.FC = () => {
                                         />
                                     </FormItem>
                                     <FormItem
-                                        label="Transfer Outside Allowed"
+                                        label="Transferable Outside the Team"
                                         errorMessage={formik.errors.isOutsideTransferAllowed}
                                         invalid={formik.touched.isOutsideTransferAllowed && !!formik.errors.isOutsideTransferAllowed}
-                                        extraTooltip="If enabled, contributors can transfer their team points to people outside of their organization."
+                                        extraTooltip="If enabled, team members can transfer their team points to people outside of their organization."
                                     >
                                         <Switcher
                                             name="isOutsideTransferAllowed"
@@ -190,7 +196,7 @@ const TeamPointsContractSettings: React.FC = () => {
                                         asterisk={true}
                                         errorMessage={formik.errors.materialWeight}
                                         invalid={formik.touched.materialWeight && !!formik.errors.materialWeight}
-                                        extraTooltip="This is the multiplier used to calculate the team points earned by a contributor based on their material contribution."
+                                        extraTooltip="This multiplier is applied to points earned for any material (financial) contributions that a team member makes. For example: If a team member invests $1,000 in the organisation they will get 4,000 team points for that if the multiplier is 4."
                                     >
                                         <Input
                                             type="text"
@@ -225,6 +231,37 @@ const TeamPointsContractSettings: React.FC = () => {
 
                     </FormContainer>
                 </Card>
+            ) : (
+                loading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Skeleton height={108} />
+                        <Skeleton height={108} />
+                        <Skeleton height={108} />
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                        <StatisticCard
+                            value={
+                                contractSettings?.isTransferable ? "Yes" : "No"
+                            }
+                            title="Transferable Within the Team"
+                        />
+                        <StatisticCard
+                            value={
+                                contractSettings?.isOutsideTransferAllowed
+                                    ? "Yes"
+                                    : "No"
+                            }
+                            title="Transferable Outside the Team"
+                        />
+                        <StatisticCard
+                            value={contractSettings?.materialWeight ? `${contractSettings.materialWeight}` : "Not Set"}
+                            title="Material Contribution Multiplier"
+                        />
+                    </div>
+                )
+
             )}
         </>
 

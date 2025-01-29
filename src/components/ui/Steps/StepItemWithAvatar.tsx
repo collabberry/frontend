@@ -5,6 +5,8 @@ import { HiCheck, HiX } from "react-icons/hi";
 import { STEPS_STATUS } from "../utils/constants";
 import type { CommonProps, StepStatus } from "../@types/common";
 import type { ReactNode } from "react";
+import placeholderIcon from '@/assets/images/placeholder.jpg';
+
 
 const { COMPLETE, PENDING, IN_PROGRESS, ERROR } = STEPS_STATUS;
 
@@ -45,11 +47,10 @@ const StepItemWithAvatar = forwardRef<HTMLDivElement, StepItemWithAvatarProps>(
     let stepIcon = (
       <div className="relative">
         <img
-          src={avatar}
+          src={avatar ?? placeholderIcon}
           alt={`Step ${stepNumber} avatar`}
-          className={`step-item-avatar rounded-full ${
-            status === COMPLETE && "opacity-20"
-          }`}
+          className={`step-item-avatar rounded-full ${status === COMPLETE && "opacity-20"
+            }`}
         />
         {status === COMPLETE && (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -80,7 +81,7 @@ const StepItemWithAvatar = forwardRef<HTMLDivElement, StepItemWithAvatarProps>(
       status === COMPLETE && `text-${color} border-${color}`,
       status === ERROR && `step-item-icon-error`,
       status === IN_PROGRESS &&
-        `text-${color} dark:text-gray-100 step-item-icon-current`
+      `text-${color} dark:text-gray-100 step-item-icon-current`
     );
 
     const stepConnectClass = classNames(

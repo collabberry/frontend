@@ -15,7 +15,7 @@ export type SignInResponse = {
 
 export type UserResponse = {
   username: string;
-  profilePic: string;
+  profilePic?: string;
   email: string;
 };
 
@@ -30,7 +30,7 @@ export type SignUpCredential = {
 export type RegisterCredential = {
   username: string;
   email: string;
-  profilePicture: File | null;
+  profilePicture?: File | null;
 };
 
 export type OrganizationData = {

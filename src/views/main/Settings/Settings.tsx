@@ -14,26 +14,21 @@ const Settings: React.FC = () => {
     return (
         <div>
             <h2 className="text-4xl font-bold mb-4">Settings</h2>
-            {isAdmin ? (
-                <Tabs defaultValue="tab1" variant="pill">
+            <Tabs defaultValue="tab1" variant="pill">
 
-                    <TabList>
-                        <TabNav value="tab1">Compensation</TabNav>
-                        <TabNav value="tab2">Team Points Contract</TabNav>
-                    </TabList>
-                    <div className="p-4">
-                        <TabContent value="tab1">
-                            <CompensationSettings />
-                        </TabContent>
-                        <TabContent value="tab2">
-                            <TeamPointsContractSettings />
-                        </TabContent>
-                    </div>
-                </Tabs>
-            ) : (
-                <CompensationSettings />
-            )}
-
+                <TabList>
+                    <TabNav value="tab1">Compensation</TabNav>
+                    <TabNav value="tab2">Team Points Contract</TabNav>
+                </TabList>
+                <div className="p-4">
+                    <TabContent value="tab1">
+                        <CompensationSettings />
+                    </TabContent>
+                    <TabContent value="tab2">
+                        <TeamPointsContractSettings />
+                    </TabContent>
+                </div>
+            </Tabs>
         </div>
     );
 };
