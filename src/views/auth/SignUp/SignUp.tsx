@@ -55,10 +55,10 @@ const ValidationStepsSchema = Yup.object().shape({
       .min(3, "Username must be at least 3 characters.")
       .required(fieldRequired),
     email: Yup.string().email("Invalid e-mail.").required(fieldRequired),
-    image: Yup.mixed()
+    image: Yup.mixed().notRequired(),
   }),
   step2: Yup.object().shape({
-    logo: Yup.mixed(),
+    logo: Yup.mixed().notRequired(),
     name: Yup.string()
       .min(3, "Name must be at least 3 characters.")
       .required(fieldRequired),
@@ -132,7 +132,7 @@ const SignUp = () => {
     if (user.id && !user.organization) {
       setCurrentStep(1);
     } else if (user.id && user.organization) {
-      setCurrentStep(2) 
+      setCurrentStep(2)
     } else {
       setCurrentStep(0);
     }
@@ -145,8 +145,11 @@ const SignUp = () => {
     const data: RegisterCredential = {
       username,
       email,
-      profilePicture: image,
     };
+
+    if (image) {
+      data.profilePicture = image;
+    }
     try {
       const response = await apiRegisterAccount(data);
       if (response?.data) {
@@ -191,10 +194,13 @@ const SignUp = () => {
   const createOrganization = async () => {
     formik.setSubmitting(true);
     const { name, logo } = formik.values.step2;
-    const data = {
-      name,
-      logo: logo || undefined,
+    const data: any = {
+      name
     };
+
+    if (logo) {
+      data.logo = logo;
+    }
 
     try {
       setDialogOpen(true);
@@ -420,7 +426,6 @@ const SignUp = () => {
 
             <FormItem
               label="Profile Picture"
-              asterisk
               errorMessage={formik.errors?.step1?.image}
               invalid={
                 formik.touched?.step1?.image && !!formik.errors?.step1?.image
@@ -531,7 +536,6 @@ const SignUp = () => {
               </h2>
               <FormItem
                 label="Image"
-                asterisk
                 invalid={
                   formik.touched?.step2?.logo && !!formik.errors?.step2?.logo
                 }

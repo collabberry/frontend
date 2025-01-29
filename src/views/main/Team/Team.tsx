@@ -3,7 +3,7 @@ import { Contributor } from "@/models/Organization.model";
 import { ColumnDef } from "@tanstack/react-table";
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState, setOrganization } from "@/store";
+import { RootState, setInvitationToken, setOrganization } from "@/store";
 import { useState } from "react";
 import OrganizationCard from "./OrganizationCard";
 import { Avatar, Button, Dialog } from "@/components/ui";
@@ -14,15 +14,20 @@ import { set } from "lodash";
 import ViewAgreement from "./ViewAgreement";
 import {
   apiGetContributorAgreement,
+  apiGetInvitationToken,
   apiGetOrganizationById,
 } from "@/services/OrgService";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
+import InvitationLink from "../Dashboard/InvitationDialog";
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
   const user = useSelector((state: RootState) => state.auth.user);
   const { isAdmin } = useSelector((state: RootState) => state.auth.user);
+  const invitationToken = useSelector(
+    (state: RootState) => state.auth.invite.invitationToken
+  );
   const location = useLocation();
   const dispatch = useDispatch();
   const fromDashboard = location.state && location.state.from === "dashboard";
@@ -33,6 +38,30 @@ const Team: React.FC = () => {
   const [selectedContributor, setSelectedContributor] = useState(
     {} as Contributor
   );
+
+
+  const [isInviteDialogOpen, setInviteDialogOpen] = useState(false);
+
+  const handleCloseInviteDialog = () => {
+    setInviteDialogOpen(false);
+  };
+
+  const inviteAction = async () => {
+    if (!invitationToken) {
+      try {
+        const response = await apiGetInvitationToken();
+        if (response.data) {
+          dispatch(setInvitationToken(response.data));
+        }
+        setInviteDialogOpen(true);
+      } catch (error: any) {
+        handleError(error.response.data.message);
+      }
+    } else {
+      setInviteDialogOpen(true);
+    }
+  };
+
 
   useEffect(() => {
     const fetchOrganization = async () => {
@@ -207,6 +236,11 @@ const Team: React.FC = () => {
           />
         </Dialog>
       )}
+      {isInviteDialogOpen && (
+        <Dialog isOpen={isInviteDialogOpen} onClose={handleCloseInviteDialog}>
+          <InvitationLink invitationToken={invitationToken} />
+        </Dialog>
+      )}
       {isAgreementDialogOpen && (
         <Dialog
           isOpen={isAgreementDialogOpen}
@@ -240,6 +274,7 @@ const Team: React.FC = () => {
         <OrganizationCard
           organization={organization}
           onEdit={handleEdit}
+          onInvite={inviteAction}
           isAdmin={isAdmin as boolean}
         />
       </div>

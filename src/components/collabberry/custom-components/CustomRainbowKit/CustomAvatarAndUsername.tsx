@@ -1,4 +1,6 @@
 import React from "react";
+import placeholderIcon from '@/assets/images/placeholder.jpg';
+
 
 interface CustomAvatarAndUsernameProps {
   imageUrl?: string;
@@ -23,19 +25,18 @@ const CustomAvatarAndUsername: React.FC<CustomAvatarAndUsernameProps> = ({
         alignItems: "center",
       }}
     >
-      {imageUrl && (
-        <img
-          src={imageUrl}
-          alt="User Avatar"
-          style={{
-            width: avatarSize,
-            height: avatarSize,
-            borderRadius: "50%",
-            marginRight: 8,
-            objectFit: "cover",
-          }}
-        />
-      )}
+      <img
+        src={imageUrl ?? placeholderIcon}
+        alt="User Avatar"
+        style={{
+          width: avatarSize,
+          height: avatarSize,
+          borderRadius: "50%",
+          marginRight: 8,
+          objectFit: "cover",
+        }}
+      />
+
       <div className="flex flex-col items-start">
         {userName && (
           <p className={userNameBold ? "font-bold" : ""}>{userName}</p>

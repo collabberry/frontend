@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState, setReviewedMembers, setRounds, setSelectedTeamMembers } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { Contributor } from "@/models/Organization.model";
-import { Alert, Avatar, Button } from "@/components/ui";
+import { Alert, Avatar, Button, Skeleton } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { current } from "@reduxjs/toolkit";
@@ -16,7 +16,6 @@ import * as animationData from "@/assets/animations/tea.json";
 
 import { useEffect } from "react";
 import { apiGetAssessmentsByAssessor, apiGetCurrentRound } from "@/services/OrgService";
-import { set } from "lodash";
 
 const Assessment = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -26,6 +25,8 @@ const Assessment = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   // const { submittedAssessments } = currentRound || {};
   const [submittedAssessments, setSubmittedAssessments] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -37,12 +38,16 @@ const Assessment = () => {
 
   useEffect(() => {
     const fetchCurrentRound = async () => {
+      setLoading(true);
       try {
         const roundResponse = await apiGetCurrentRound();
         if (roundResponse.data) {
           dispatch(setRounds(roundResponse.data));
+          setLoading(false);
         }
-      } catch (error) { }
+      } catch (error) {
+        setLoading(false);
+      }
     };
     fetchCurrentRound();
   }, []);
@@ -50,11 +55,17 @@ const Assessment = () => {
   useEffect(() => {
     if (currentRound?.id && user?.id) {
       const fetchMyAssessments = async () => {
-        const assessedByMe = await apiGetAssessmentsByAssessor(
-          currentRound?.id,
-          user?.id
-        );
-        setSubmittedAssessments(assessedByMe.data);
+        setLoading(true);
+        try {
+          const assessedByMe = await apiGetAssessmentsByAssessor(
+            currentRound?.id,
+            user?.id
+          );
+          setSubmittedAssessments(assessedByMe.data);
+          setLoading(false);
+        } catch (error) {
+          setLoading(false);
+        }
       };
       fetchMyAssessments();
     }
@@ -162,50 +173,57 @@ const Assessment = () => {
     <>
       <div>
         <h1>Assessment</h1>
-        {isTableDisabled ? (
-          <Alert showIcon type="info" className="mt-4">
-            <p>
-              There is no ongoing round. You will be able to submit your
-              assessments once the next round starts.
-            </p>
-          </Alert>
-        ) : isAssessmentDone ? (
-          <Alert showIcon type="warning" className="mt-4">
-            <p>
-              It looks like you've already assessed all the members of your team. See you for the next round!
-            </p>
-          </Alert>
-        ) : (
-          <div className="mt-4 text-md font-bold text-gray-500">
-            Select the team members you interacted with last month.
-          </div>
-        )}
+        {
+          loading ? (<Skeleton height={56} className="mt-4"/>) : (
+            <>
+              {isTableDisabled ? (
+                <Alert showIcon type="info" className="mt-4">
+                  <p>
+                    There is no ongoing round. You will be able to submit your
+                    assessments once the next round starts.
+                  </p>
+                </Alert>
+              ) : isAssessmentDone ? (
+                <Alert showIcon type="warning" className="mt-4">
+                  <p>
+                    It looks like you've already assessed all the members of your team. See you for the next round!
+                  </p>
+                </Alert>
+              ) : (
+                <div className="mt-4 text-md font-bold text-gray-500">
+                  Select the team members you interacted with last month.
+                </div>
+              )}
+            </>
+          )
+        }
       </div>
-      {/* <div>
-        <ContributorSelectList></ContributorSelectList>
-      </div> */}
-      <>
-        {isTableDisabled || isAssessmentDone ? (
-          <div className="mt-8 mb-8">
-            <LottieAnimation animationData={animationData} />
-          </div>
-        ) : contributorsWithDisabledFlag.length > 0 && !isAssessmentDone ? (
-          <CustomSelectTable
-            data={contributorsWithDisabledFlag || []}
-            columns={columns}
-            onSubmit={onSubmit}
-            disabled={isTableDisabled}
-          />
-        ) : (
-          <div className="mt-4 mb-4">
-            <Alert showIcon type="danger">
-              <p>
-                There are no contributors available for assessment at this time.
-              </p>
-            </Alert>
-          </div>
-        )}
-      </>
+
+      {loading ? (<Skeleton height={200} className="mt-8 mb-8" />) : (
+        <>
+          {isTableDisabled || isAssessmentDone ? (
+            <div className="mt-8 mb-8">
+              <LottieAnimation animationData={animationData} />
+            </div>
+          ) : contributorsWithDisabledFlag.length > 0 && !isAssessmentDone ? (
+            <CustomSelectTable
+              data={contributorsWithDisabledFlag || []}
+              columns={columns}
+              onSubmit={onSubmit}
+              disabled={isTableDisabled}
+            />
+          ) : (
+            <div className="mt-4 mb-4">
+              <Alert showIcon type="danger">
+                <p>
+                  There are no contributors available for assessment at this time.
+                </p>
+              </Alert>
+            </div>
+          )}
+        </>
+      )}
+
     </>
   );
 };
