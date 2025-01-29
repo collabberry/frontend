@@ -9,6 +9,8 @@ import { RootState } from "@/store";
 import { use } from "i18next";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import placeholderIcon from '@/assets/images/placeholder.jpg';
+
 
 interface ScoreCardProps {
   title: string;
@@ -50,7 +52,7 @@ export const ScoreDetailCard: React.FC<ScoreDetailProps> = ({
         <div className="flex flex-row items-center justify-start min-w-[120px]">
           <Avatar
             className="mr-2 rounded-full"
-            src={contributor.profilePicture}
+            src={contributor.profilePicture ?? placeholderIcon}
           />
           <span>{contributor.username}</span>
         </div>
@@ -116,7 +118,7 @@ const MyScores: React.FC = () => {
           </div>
           <div className="mt-4">
             <div className="grid grid-cols-3 gap-4">
-            <ScoreCard
+              <ScoreCard
                 title="Total Score"
                 score={scores?.totalScore || (scores?.totalCultureScore + scores?.totalWorkScore) / 2}
               ></ScoreCard>

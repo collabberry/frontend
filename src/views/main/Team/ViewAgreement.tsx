@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui";
 import { Contributor } from "@/models/Organization.model";
 import React from "react";
+import placeholderIcon from '@/assets/images/placeholder.jpg';
+
 
 interface ViewAgreementProps {
   contributor: any;
@@ -14,13 +16,14 @@ export const ContributorHeader: React.FC<{ contributor: Contributor }> = ({
   return (
     <>
       <div className="flex flex-row items-center mb-4 mt-4">
-        {profilePicture && (
-          <img
-            src={profilePicture}
-            alt="User Avatar"
-            className="w-10 h-10 rounded-full mr-2"
-          />
-        )}
+
+        <img
+          src={profilePicture ?? placeholderIcon
+          }
+          alt="User Avatar"
+          className="w-10 h-10 rounded-full mr-2"
+        />
+
         <div className="flex flex-col items-start">
           {username && <p className="font-bold">{username}</p>}
           {walletAddress && <p>{walletAddress}</p>}
@@ -45,9 +48,8 @@ const AgreementDetails: React.FC<{ contributor: Contributor }> = ({
           <p>|</p>
           <p>{`Market Rate: $${marketRate ? marketRate : "Not Set"}`}</p>
           <p>|</p>
-          <p>{`Monetary Comp: $${
-            fiatRequested ? fiatRequested : "Not Set"
-          }`}</p>
+          <p>{`Monetary Comp: $${fiatRequested ? fiatRequested : "Not Set"
+            }`}</p>
         </div>
       </div>
       <div className="max-h-96 overflow-y-scroll">

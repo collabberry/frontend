@@ -114,14 +114,14 @@ const Assess = () => {
       const { data } = response;
       if (data && organization.id) {
 
-        
+
         try {
           const allRoundsResponse = await apiGetRounds();
           if (allRoundsResponse.data) {
             dispatch(setAllRounds(allRoundsResponse.data));
           }
-        } catch (error: any) {}
-        
+        } catch (error: any) { }
+
         try {
           const roundResponse = await apiGetCurrentRound();
           if (roundResponse.data) {
@@ -131,7 +131,7 @@ const Assess = () => {
           handleError(error.response.data.message);
         }
 
-        
+
       }
 
       setReviewedMembers([...reviewedMembers, currentMember.id]);

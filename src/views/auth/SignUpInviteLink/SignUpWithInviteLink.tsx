@@ -34,7 +34,7 @@ const ValidationStepsSchema = Yup.object().shape({
     .min(3, "Username must be at least 3 characters")
     .required("Name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
-  image: Yup.mixed()
+  image: Yup.mixed().notRequired(),
 });
 
 const initialValues = {
@@ -65,9 +65,12 @@ const SignUpWithInviteLink = () => {
       const data: any = {
         username,
         email,
-        profilePicture: image,
         invitationToken,
       };
+
+      if (image) {
+        data.profilePicture = image;
+      }
       try {
         const response = await apiRegisterAccount(data);
         if (response?.data) {
@@ -82,8 +85,8 @@ const SignUpWithInviteLink = () => {
                   );
                   dispatch(
                     setOrganization({
-                      ...orgResponse.data,
-                      logo: orgResponse.data.logo,
+                      ...orgResponse?.data,
+                      logo: orgResponse?.data?.logo,
                     })
                   );
                 } catch (error: any) {
@@ -95,14 +98,14 @@ const SignUpWithInviteLink = () => {
                   if (allRoundsResponse.data) {
                     dispatch(setAllRounds(allRoundsResponse.data));
                   }
-                } catch (error: any) {}
+                } catch (error: any) { }
 
                 try {
                   const roundResponse = await apiGetCurrentRound();
                   if (roundResponse.data) {
                     dispatch(setRounds(roundResponse.data));
                   }
-                } catch (error) {}
+                } catch (error) { }
               }
               dispatch(
                 setUser({
@@ -117,7 +120,7 @@ const SignUpWithInviteLink = () => {
                 })
               );
             }
-          } catch (error) {}
+          } catch (error) { }
         }
         formik.setSubmitting(false);
         dispatch(signUpSuccess(true));
