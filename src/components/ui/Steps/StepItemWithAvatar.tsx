@@ -49,7 +49,7 @@ const StepItemWithAvatar = forwardRef<HTMLDivElement, StepItemWithAvatarProps>(
         <img
           src={avatar ?? placeholderIcon}
           alt={`Step ${stepNumber} avatar`}
-          className={`step-item-avatar rounded-full ${status === COMPLETE && "opacity-20"
+          className={`step-item-avatar rounded-full w-8 h-8 object-cover ${status === COMPLETE && "opacity-20"
             }`}
         />
         {status === COMPLETE && (

@@ -366,8 +366,8 @@ const CompensationSettings: React.FC<any> = () => {
           />
           <StatisticCard
             value={
-              organization?.assessmentStartDelayInDays
-                ? `${organization.assessmentStartDelayInDays} days`
+              organization?.assessmentStartDelayInDays !== undefined
+                ? `${organization.assessmentStartDelayInDays } days`
                 : "Not Set"
             }
             title="Assessment Start Delay"
