@@ -15,18 +15,24 @@ import { FiSettings } from "react-icons/fi";
 import { FiUserPlus } from "react-icons/fi";
 import { FiPieChart } from "react-icons/fi";
 import { FiCheckCircle } from "react-icons/fi";
-import { FiDollarSign } from "react-icons/fi";
 import {
   handleError,
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
-import { Avatar, Dialog, Skeleton } from "@/components/ui";
+import { Dialog, Skeleton } from "@/components/ui";
 import InvitationLink from "./InvitationDialog";
 import { HiOutlineCurrencyDollar, HiUsers } from "react-icons/hi";
 import { useContractService } from "@/services/ContractsService";
+import { MdDonutSmall } from "react-icons/md";
 import { ethers } from "ethers";
-import { set } from "lodash";
 import { apiGetUser } from "@/services/AuthService";
+import PurpleBerryLogo from "@/assets/svg/PurpleBerryLogo";
+import { SvgIcon } from "@/components/shared";
+import { StatRow } from "@/components/collabberry/custom-components/StatRow";
+import teamPic from '@/assets/images/team.png';
+import bannerPic from '@/assets/images/banner.png';
+
+
 
 const Dashboard = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -183,6 +189,105 @@ const Dashboard = () => {
     fetchUser();
   }, [])
 
+  const adminCards = [
+    {
+      footerAction: inviteCardAction,
+      footerButtonTitle: "Invite Members",
+      footerButtonIcon: <FiUserPlus style={{ height: "100%", width: "100%" }} />,
+      cardContent: <>Add more people to your <br /> organisation</>,
+    },
+    {
+      footerAction: settingsCardAction,
+      footerButtonTitle: "Settings",
+      footerButtonIcon: <FiSettings style={{ height: "100%", width: "100%" }} />,
+      cardContent: <>Set up your organisation’s compensation and assessment</>,
+    },
+    {
+      footerAction: manualAllocationAction,
+      footerButtonTitle: "Manual Allocation",
+      footerButtonIcon: <FiPieChart style={{ height: "100%", width: "100%" }} />,
+      cardContent: <>Manually allocate team points to contributors</>,
+    },
+    {
+      footerAction: numberOfContributorsWithAgreements < numberOfContributors ? contributorsCardAction : undefined,
+      footerButtonTitle: "Add all agreements",
+      footerButtonIcon: <FiFileText style={{ height: "100%", width: "100%" }} />,
+      cardContent: (
+        <>
+          <strong>{numberOfContributorsWithAgreements}</strong> out of <strong>{numberOfContributors}</strong> members of your organisation have added agreements
+        </>
+      ),
+      condition: numberOfContributorsWithAgreements < numberOfContributors
+    }
+  ];
+
+  const organizationCards = [
+    {
+      headerIcon: <FiPieChart style={{ height: "100%", width: "100%" }} />,
+      cardContent: (
+        <>
+          <strong>{numberOfContributorsWithAssessments}</strong> out of <strong>{numberOfContributors}</strong> members have completed the assessment
+        </>
+      ),
+      footerAction: numberOfContributorsWithAssessments < numberOfContributors && currentRound?.id && user?.isAdmin ? assessmentCardAction : undefined,
+      footerButtonTitle: "Remind all",
+      condition: currentRound && user?.isAdmin
+    },
+    {
+      headerIcon: <FiCheckCircle style={{ height: "100%", width: "100%" }} />,
+      cardContent: (
+        <div>
+          <p>Total distributed</p>
+          <p className="text-lg font-bold">
+            {`TP ${totalSupply ? totalSupply.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : "0"}`}
+          </p>
+          <p className="text-lg font-bold">
+            {`$${organization?.totalDistributedFiat ? organization?.totalDistributedFiat.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : "0"}`}
+          </p>
+        </div>
+      )
+    }
+  ];
+
+  const stats = [
+    {
+      icon: <HiUsers className="text-2xl" />,
+      label: "Your Team Points",
+      value: teamPointsBalance.toLocaleString("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+      valueSuffix: "TP",
+      className: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-100"
+    },
+    {
+      icon: <MdDonutSmall className="text-2xl" />,
+      label: "Your Team Points Share",
+      value: ((teamPointsBalance && totalSupply ? teamPointsBalance / totalSupply : 0) * 100).toFixed(2),
+      valueSuffix: "%",
+      className: "bg-pink-100 text-pink-600 dark:bg-pink-500/20 dark:text-pink-100"
+    },
+    {
+      icon: <HiOutlineCurrencyDollar className="text-2xl" />,
+      label: "Total Fiat Received",
+      value: (user.totalFiat || 0).toLocaleString("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+      valueSuffix: "$",
+      className: "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-100"
+    },
+    {
+      icon: <SvgIcon><PurpleBerryLogo /></SvgIcon>,
+      label: "Total TP Supply",
+      value: totalSupply.toLocaleString("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+      valueSuffix: "TP",
+      className: "bg-berrylavender-100 text-berrylavender-600 dark:bg-berrylavender-500/20 dark:text-berrylavender-100"
+    },
+  ]
 
   return (
     <>
@@ -191,208 +296,108 @@ const Dashboard = () => {
           <InvitationLink invitationToken={invitationToken} />
         </Dialog>
       )}
+      {/* TODO: to be removed after giveth campaign ends on feb 14 */}
+      <div className="sm:w-full md:w-full xl:w-3/4 2xl:w-2/3 px-4 mb-6">
+        <h1 className="text-2xl font-bold mb-4">Support us on GivEth</h1>
+        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-2 gap-4">
+          <div>
+            <Card className="bg-berrylavender-100 text-gray-700 dark:bg-berrylavender-500/20 dark:text-gray-100 text-lg font-semibold min-h-48 2xl:min-h-68 px-0">
+              <p className="flex flex-col">
+                <span>Support our mission to develop public goods with your donation.</span>
+                <span className="mt-2"> Every dollar you give is matched with a $100,000 matching pool, maximizing your impact!</span>
+              </p>
+            </Card>
+          </div>
+          <div className="max-h-48 2xl:max-h-68">
+            <a href="https://giveth.io/project/collabberry" target="_blank" rel="noreferrer">
+              <img
+                src={bannerPic}
+                className="rounded object-cover w-full h-full"
+
+              />
+            </a>
+
+          </div>
+        </div>
+
+      </div>
+      {/* stats card */}
       <div className="px-4">
         <Card
-          className="w-full sm:w-full md:w-full lg:w-1/2 mb-4"
+          className="w-full sm:w-full md:w-full xl:w-3/4 2xl:w-1/2 mb-4"
           bodyClass="h-full flex flex-col justify-between"
         >
           <h4>{`Welcome back, ${user.userName}!`}</h4>
 
           <div className="mt-4 flex flex-col gap-4">
-
-            {loading ? (<>
-              <Skeleton height={49}></Skeleton>
-              <Skeleton height={49}></Skeleton>
-
-            </>) :
-              (
-                <>
-                  <div className="flex items-center gap-2">
-                    <div>
-                      <Avatar
-                        size={45}
-                        className="bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-100"
-                        icon={
-                          <HiOutlineCurrencyDollar className="text-2xl" />
-                        }
-                      />
-                    </div>
-                    <div>
-                      <p>My Total Monetary Compensation</p>
-                      <h5 >
-                        <span className="leading-none mr-0.5">{user.totalFiat ? +user.totalFiat : 0}</span>
-                        <span className="text-sm leading-none">$</span>
-                      </h5>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div>
-                      <Avatar
-                        size={45}
-                        className="bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-100"
-                        icon={<HiUsers className="text-2xl" />}
-                      />
-                    </div>
-                    <div>
-                      <p>My Total Team Points</p>
-                      <h5 >
-                        <span className="leading-none mr-0.5">{(teamPointsBalance.toLocaleString(
-                          "en-US", {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        }
-                        ))}/{(totalSupply.toLocaleString(
-                          "en-US", {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        }
-                        ))}</span>
-                        <span className="text-sm leading-none">TP</span>
-                        <span className="text-sm leading-none ml-1 font-semibold">
-                          ({((teamPointsBalance && totalSupply ? teamPointsBalance / totalSupply : 0) * 100).toFixed(2)}%)
-                        </span>
-                      </h5>
-                    </div>
-                  </div>
-                </>
-              )}
-
+            {loading ? (
+              Array(2)
+                .fill(0)
+                .map((_, index) => <Skeleton height={49} key={index} />)
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                {stats.map((stat, index) => (
+                  <StatRow
+                    key={index}
+                    icon={stat.icon}
+                    label={stat.label}
+                    value={stat.value}
+                    valueSuffix={stat.valueSuffix}
+                    className={stat.className}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </Card>
       </div>
+      {/* admin and org cards */}
       <div className="flex flex-col items-start h-full px-4">
         {user?.isAdmin && (
           <div className="w-full mb-6">
             <h1 className="text-2xl font-bold mb-4">Steps to Complete</h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <InfoCard
-                footerAction={inviteCardAction}
-                footerButtonTitle="Invite Members"
-                HeaderIcon={
-                  <FiUserPlus style={{ height: "100%", width: "100%" }} />
-                }
-                cardContent={<>Add more people to your organisation</>}
-              />
-              <InfoCard
-                footerAction={manualAllocationAction}
-                footerButtonTitle="Manual Allocation"
-                HeaderIcon={
-                  <FiPieChart style={{ height: "100%", width: "100%" }} />
-                }
-                cardContent={
-                  <>
-                    Manually allocate team points to contributors
-                  </>
-                }
-              />
-              <InfoCard
-                footerAction={settingsCardAction}
-                footerButtonTitle="Settings"
-                HeaderIcon={
-                  <FiSettings style={{ height: "100%", width: "100%" }} />
-                }
-                cardContent={
-                  <>
-                    Set up your organisation’s compensation and assessment
-                    information
-                  </>
-                }
-              />
-
-
-              {numberOfContributorsWithAgreements < numberOfContributors &&
-                <InfoCard
-                  footerAction={
-                    numberOfContributorsWithAgreements < numberOfContributors
-                      ? contributorsCardAction
-                      : undefined
-                  }
-                  footerButtonTitle="Add all agreements"
-                  HeaderIcon={
-                    <FiFileText style={{ height: "100%", width: "100%" }} />
-                  }
-                  cardContent={
-                    <>
-                      <strong>{numberOfContributorsWithAgreements}</strong> out of{" "}
-                      <strong>{numberOfContributors}</strong> members of your
-                      organisation have added agreements
-                    </>
-                  }
-                />
-              }
-
-
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
+              {adminCards.map((card, index) =>
+                card.condition !== false && (
+                  <InfoCard
+                    key={index}
+                    footerAction={card.footerAction}
+                    footerButtonTitle={card.footerButtonTitle}
+                    step={index + 1}
+                    footerButtonIcon={card.footerButtonIcon}
+                    cardContent={card.cardContent}
+                  />
+                )
+              )}
             </div>
           </div>
         )}
-        <div className="w-full max-w-4xl">
-          {user?.isAdmin ? (
-            <h1 className="text-2xl font-bold mb-4">My Organization</h1>
-          ) : (
-            <div className="mb-4">
-              <h1 className="text-2xl font-bold mb-4">My Organization</h1>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {currentRound && user?.isAdmin && (
-              <InfoCard
-                //TODO: Implement logic to show correct number of contribitors with assessments
-                footerAction={
-                  numberOfContributorsWithAssessments < numberOfContributors &&
-                    currentRound?.id &&
-                    user?.isAdmin
-                    ? assessmentCardAction
-                    : undefined
-                }
-                footerButtonTitle="Remind all"
-                HeaderIcon={
-                  <FiPieChart style={{ height: "100%", width: "100%" }} />
-                }
-                cardContent={
-                  <>
-                    <strong>{numberOfContributorsWithAssessments}</strong> out
-                    of <strong>{numberOfContributors}</strong> members have
-                    completed the assessment
-                  </>
-                }
+        <div className="w-full">
+          <h1 className="text-2xl font-bold mb-4">My Organization</h1>
+          <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+            <div className="max-h-48 2xl:max-h-68">
+              <img
+                src={teamPic}
+                className="rounded object-cover w-full h-full"
               />
-            )}
-            <InfoCard
-              HeaderIcon={
-                <FiCheckCircle style={{ height: "100%", width: "100%" }} />
-              }
-              cardContent={
-                <div>
-                  <p>Total distributed</p>
-                  <p className="text-lg font-bold">
-                    {`TP ${totalSupply
-                      ? totalSupply.toLocaleString(
-                        "en-US",
-                        {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        }
-                      )
-                      : "0"
-                      }`}
-                  </p>
-                  <p className="text-lg font-bold">
-                    {`$${organization?.totalDistributedFiat
-                      ? organization?.totalDistributedFiat.toLocaleString(
-                        "en-US",
-                        {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        }
-                      )
-                      : "0"
-                      }`}
-                  </p>
-                </div>
-              }
-            />
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              {organizationCards.map(
+                (card, index) =>
+                  card.condition !== false && (
+                    <InfoCard
+                      key={index}
+                      headerIcon={card.headerIcon}
+                      cardContent={card.cardContent}
+                      footerAction={card.footerAction}
+                      footerButtonTitle={card.footerButtonTitle}
+                    />
+                  )
+              )}
+            </div>
           </div>
+
         </div>
       </div>
     </>

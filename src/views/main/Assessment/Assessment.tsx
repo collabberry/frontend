@@ -10,7 +10,6 @@ import { RoundStatus } from "@/components/collabberry/utils/collabberry-constant
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/tea.json";
-
 import { useEffect } from "react";
 import { apiGetAssessmentsByAssessor, apiGetCurrentRound } from "@/services/OrgService";
 
