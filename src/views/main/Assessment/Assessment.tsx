@@ -5,11 +5,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Contributor } from "@/models/Organization.model";
 import { Alert, Avatar, Button, Skeleton } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
-import { current } from "@reduxjs/toolkit";
+import { useCallback, useMemo, useState } from "react";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
-import { use } from "i18next";
-import { is } from "immer/dist/internal";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/tea.json";
@@ -25,7 +22,10 @@ const Assessment = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   // const { submittedAssessments } = currentRound || {};
   const [submittedAssessments, setSubmittedAssessments] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isRoundLoading, setIsRoundLoading] = useState(false);
+  const [isAssessmentLoading, setIsAssessmentLoading] = useState(false);
+  const isLoading = isRoundLoading || isAssessmentLoading;
+  const hasRoundAndUserLoaded = useMemo(() => currentRound?.id && user?.id, [currentRound?.id, user?.id]);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -38,38 +38,38 @@ const Assessment = () => {
 
   useEffect(() => {
     const fetchCurrentRound = async () => {
-      setLoading(true);
+      setIsRoundLoading(true);
       try {
         const roundResponse = await apiGetCurrentRound();
         if (roundResponse.data) {
           dispatch(setRounds(roundResponse.data));
-          setLoading(false);
         }
       } catch (error) {
-        setLoading(false);
+      } finally {
+        setIsRoundLoading(false);
       }
     };
     fetchCurrentRound();
   }, []);
 
   useEffect(() => {
-    if (currentRound?.id && user?.id) {
+    if (hasRoundAndUserLoaded) {
       const fetchMyAssessments = async () => {
-        setLoading(true);
         try {
+          setIsAssessmentLoading(true);
           const assessedByMe = await apiGetAssessmentsByAssessor(
             currentRound?.id,
             user?.id
           );
           setSubmittedAssessments(assessedByMe.data);
-          setLoading(false);
         } catch (error) {
-          setLoading(false);
+        } finally {
+          setIsAssessmentLoading(false);
         }
       };
       fetchMyAssessments();
     }
-  }, []);
+  }, [hasRoundAndUserLoaded]);
 
 
 
@@ -77,7 +77,9 @@ const Assessment = () => {
     return currentRound?.status !== RoundStatus.InProgress;
   }, [currentRound]);
 
-  const isContributorDisabled = (contributor: Contributor) => {
+
+
+  const isContributorDisabled = useCallback((contributor: Contributor) => {
     if (
       !contributor?.agreement ||
       Object.keys(contributor?.agreement).length === 0
@@ -93,17 +95,19 @@ const Assessment = () => {
       (assessment: { assessedId: string }) =>
         assessment.assessedId === contributor.id
     );
-  };
+  }, [submittedAssessments, isTableDisabled]);
 
-  const isContributorAlreadyReviewed = (contributor: Contributor) => {
+
+  const isContributorAlreadyReviewed = useCallback((contributor: Contributor) => {
     return submittedAssessments?.some((assessment: { assessedId: string }) => {
       return assessment.assessedId === contributor.id;
     });
-  };
+  }, [submittedAssessments]);
 
-  const isCurrentUser = (contributor: Contributor) => {
-    return contributor.id === user?.id;
-  };
+  const isCurrentUser = useCallback(
+    (contributor: Contributor) => contributor.id === user?.id,
+    [user?.id]
+  );
 
   const contributorsWithDisabledFlag = useMemo(() => {
     const filteredContributors = (organization?.contributors || []).reduce(
@@ -133,7 +137,7 @@ const Assessment = () => {
     );
   }, [submittedAssessments, contributorsWithDisabledFlag]);
 
-  const columns: ColumnDef<Contributor>[] = [
+  const columns = useMemo<ColumnDef<Contributor>[]>(() => [
     {
       header: ({ table }) => (
         <div className="flex justify-start">
@@ -167,14 +171,14 @@ const Assessment = () => {
       header: "",
       accessorKey: "agreement.roleName",
     },
-  ];
+  ], [isTableDisabled]);
 
   return (
     <>
       <div>
         <h1>Assessment</h1>
         {
-          loading ? (<Skeleton height={56} className="mt-4"/>) : (
+          isLoading ? (<Skeleton height={56} className="mt-4" />) : (
             <>
               {isTableDisabled ? (
                 <Alert showIcon type="info" className="mt-4">
@@ -199,7 +203,7 @@ const Assessment = () => {
         }
       </div>
 
-      {loading ? (<Skeleton height={200} className="mt-8 mb-8" />) : (
+      {isLoading ? (<Skeleton height={200} className="mt-8 mb-8" />) : (
         <>
           {isTableDisabled || isAssessmentDone ? (
             <div className="mt-8 mb-8">
