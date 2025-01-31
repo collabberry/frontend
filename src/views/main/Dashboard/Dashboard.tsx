@@ -30,6 +30,8 @@ import PurpleBerryLogo from "@/assets/svg/PurpleBerryLogo";
 import { SvgIcon } from "@/components/shared";
 import { StatRow } from "@/components/collabberry/custom-components/StatRow";
 import teamPic from '@/assets/images/team.png';
+import bannerPic from '@/assets/images/banner.png';
+
 
 
 const Dashboard = () => {
@@ -294,6 +296,32 @@ const Dashboard = () => {
           <InvitationLink invitationToken={invitationToken} />
         </Dialog>
       )}
+      {/* TODO: to be removed after giveth campaign ends on feb 14 */}
+      <div className="sm:w-full md:w-full xl:w-3/4 2xl:w-2/3 px-4 mb-6">
+        <h1 className="text-2xl font-bold mb-4">Support us on GivEth</h1>
+        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-2 gap-4">
+          <div>
+            <Card className="bg-berrylavender-100 text-gray-700 dark:bg-berrylavender-500/20 dark:text-gray-100 text-lg font-semibold min-h-48 2xl:min-h-68 px-0">
+              <p className="flex flex-col">
+                <span>Support our mission to develop public goods with your donation.</span>
+                <span className="mt-2"> Every dollar you give is matched with a $100,000 matching pool, maximizing your impact!</span>
+              </p>
+            </Card>
+          </div>
+          <div className="max-h-48 2xl:max-h-68">
+            <a href="https://giveth.io/project/collabberry" target="_blank" rel="noreferrer">
+              <img
+                src={bannerPic}
+                className="rounded object-cover w-full h-full"
+
+              />
+            </a>
+
+          </div>
+        </div>
+
+      </div>
+      {/* stats card */}
       <div className="px-4">
         <Card
           className="w-full sm:w-full md:w-full xl:w-3/4 2xl:w-1/2 mb-4"
@@ -323,6 +351,7 @@ const Dashboard = () => {
           </div>
         </Card>
       </div>
+      {/* admin and org cards */}
       <div className="flex flex-col items-start h-full px-4">
         {user?.isAdmin && (
           <div className="w-full mb-6">
