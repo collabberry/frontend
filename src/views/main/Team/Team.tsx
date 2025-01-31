@@ -6,20 +6,19 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState, setInvitationToken, setOrganization } from "@/store";
 import { useState } from "react";
 import OrganizationCard from "./OrganizationCard";
-import { Avatar, Button, Dialog } from "@/components/ui";
+import { Button, Dialog } from "@/components/ui";
 import { useLocation } from "react-router-dom";
 import EditOrganizationForm from "./EditOrganization";
 import AddAgreementForm from "./AddAgreement";
-import { set } from "lodash";
 import ViewAgreement from "./ViewAgreement";
 import {
-  apiGetContributorAgreement,
   apiGetInvitationToken,
   apiGetOrganizationById,
 } from "@/services/OrgService";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import InvitationLink from "../Dashboard/InvitationDialog";
+import { useDialog } from "@/services/DialogService";
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -30,21 +29,14 @@ const Team: React.FC = () => {
   );
   const location = useLocation();
   const dispatch = useDispatch();
+  const { isOpen: isEditDialogOpen, openDialog: openEditDialog, closeDialog: closeEditDialog } = useDialog();
+  const { isOpen: isInviteDialogOpen, openDialog: openInviteDialog, closeDialog: closeInviteDialog } = useDialog();
+  const { isOpen: isAgreementDialogOpen, openDialog: openAgreementDialog, closeDialog: closeAgreementDialog } = useDialog();
+  const { isOpen: isViewAgreementDialogOpen, openDialog: openViewAgreementDialog, closeDialog: closeViewAgreementDialog } = useDialog();
   const fromDashboard = location.state && location.state.from === "dashboard";
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isAgreementDialogOpen, setIsAgreementDialogOpen] = useState(false);
-  const [isViewAgreementDialogOpen, setIsViewAgreementDialogOpen] =
-    useState(false);
-  const [selectedContributor, setSelectedContributor] = useState(
-    {} as Contributor
-  );
 
-
-  const [isInviteDialogOpen, setInviteDialogOpen] = useState(false);
-
-  const handleCloseInviteDialog = () => {
-    setInviteDialogOpen(false);
-  };
+  const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
+  ;
 
   const inviteAction = async () => {
     if (!invitationToken) {
@@ -53,12 +45,12 @@ const Team: React.FC = () => {
         if (response.data) {
           dispatch(setInvitationToken(response.data));
         }
-        setInviteDialogOpen(true);
+        openInviteDialog();
       } catch (error: any) {
         handleError(error.response.data.message);
       }
     } else {
-      setInviteDialogOpen(true);
+      openInviteDialog();
     }
   };
 
@@ -86,21 +78,17 @@ const Team: React.FC = () => {
   const viewAgreement = (contributor: Contributor) => {
     if (contributor && Object.keys(contributor).length > 0) {
       setSelectedContributor(contributor);
-      setIsViewAgreementDialogOpen(true);
+      openViewAgreementDialog();
     }
   };
 
   const addAgreement = (contributor: Contributor) => {
     if (contributor && Object.keys(contributor).length > 0) {
       setSelectedContributor(contributor);
-      setIsAgreementDialogOpen(true);
+      openAgreementDialog();
     }
   };
 
-  const handleViewAgreementDialogClose = () => {
-    setIsViewAgreementDialogOpen(false);
-    setSelectedContributor({} as Contributor);
-  };
 
   const columns: ColumnDef<Contributor>[] = [
     {
@@ -213,43 +201,35 @@ const Team: React.FC = () => {
     },
   ];
 
-  const handleEdit = () => {
-    setIsEditDialogOpen(true);
-  };
 
-  const handleCloseDialog = () => {
-    setIsEditDialogOpen(false);
-  };
 
-  const handleAgreementDialogClose = () => {
-    setIsAgreementDialogOpen(false);
-    setSelectedContributor({} as Contributor);
-  };
+
+
 
   return (
     <>
       {isEditDialogOpen && (
-        <Dialog isOpen={isEditDialogOpen} onClose={handleCloseDialog}>
+        <Dialog isOpen={isEditDialogOpen} onClose={closeEditDialog}>
           <EditOrganizationForm
             initialData={organization}
-            onSubmit={handleCloseDialog}
+            onSubmit={closeEditDialog}
           />
         </Dialog>
       )}
       {isInviteDialogOpen && (
-        <Dialog isOpen={isInviteDialogOpen} onClose={handleCloseInviteDialog}>
+        <Dialog isOpen={isInviteDialogOpen} onClose={closeInviteDialog}>
           <InvitationLink invitationToken={invitationToken} />
         </Dialog>
       )}
       {isAgreementDialogOpen && (
         <Dialog
           isOpen={isAgreementDialogOpen}
-          onClose={handleAgreementDialogClose}
+          onClose={closeAgreementDialog}
           width={600}
         >
           <AddAgreementForm
             contributor={selectedContributor}
-            handleClose={handleAgreementDialogClose}
+            handleClose={closeAgreementDialog}
           />
         </Dialog>
       )}
@@ -258,11 +238,11 @@ const Team: React.FC = () => {
         <Dialog
           width={600}
           isOpen={isViewAgreementDialogOpen}
-          onClose={handleViewAgreementDialogClose}
+          onClose={closeViewAgreementDialog}
         >
           <ViewAgreement
             contributor={selectedContributor}
-            handleClose={handleViewAgreementDialogClose}
+            handleClose={closeViewAgreementDialog}
           />
         </Dialog>
       )}
@@ -273,7 +253,7 @@ const Team: React.FC = () => {
       <div className="mb-4">
         <OrganizationCard
           organization={organization}
-          onEdit={handleEdit}
+          onEdit={openEditDialog}
           onInvite={inviteAction}
           isAdmin={isAdmin as boolean}
         />

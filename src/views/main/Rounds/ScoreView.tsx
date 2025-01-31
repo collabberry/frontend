@@ -31,7 +31,6 @@ const ContributorScoreView: React.FC = () => {
           selectedRound?.id,
           selectedUser?.id
         );
-        debugger;
         const enrichedAssessments = assessments.data.map(
           (assessment: { assessorId: string }) => {
             const contributor = organization?.contributors?.find(
@@ -44,9 +43,9 @@ const ContributorScoreView: React.FC = () => {
           }
         );
         setAssessments(enrichedAssessments);
-        setLoading(false);
       }
       catch (error) {
+      } finally {
         setLoading(false);
       }
     };
