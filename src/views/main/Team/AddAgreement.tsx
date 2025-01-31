@@ -59,7 +59,7 @@ const validationSchema = Yup.object().shape({
 });
 
 interface AddAgreementFormProps {
-  contributor: Contributor;
+  contributor: Contributor | null;
   handleClose: () => void;
 }
 
@@ -80,235 +80,240 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      const { id } = contributor;
-      formik.setSubmitting(true);
-      const {
-        roleName,
-        responsibilities,
-        marketRate,
-        commitment,
-        fiatRequested,
-      } = values;
+      if (contributor) {
+        const { id } = contributor;
+        formik.setSubmitting(true);
+        const {
+          roleName,
+          responsibilities,
+          marketRate,
+          commitment,
+          fiatRequested,
+        } = values;
 
-      const body = {
-        userId: id,
-        roleName,
-        responsibilities,
-        marketRate,
-        commitment,
-        fiatRequested,
-      };
-      try {
-        const response = await apiCreateContributorAgreement(body);
-        if (response?.data) {
-          try {
-            const orgResponse = await apiGetOrganizationById(
-              organization.id as string
-            );
-            if (orgResponse.data) {
-              dispatch(setOrganization(orgResponse.data));
+        const body = {
+          userId: id,
+          roleName,
+          responsibilities,
+          marketRate,
+          commitment,
+          fiatRequested,
+        };
+        try {
+          const response = await apiCreateContributorAgreement(body);
+          if (response?.data) {
+            try {
+              const orgResponse = await apiGetOrganizationById(
+                organization.id as string
+              );
+              if (orgResponse.data) {
+                dispatch(setOrganization(orgResponse.data));
+              }
+            } catch (error: any) {
+              handleError(error.response.data.message);
             }
-          } catch (error: any) {
-            handleError(error.response.data.message);
           }
+          handleSuccess(`Agreement for ${contributor.username} has been added`);
+          formik.setSubmitting(false);
+          handleClose();
+        } catch (error: any) {
+          handleError(error.response.data.message);
+          formik.setSubmitting(false);
+          handleClose();
         }
-        handleSuccess(`Agreement for ${contributor.username} has been added`);
-        formik.setSubmitting(false);
-        handleClose();
-      } catch (error: any) {
-        handleError(error.response.data.message);
-        formik.setSubmitting(false);
-        handleClose();
       }
     },
   });
 
   return (
     <>
-      <FormContainer
-        className="h-90 max-h-[750px] overflow-y-auto"
-        style={{ height: "100vh" }}
-      >
-        <h2 className="text-2xl font-bold mb-4 mt-4">
-          Add Agreement for {contributor.username}
-        </h2>
-        <FormItem
-          label="Role"
-          asterisk
-          invalid={!!formik.errors.roleName && formik.touched.roleName}
-          errorMessage={formik.errors.roleName}
-        >
-          <Input
-            name="roleName"
-            onChange={formik.handleChange}
-            invalid={!!formik.errors.roleName && formik.touched.roleName}
-            onBlur={formik.handleBlur}
-            value={formik.values.roleName}
-          />
-        </FormItem>
-
-        <FormItem
-          label="Responsibilities"
-          asterisk
-          invalid={
-            !!formik.errors.responsibilities && formik.touched.responsibilities
-          }
-          errorMessage={formik.errors.responsibilities}
-        >
-          <Input
-            name="responsibilities"
-            invalid={
-              !!formik.errors.responsibilities &&
-              formik.touched.responsibilities
-            }
-            textArea
-            rows={3}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.responsibilities}
-          />
-        </FormItem>
-        <FormItem
-          label="Commitment"
-          asterisk
-          invalid={!!formik.errors.commitment && formik.touched.commitment}
-          errorMessage={formik.errors.commitment}
-
-        >
-          <CustomRangeSlider
-            field="commitment"
-            setFieldValue={formik.setFieldValue}
-            value={formik.values.commitment}
-          />
-        </FormItem>
-        <div className="flex items-center mb-4">
-          <span className="font-bold">Compensation</span>
-          <Tooltip
-            title={
-              <div>
-                <div className="font-bold text-gray-300 mb-2">
-                  Calculation Example
-                </div>
-                <div className="text-gray-300 font-normal">
-                  <div>
-                    Total Compensation = Market Rate ($3,000.00) * Commitment
-                    (75%) = $2,250.00
-                  </div>
-                  <div>
-                    Points/Tokens Compensation = Total Compensation ($2,250.00)
-                    - Monetary Compensation ($500.00) = $1,750.00
-                  </div>
-                  <div>Monetary Compensation = $500.00</div>
-                </div>
-              </div>
-            }
-          >
-            <div className="relative group text-berrylavender-400">
-              <HiOutlineQuestionMarkCircle className="text-lg cursor-pointer ml-1" />{" "}
-            </div>
-          </Tooltip>
-        </div>
-        <div className="mb-4 flex-row flex justify-start items-center bg-berrylavender-100 dark:bg-berrylavender-700 gap-1 p-2 rounded-lg">
-          <div className="text-berrylavender-700 dark:text-white font-semibold">
-            {formik.values.commitment &&
-            !formik.errors.commitment &&
-            formik.values.marketRate &&
-            !formik.errors.marketRate
-              ? `Based on the commitment and market rate, the total compensation is $${(
-                  +formik.values.marketRate *
-                  (formik.values.commitment / 100)
-                ).toFixed(0)}.`
-              : "Please input commitment and market rate to calculate the total compensation."}
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormItem
-            asterisk
-            label="Market Rate (per month)"
-            invalid={!!formik.errors.marketRate && formik.touched.marketRate}
-            errorMessage={formik.errors.marketRate}
-          >
-            <Input
-              name="marketRate"
-              type="number"
-              prefix="$"
-              invalid={!!formik.errors.marketRate && formik.touched.marketRate}
+      {contributor && (
+        <>
+            <FormContainer
+            className="xl:max-h-[750px] max-h-[500px] overflow-y-auto"
+            >
+            <h2 className="text-2xl font-bold mb-4 mt-4">
+              Add Agreement for {contributor?.username}
+            </h2>
+            <FormItem
+              label="Role"
+              asterisk
+              invalid={!!formik.errors.roleName && formik.touched.roleName}
+              errorMessage={formik.errors.roleName}
+            >
+              <Input
+              name="roleName"
               onChange={formik.handleChange}
+              invalid={!!formik.errors.roleName && formik.touched.roleName}
               onBlur={formik.handleBlur}
-              value={formik.values.marketRate}
-            />
-          </FormItem>
-          <FormItem
-            label="Monetary Compensation (per month)"
-            asterisk
-            invalid={
-              !!formik.errors.fiatRequested && formik.touched.fiatRequested
-            }
-            errorMessage={formik.errors.fiatRequested }
-          >
-            <Input
-              name="fiatRequested"
-              type="number"
+              value={formik.values.roleName}
+              />
+            </FormItem>
+
+            <FormItem
+              label="Responsibilities"
+              asterisk
               invalid={
-                !!formik.errors.fiatRequested && formik.touched.fiatRequested
+                !!formik.errors.responsibilities && formik.touched.responsibilities
               }
-              prefix="$"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.fiatRequested}
-            />
-          </FormItem>
-        </div>
+              errorMessage={formik.errors.responsibilities}
+            >
+              <Input
+                name="responsibilities"
+                invalid={
+                  !!formik.errors.responsibilities &&
+                  formik.touched.responsibilities
+                }
+                textArea
+                rows={3}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.responsibilities}
+              />
+            </FormItem>
+            <FormItem
+              label="Commitment"
+              asterisk
+              invalid={!!formik.errors.commitment && formik.touched.commitment}
+              errorMessage={formik.errors.commitment}
 
-        {/* {formik.values.commitment > 10 &&
-          formik.values.marketRate &&
-          formik.values.fiatRequested && (
-            <div className="mt-4 p-4 bg-gray-100 rounded">
-              <h3 className="text-lg font-bold mb-2">
-                Compensation Calculation
-              </h3>
-              <p>
-                Based on a commitment of{" "}
-                <strong>{formik.values.commitment}%</strong> and a market rate
-                of <strong>${formik.values.marketRate}</strong>, the total
-                compensation would be{" "}
-                <strong>
-                  $
-                  {(
-                    formik.values.marketRate *
-                    (formik.values.commitment / 100)
-                  ).toFixed(0)}
-                </strong>
-                .
-              </p>
-              <p>
-                The requested monetary compensation is{" "}
-                <strong>${formik.values.fiatRequested}</strong>, leaving{" "}
-                <strong>
-                  $
-                  {(
-                    formik.values.marketRate *
-                      (formik.values.commitment / 100) -
-                    formik.values.fiatRequested
-                  ).toFixed(0)}
-                </strong>{" "}
-                to be compensated in points/tokens.
-              </p>
+            >
+              <CustomRangeSlider
+                field="commitment"
+                setFieldValue={formik.setFieldValue}
+                value={formik.values.commitment}
+              />
+            </FormItem>
+            <div className="flex items-center mb-4">
+              <span className="font-bold">Compensation</span>
+              <Tooltip
+                title={
+                  <div>
+                    <div className="font-bold text-gray-300 mb-2">
+                      Calculation Example
+                    </div>
+                    <div className="text-gray-300 font-normal">
+                      <div>
+                        Total Compensation = Market Rate ($3,000.00) * Commitment
+                        (75%) = $2,250.00
+                      </div>
+                      <div>
+                        Points/Tokens Compensation = Total Compensation ($2,250.00)
+                        - Monetary Compensation ($500.00) = $1,750.00
+                      </div>
+                      <div>Monetary Compensation = $500.00</div>
+                    </div>
+                  </div>
+                }
+              >
+                <div className="relative group text-berrylavender-400">
+                  <HiOutlineQuestionMarkCircle className="text-lg cursor-pointer ml-1" />{" "}
+                </div>
+              </Tooltip>
             </div>
-          )} */}
-      </FormContainer>
-      <div className="flex justify-end mt-4 gap-4">
-        <Button type="button" onClick={() => handleClose()}>
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          onClick={() => formik.handleSubmit()}
-          disabled={!formik.isValid || formik.isSubmitting}
-        >
-          Save
-        </Button>
-      </div>
+            <div className="mb-4 flex-row flex justify-start items-center bg-berrylavender-100 dark:bg-berrylavender-700 gap-1 p-2 rounded-lg">
+              <div className="text-berrylavender-700 dark:text-white font-semibold">
+                {formik.values.commitment &&
+                  !formik.errors.commitment &&
+                  formik.values.marketRate &&
+                  !formik.errors.marketRate
+                  ? `Based on the commitment and market rate, the total compensation is $${(
+                    +formik.values.marketRate *
+                    (formik.values.commitment / 100)
+                  ).toFixed(0)}.`
+                  : "Please input commitment and market rate to calculate the total compensation."}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormItem
+                asterisk
+                label="Market Rate (per month)"
+                invalid={!!formik.errors.marketRate && formik.touched.marketRate}
+                errorMessage={formik.errors.marketRate}
+              >
+                <Input
+                  name="marketRate"
+                  type="number"
+                  prefix="$"
+                  invalid={!!formik.errors.marketRate && formik.touched.marketRate}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.marketRate}
+                />
+              </FormItem>
+              <FormItem
+                label="Monetary Compensation (per month)"
+                asterisk
+                invalid={
+                  !!formik.errors.fiatRequested && formik.touched.fiatRequested
+                }
+                errorMessage={formik.errors.fiatRequested}
+              >
+                <Input
+                  name="fiatRequested"
+                  type="number"
+                  invalid={
+                    !!formik.errors.fiatRequested && formik.touched.fiatRequested
+                  }
+                  prefix="$"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.fiatRequested}
+                />
+              </FormItem>
+            </div>
+
+            {/* {formik.values.commitment > 10 &&
+         formik.values.marketRate &&
+         formik.values.fiatRequested && (
+           <div className="mt-4 p-4 bg-gray-100 rounded">
+             <h3 className="text-lg font-bold mb-2">
+               Compensation Calculation
+             </h3>
+             <p>
+               Based on a commitment of{" "}
+               <strong>{formik.values.commitment}%</strong> and a market rate
+               of <strong>${formik.values.marketRate}</strong>, the total
+               compensation would be{" "}
+               <strong>
+                 $
+                 {(
+                   formik.values.marketRate *
+                   (formik.values.commitment / 100)
+                 ).toFixed(0)}
+               </strong>
+               .
+             </p>
+             <p>
+               The requested monetary compensation is{" "}
+               <strong>${formik.values.fiatRequested}</strong>, leaving{" "}
+               <strong>
+                 $
+                 {(
+                   formik.values.marketRate *
+                     (formik.values.commitment / 100) -
+                   formik.values.fiatRequested
+                 ).toFixed(0)}
+               </strong>{" "}
+               to be compensated in points/tokens.
+             </p>
+           </div>
+         )} */}
+          </FormContainer>
+          <div className="flex justify-end mt-4 gap-4">
+            <Button type="button" onClick={() => handleClose()}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              onClick={() => formik.handleSubmit()}
+              disabled={!formik.isValid || formik.isSubmitting}
+            >
+              Save
+            </Button>
+          </div>
+        </>
+      )}
     </>
   );
 };
