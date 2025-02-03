@@ -19,6 +19,7 @@ import CustomAvatarAndUsername from "@/components/collabberry/custom-components/
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import InvitationLink from "../Dashboard/InvitationDialog";
 import { useDialog } from "@/services/DialogService";
+import { FiEdit, FiEye } from "react-icons/fi";
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -33,6 +34,7 @@ const Team: React.FC = () => {
   const { isOpen: isInviteDialogOpen, openDialog: openInviteDialog, closeDialog: closeInviteDialog } = useDialog();
   const { isOpen: isAgreementDialogOpen, openDialog: openAgreementDialog, closeDialog: closeAgreementDialog } = useDialog();
   const { isOpen: isViewAgreementDialogOpen, openDialog: openViewAgreementDialog, closeDialog: closeViewAgreementDialog } = useDialog();
+  const { isOpen: isEditAgreementDialogOpen, openDialog: openEditAgreementDialog, closeDialog: closeEditAgreementDialog } = useDialog();
   const fromDashboard = location.state && location.state.from === "dashboard";
 
   const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
@@ -79,6 +81,13 @@ const Team: React.FC = () => {
     if (contributor && Object.keys(contributor).length > 0) {
       setSelectedContributor(contributor);
       openViewAgreementDialog();
+    }
+  };
+
+  const editAgreement = (contributor: Contributor) => {
+    if (contributor && Object.keys(contributor).length > 0) {
+      setSelectedContributor(contributor);
+      openEditAgreementDialog();
     }
   };
 
@@ -183,13 +192,28 @@ const Team: React.FC = () => {
         return (
           <div>
             {agreement && Object.keys(agreement).length > 0 ? (
-              <Button
-                size="sm"
-                variant="plain"
-                onClick={() => viewAgreement(contributor)}
-              >
-                View Agreement
-              </Button>
+              <div className="grid xl:grid-cols-2 gap-2 grid-cols-1">
+                <Button
+                  size="sm"
+                  icon={<FiEye />}
+                  onClick={() => viewAgreement(contributor)}
+                >
+                  View
+                </Button>
+                {
+                  isAdmin && (
+                    <Button
+                      size="sm"
+                      icon={<FiEdit />}
+                      onClick={() => editAgreement(contributor)}
+                    >
+                      Edit
+                    </Button>
+                  )
+                }
+              </div>
+
+
             ) : isAdmin ? (
               <Button size="sm" onClick={() => addAgreement(contributor)}>
                 Add Agreement
@@ -230,6 +254,19 @@ const Team: React.FC = () => {
           <AddAgreementForm
             contributor={selectedContributor}
             handleClose={closeAgreementDialog}
+          />
+        </Dialog>
+      )}
+
+      {isEditAgreementDialogOpen && (
+        <Dialog
+          isOpen={isEditAgreementDialogOpen}
+          onClose={closeEditAgreementDialog}
+          width={600}
+        >
+          <AddAgreementForm
+            contributor={selectedContributor}
+            handleClose={closeEditAgreementDialog}
           />
         </Dialog>
       )}

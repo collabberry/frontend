@@ -1,20 +1,16 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
-  Alert,
   Button,
   FormContainer,
   FormItem,
   Input,
-  toast,
   Tooltip,
 } from "@/components/ui";
-import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
 import {
   apiCreateContributorAgreement,
-  apiEditOrganization,
-  apiGetContributorAgreement,
+  apiEditContributorAgreement,
   apiGetOrganizationById,
 } from "@/services/OrgService";
 import { RootState, setOrganization } from "@/store";
@@ -22,14 +18,10 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   handleError,
   handleSuccess,
-  openToastNotification,
 } from "@/components/collabberry/helpers/ToastNotifications";
-import { on } from "events";
 import { Contributor } from "@/models/Organization.model";
 import CustomRangeSlider from "@/components/collabberry/custom-components/CustomFields/CustomRangeSlider";
-import { FcInfo } from "react-icons/fc";
 import {
-  HiInformationCircle,
   HiOutlineQuestionMarkCircle,
 } from "react-icons/hi";
 import { fieldRequired } from "@/components/collabberry/helpers/validations";
@@ -58,6 +50,14 @@ const validationSchema = Yup.object().shape({
     ),
 });
 
+interface FormData {
+  roleName: string;
+  responsibilities: string;
+  marketRate: number;
+  commitment: number;
+  fiatRequested: number;
+}
+
 interface AddAgreementFormProps {
   contributor: Contributor | null;
   handleClose: () => void;
@@ -69,15 +69,28 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
 }) => {
   const dispatch = useDispatch();
   const organization = useSelector((state: RootState) => state.auth.org);
+  const hasAgreement = useMemo(() => {
+    return contributor?.agreement && contributor.agreement.id;
+  }, [contributor]);
 
-  const formik = useFormik({
-    initialValues: {
+  const initialData: FormData = hasAgreement
+    ? {
+      roleName: contributor?.agreement?.roleName ?? "",
+      responsibilities: contributor?.agreement?.responsibilities ?? "",
+      marketRate: contributor?.agreement?.marketRate ?? 0,
+      commitment: contributor?.agreement?.commitment ?? 0,
+      fiatRequested: contributor?.agreement?.fiatRequested ?? 0,
+    }
+    : {
       roleName: "",
       responsibilities: "",
-      marketRate: "",
+      marketRate: 0,
       commitment: 50,
-      fiatRequested: "",
-    },
+      fiatRequested: 0,
+    };
+
+  const formik = useFormik({
+    initialValues: initialData,
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       if (contributor) {
@@ -99,28 +112,55 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
           commitment,
           fiatRequested,
         };
-        try {
-          const response = await apiCreateContributorAgreement(body);
-          if (response?.data) {
-            try {
-              const orgResponse = await apiGetOrganizationById(
-                organization.id as string
-              );
-              if (orgResponse.data) {
-                dispatch(setOrganization(orgResponse.data));
+
+        if (hasAgreement) {
+          try {
+            const response = await apiEditContributorAgreement(body, contributor?.agreement?.id as string);
+            if (response?.data) {
+              try {
+                const orgResponse = await apiGetOrganizationById(
+                  organization.id as string
+                );
+                if (orgResponse.data) {
+                  dispatch(setOrganization(orgResponse.data));
+                }
+              } catch (error: any) {
+                handleError(error.response.data.message);
               }
-            } catch (error: any) {
-              handleError(error.response.data.message);
             }
+            handleSuccess(`Agreement for ${contributor.username} has been updated.`);
+            formik.setSubmitting(false);
+            handleClose();
+          } catch (error: any) {
+            handleError(error.response.data.message);
+            formik.setSubmitting(false);
+            handleClose();
           }
-          handleSuccess(`Agreement for ${contributor.username} has been added`);
-          formik.setSubmitting(false);
-          handleClose();
-        } catch (error: any) {
-          handleError(error.response.data.message);
-          formik.setSubmitting(false);
-          handleClose();
+        } else {
+          try {
+            const response = await apiCreateContributorAgreement(body);
+            if (response?.data) {
+              try {
+                const orgResponse = await apiGetOrganizationById(
+                  organization.id as string
+                );
+                if (orgResponse.data) {
+                  dispatch(setOrganization(orgResponse.data));
+                }
+              } catch (error: any) {
+                handleError(error.response.data.message);
+              }
+            }
+            handleSuccess(`Agreement for ${contributor.username} has been added.`);
+            formik.setSubmitting(false);
+            handleClose();
+          } catch (error: any) {
+            handleError(error.response.data.message);
+            formik.setSubmitting(false);
+            handleClose();
+          }
         }
+
       }
     },
   });
@@ -129,11 +169,11 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
     <>
       {contributor && (
         <>
-            <FormContainer
+          <FormContainer
             className="xl:max-h-[750px] max-h-[500px] overflow-y-auto"
-            >
+          >
             <h2 className="text-2xl font-bold mb-4 mt-4">
-              Add Agreement for {contributor?.username}
+              {hasAgreement ? 'Edit ' : 'Add '} Agreement for {contributor?.username}
             </h2>
             <FormItem
               label="Role"
@@ -142,14 +182,13 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
               errorMessage={formik.errors.roleName}
             >
               <Input
-              name="roleName"
-              onChange={formik.handleChange}
-              invalid={!!formik.errors.roleName && formik.touched.roleName}
-              onBlur={formik.handleBlur}
-              value={formik.values.roleName}
+                name="roleName"
+                onChange={formik.handleChange}
+                invalid={!!formik.errors.roleName && formik.touched.roleName}
+                onBlur={formik.handleBlur}
+                value={formik.values.roleName}
               />
             </FormItem>
-
             <FormItem
               label="Responsibilities"
               asterisk

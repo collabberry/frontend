@@ -4,6 +4,7 @@ export interface Agreement {
     responsibilities?: string;
     fiatRequested?: number;
     commitment?: number;
+    id: string;
 }
 
 export interface Contributor {
