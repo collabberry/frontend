@@ -69,6 +69,14 @@ export async function apiCreateContributorAgreement(data: any) {
   });
 }
 
+export async function apiEditContributorAgreement(data: any, agreementId: string) {
+  return ApiService.fetchData<any>({
+    url: `/orgs/agreement/${agreementId}`,
+    method: "put",
+    data,
+  });
+}
+
 export async function apiGetOrganizationById(id: string) {
   return ApiService.fetchData<any>({
     url: `/orgs/${id}`,
