@@ -270,7 +270,7 @@ const Dashboard = () => {
     {
       icon: <HiOutlineCurrencyDollar className="text-2xl" />,
       label: "Total Fiat Received",
-      value: (user.totalFiat || 0).toLocaleString("en-US", {
+      value: (+(user.totalFiat || 0)).toLocaleString("en-US", {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }),
