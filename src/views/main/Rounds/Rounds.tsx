@@ -16,7 +16,7 @@ import {
   RootState,
   setAllRounds,
   setOrganization,
-  setRounds,
+  setCurrentRound,
   setSelectedRound,
 } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
@@ -113,6 +113,7 @@ const Rounds: React.FC = () => {
           day: "2-digit",
           month: "short",
           year: "numeric",
+          timeZone: "UTC",
         });
         return formattedDate ? <span>{formattedDate}</span> : null;
       },

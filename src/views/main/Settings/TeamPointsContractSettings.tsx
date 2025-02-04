@@ -12,6 +12,7 @@ import LoadingDialog from '@/components/collabberry/custom-components/LoadingDia
 import { ethers } from 'ethers';
 import { environment } from '@/api/environment';
 import { StatisticCard } from './StatisticCard';
+import { base } from 'viem/chains';
 
 
 const validationSchema = Yup.object().shape({
@@ -19,8 +20,18 @@ const validationSchema = Yup.object().shape({
     isOutsideTransferAllowed: Yup.boolean(),
     materialWeight: Yup.number()
         .required("This field is required.")
-        .max(999999999.999, "The material weight must be at most 999999999.999.")
+        .max(10, "The material weight must be at most 10")
         .test("is-decimal-places", "The material contribution weight cannot have more than 3 decimal places.", value => {
+            if (value) {
+                const decimalPlaces = value.toString().split('.')[1];
+                return !decimalPlaces || decimalPlaces.length <= 3;
+            }
+            return true;
+        }),
+    baseTimeWeight: Yup.number()
+        .required("This field is required.")
+        .max(10, "The time weight must be at most 10")
+        .test("is-decimal-places", "The time contribution weight cannot have more than 3 decimal places.", value => {
             if (value) {
                 const decimalPlaces = value.toString().split('.')[1];
                 return !decimalPlaces || decimalPlaces.length <= 3;
@@ -52,6 +63,7 @@ const TeamPointsContractSettings: React.FC = () => {
             isTransferable: false,
             isOutsideTransferAllowed: false,
             materialWeight: 0,
+            baseTimeWeight: 0
         },
 
         validationSchema,
@@ -62,7 +74,7 @@ const TeamPointsContractSettings: React.FC = () => {
                 try {
                     const materialWeightWei = ethers.parseUnits(values.materialWeight.toString(), 3);
                     //TODO: Hardcoded value for now, need to change it 
-                    const baseTimeWeightWei = ethers.parseUnits('2', 3);
+                    const baseTimeWeightWei = ethers.parseUnits(values.baseTimeWeight.toString(), 3);
                     const maxTimeScalingWei = ethers.parseUnits('4', 3);
                     const enableTimeScaling = false;
                     // const materialWeightBigInt = BigInt(values.materialWeight);
@@ -102,17 +114,20 @@ const TeamPointsContractSettings: React.FC = () => {
                 setLoading(true);
                 const response = await readSettings(organization.teamPointsContractAddress);
                 if (response.status === 'success' && response.data) {
-                    const { materialWeight } = response.data || {};
+                    const { materialWeight, baseTimeWeight } = response.data || {};
                     const humanReadableMaterialWeight = Number(materialWeight) / 1000;
+                    const humanReadableBaseTimeWeight = Number(baseTimeWeight) / 1000;
                     formik.setValues({
                         isTransferable: response.data.isTransferable,
                         isOutsideTransferAllowed: response.data.isOutsideTransferAllowed,
                         materialWeight: humanReadableMaterialWeight,
+                        baseTimeWeight: humanReadableBaseTimeWeight
                     });
                     setContractSettings({
                         isTransferable: response.data.isTransferable,
                         isOutsideTransferAllowed: response.data.isOutsideTransferAllowed,
-                        materialWeight: humanReadableMaterialWeight
+                        materialWeight: humanReadableMaterialWeight,
+                        baseTimeWeight: humanReadableBaseTimeWeight
                     })
                     setLoading(false);
                 } else {
@@ -207,6 +222,22 @@ const TeamPointsContractSettings: React.FC = () => {
                                             invalid={formik.touched.materialWeight && !!formik.errors.materialWeight}
                                         />
                                     </FormItem>
+                                    <FormItem
+                                        label="Time Contribution"
+                                        asterisk={true}
+                                        errorMessage={formik.errors.baseTimeWeight}
+                                        invalid={formik.touched.baseTimeWeight && !!formik.errors.baseTimeWeight}
+                                        extraTooltip="This multiplier is applied to time contribution."
+                                    >
+                                        <Input
+                                            type="text"
+                                            name="baseTimeWeight"
+                                            value={formik.values.baseTimeWeight}
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            invalid={formik.touched.baseTimeWeight && !!formik.errors.baseTimeWeight}
+                                        />
+                                    </FormItem>
 
                                 </>
                                 <div className='text-sm mt-4 items-center text-gray-500 p-1 flex flex-row justify-end'>
@@ -258,6 +289,10 @@ const TeamPointsContractSettings: React.FC = () => {
                         <StatisticCard
                             value={contractSettings?.materialWeight ? `${contractSettings.materialWeight}` : "Not Set"}
                             title="Material Contribution Multiplier"
+                        />
+                        <StatisticCard
+                            value={contractSettings?.baseTimeWeight ? `${contractSettings.baseTimeWeight}` : "Not Set"}
+                            title="Time Contribution"
                         />
                     </div>
                 )

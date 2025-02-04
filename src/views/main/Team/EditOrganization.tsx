@@ -9,7 +9,7 @@ import {
   apiGetOrganizationById,
   apiGetRounds,
 } from "@/services/OrgService";
-import { OrgState, setAllRounds, setOrganization, setRounds } from "@/store";
+import { OrgState, setAllRounds, setOrganization, setCurrentRound } from "@/store";
 import { useDispatch } from "react-redux";
 import {
   handleError,

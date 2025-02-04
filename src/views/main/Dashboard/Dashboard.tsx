@@ -1,9 +1,10 @@
 import Card from "@/components/ui/Card";
 import {
+  apiGetCurrentRound,
   apiGetInvitationToken,
   apiRemindContributors,
 } from "@/services/OrgService";
-import { RootState, setInvitationToken, setUser } from "@/store";
+import { RootState, setCurrentRound, setInvitationToken, setUser } from "@/store";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -126,7 +127,7 @@ const Dashboard = () => {
       ).length;
     }
     return 0;
-  }, []);
+  }, [currentRound]);
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -188,6 +189,20 @@ const Dashboard = () => {
     };
     fetchUser();
   }, [])
+
+  useEffect(() => {
+    const fetchCurrentRound = async () => {
+      try {
+        const roundResponse = await apiGetCurrentRound();
+        if (roundResponse.data) {
+          dispatch(setCurrentRound(roundResponse.data));
+        }
+      } catch (error) {
+        console.error("Error fetching current round:", error);
+      }
+    };
+    fetchCurrentRound();
+  }, []);
 
   const adminCards = [
     {

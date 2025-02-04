@@ -1,8 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { SLICE_BASE_NAME } from "./constants";
 import { Contributor } from "@/models/Organization.model";
-import { add } from "lodash";
-import { setActiveLink } from "react-scroll/modules/mixins/scroller";
 
 export type RoundsState = {
   currentRound: any;
@@ -28,7 +26,7 @@ const roundsSlice = createSlice({
       state.selectedRound = null;
       state.selectedUser = null;
     },
-    setRounds(state, action: PayloadAction<any>) {
+    setCurrentRound(state, action: PayloadAction<any>) {
       state.currentRound = action.payload;
     },
     setSelectedUser(state, action: PayloadAction<Contributor>) {
@@ -44,7 +42,7 @@ const roundsSlice = createSlice({
   },
 });
 
-export const { setRounds, resetRoundsState , setAllRounds, setSelectedRound, setSelectedUser} = roundsSlice.actions;
+export const { setCurrentRound, resetRoundsState, setAllRounds, setSelectedRound, setSelectedUser } = roundsSlice.actions;
 export const getSubmittedAssessments = (state: RoundsState) =>
   state.currentRound?.submittedAssessments || [];
 export default roundsSlice.reducer;

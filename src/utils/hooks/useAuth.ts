@@ -13,7 +13,7 @@ import {
   resetRoundsState,
   saveInvitationToken,
   setAllRounds,
-  setRounds,
+  setCurrentRound,
   RootState,
 } from "@/store";
 import appConfig from "@/configs/app.config";
@@ -110,7 +110,7 @@ function useAuth() {
           try {
             const roundResponse = await apiGetCurrentRound();
             if (roundResponse.data) {
-              dispatch(setRounds(roundResponse.data));
+              dispatch(setCurrentRound(roundResponse.data));
             }
           } catch (error: any) { }
         }
