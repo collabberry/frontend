@@ -1,6 +1,6 @@
 import CustomSelectTable from "@/components/collabberry/custom-components/CustomTables/CustomSelectTable";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState, setReviewedMembers, setRounds, setSelectedTeamMembers } from "@/store";
+import { RootState, setCurrentRound, setReviewedMembers, setSelectedTeamMembers } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { Contributor } from "@/models/Organization.model";
 import { Alert, Avatar, Button, Skeleton } from "@/components/ui";
@@ -41,7 +41,7 @@ const Assessment = () => {
       try {
         const roundResponse = await apiGetCurrentRound();
         if (roundResponse.data) {
-          dispatch(setRounds(roundResponse.data));
+          dispatch(setCurrentRound(roundResponse.data));
         }
       } catch (error) {
       } finally {

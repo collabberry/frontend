@@ -21,7 +21,7 @@ import {
   apiGetOrganizationById,
   apiGetRounds,
 } from "@/services/OrgService";
-import { RootState, setAllRounds, setOrganization, setRounds } from "@/store";
+import { RootState, setAllRounds, setOrganization, setCurrentRound } from "@/store";
 import CustomCalendar from "@/components/collabberry/custom-components/Calendar";
 import VerticalRadio from "@/components/collabberry/custom-components/CustomFields/VerticalRadio";
 import { useFormik } from "formik";
@@ -154,7 +154,7 @@ const CompensationSettings: React.FC<any> = () => {
           try {
             const roundResponse = await apiGetCurrentRound();
             if (roundResponse.data) {
-              dispatch(setRounds(roundResponse.data));
+              dispatch(setCurrentRound(roundResponse.data));
             }
           } catch (error: any) { }
         }
@@ -359,6 +359,7 @@ const CompensationSettings: React.FC<any> = () => {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
+                  timeZone: "UTC",
                 })
                 : "Not Set"
             }
@@ -367,7 +368,7 @@ const CompensationSettings: React.FC<any> = () => {
           <StatisticCard
             value={
               organization?.assessmentStartDelayInDays !== undefined
-                ? `${organization.assessmentStartDelayInDays } days`
+                ? `${+organization.assessmentStartDelayInDays } days`
                 : "Not Set"
             }
             title="Assessment Start Delay"

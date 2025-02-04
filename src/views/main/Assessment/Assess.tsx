@@ -1,4 +1,4 @@
-import { addReviewedMember, RootState, setAllRounds, setRounds } from "@/store";
+import { addReviewedMember, RootState, setAllRounds, setCurrentRound } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { useEffect, useMemo, useState } from "react";
@@ -125,7 +125,7 @@ const Assess = () => {
         try {
           const roundResponse = await apiGetCurrentRound();
           if (roundResponse.data) {
-            dispatch(setRounds(roundResponse.data));
+            dispatch(setCurrentRound(roundResponse.data));
           }
         } catch (error: any) {
           handleError(error.response.data.message);
