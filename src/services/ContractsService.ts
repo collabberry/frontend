@@ -87,13 +87,15 @@ const _deployTeamPoints = async (ethersSigner: ethers.JsonRpcSigner | undefined,
 const _readSettings = async (contractAddress: string, ethersSigner: ethers.JsonRpcSigner | undefined): Promise<ContractResponse> => {
     try {
         const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
-        const [isTransferable, isOutsideTransferAllowed, materialWeight] = await Promise.all([
+        const [isTransferable, isOutsideTransferAllowed, materialWeight, baseTimeWeight] = await Promise.all([
             contract.isTransferable(),
             contract.isOutsideTransferAllowed(),
-            contract.materialContributionWeight()
+            contract.materialContributionWeight(),
+            contract.baseTimeWeight()
+
         ]);
         return {
-            data: { isTransferable, isOutsideTransferAllowed, materialWeight },
+            data: { isTransferable, isOutsideTransferAllowed, materialWeight, baseTimeWeight },
             message: 'Success',
             status: ContractResponseStatus.Success,
         };

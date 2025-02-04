@@ -53,9 +53,9 @@ const validationSchema = Yup.object().shape({
 interface FormData {
   roleName: string;
   responsibilities: string;
-  marketRate: number;
+  marketRate: number | string;
   commitment: number;
-  fiatRequested: number;
+  fiatRequested: number | string;
 }
 
 interface AddAgreementFormProps {
@@ -77,16 +77,16 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
     ? {
       roleName: contributor?.agreement?.roleName ?? "",
       responsibilities: contributor?.agreement?.responsibilities ?? "",
-      marketRate: contributor?.agreement?.marketRate ?? 0,
+      marketRate: contributor?.agreement?.marketRate ?? "",
       commitment: contributor?.agreement?.commitment ?? 0,
-      fiatRequested: contributor?.agreement?.fiatRequested ?? 0,
+      fiatRequested: contributor?.agreement?.fiatRequested ?? "",
     }
     : {
       roleName: "",
       responsibilities: "",
-      marketRate: 0,
+      marketRate: "",
       commitment: 50,
-      fiatRequested: 0,
+      fiatRequested: "",
     };
 
   const formik = useFormik({

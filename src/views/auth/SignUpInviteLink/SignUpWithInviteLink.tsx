@@ -14,7 +14,7 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
 import { RegisterCredential } from "@/@types/auth";
-import { setAllRounds, setOrganization, setRounds, setUser, signUpSuccess } from "@/store";
+import { setAllRounds, setCurrentRound, setOrganization, setUser, signUpSuccess } from "@/store";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -103,7 +103,7 @@ const SignUpWithInviteLink = () => {
                 try {
                   const roundResponse = await apiGetCurrentRound();
                   if (roundResponse.data) {
-                    dispatch(setRounds(roundResponse.data));
+                    dispatch(setCurrentRound(roundResponse.data));
                   }
                 } catch (error) { }
               }
