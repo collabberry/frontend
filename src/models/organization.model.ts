@@ -13,6 +13,8 @@ export interface Contributor {
     username: string;
     agreement?: Agreement;
     profilePicture?: string;
+    isAdmin?: boolean;
+    isContractAdmin?: boolean;
 }
 
 export interface Organization {

@@ -2,6 +2,8 @@ import { combineReducers } from "@reduxjs/toolkit";
 import session, { SessionState } from "./sessionSlice";
 import user, { UserState } from "./userSlice";
 import org, { OrgState } from "./orgSlice";
+import admin, { AdminState } from "./adminsSlice";
+
 import agreement, { AgreementState } from "./agreementSlice";
 import invite, { InvitationTokenState } from "./inviteLinkSlice";
 import assessment, { AssessmentState } from "./assessmentSlice";
@@ -12,6 +14,7 @@ const reducer = combineReducers({
   session,
   user,
   org,
+  admin,
   agreement,
   invite,
   assessment,
@@ -23,6 +26,7 @@ export type AuthState = {
   session: SessionState;
   user: UserState;
   org: OrgState;
+  admin: AdminState;
   agreement: AgreementState;
   invite: InvitationTokenState;
   assessment: AssessmentState;
@@ -33,6 +37,7 @@ export type AuthState = {
 export * from "./sessionSlice";
 export * from "./userSlice";
 export * from "./orgSlice";
+export * from "./adminsSlice"
 export * from "./agreementSlice";
 export * from "./inviteLinkSlice";
 export * from "./assessmentSlice";

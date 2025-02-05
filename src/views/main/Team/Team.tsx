@@ -6,8 +6,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState, setInvitationToken, setOrganization } from "@/store";
 import { useState } from "react";
 import OrganizationCard from "./OrganizationCard";
-import { Button, Dialog } from "@/components/ui";
-import { useLocation } from "react-router-dom";
+import { Button, Dialog, Skeleton, Tag, Tooltip } from "@/components/ui";
+import { useLocation, useNavigate } from "react-router-dom";
 import EditOrganizationForm from "./EditOrganization";
 import AddAgreementForm from "./AddAgreement";
 import ViewAgreement from "./ViewAgreement";
@@ -19,15 +19,20 @@ import CustomAvatarAndUsername from "@/components/collabberry/custom-components/
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import InvitationLink from "../Dashboard/InvitationDialog";
 import { useDialog } from "@/services/DialogService";
-import { FiEdit, FiEye } from "react-icons/fi";
+import { FiEdit, FiEye, FiUsers } from "react-icons/fi";
+import { useAdminContractService } from "@/services/AdminContractService";
+import { set } from "lodash";
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
   const user = useSelector((state: RootState) => state.auth.user);
   const { isAdmin } = useSelector((state: RootState) => state.auth.user);
+  const navigate = useNavigate();
   const invitationToken = useSelector(
     (state: RootState) => state.auth.invite.invitationToken
   );
+  const { checkAdminContributors } = useAdminContractService();
+
   const location = useLocation();
   const dispatch = useDispatch();
   const { isOpen: isEditDialogOpen, openDialog: openEditDialog, closeDialog: closeEditDialog } = useDialog();
@@ -36,9 +41,32 @@ const Team: React.FC = () => {
   const { isOpen: isViewAgreementDialogOpen, openDialog: openViewAgreementDialog, closeDialog: closeViewAgreementDialog } = useDialog();
   const { isOpen: isEditAgreementDialogOpen, openDialog: openEditAgreementDialog, closeDialog: closeEditAgreementDialog } = useDialog();
   const fromDashboard = location.state && location.state.from === "dashboard";
-
+  const [loading, setLoading] = useState(false);
   const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
-  ;
+  const [contributorsWithAdminFlag, setContributorsWithAdminFlag] = useState<Contributor[]>([]);
+
+
+  useEffect(() => {
+    const fetchAdminContributors = async () => {
+      setLoading(true);
+      if (organization?.contributors && organization?.teamPointsContractAddress) {
+        const response = await checkAdminContributors(organization?.teamPointsContractAddress, organization?.contributors || []);
+        const admins = response.data.adminContributors;
+        if (response.status === 'success' && admins) {
+          const adminContributors = organization?.contributors.map((contributor) => {
+            const isContractAdmin = admins.some((admin: Contributor) => admin.walletAddress === contributor.walletAddress);
+            return { ...contributor, isContractAdmin };
+          });
+          setContributorsWithAdminFlag(adminContributors);
+          setLoading(false);
+        } else {
+          console.log('Error:', response.message || "An error occurred while loading contract settings.");
+          setLoading(false);
+        }
+      }
+    };
+    fetchAdminContributors();
+  }, [organization]);
 
   const inviteAction = async () => {
     if (!invitationToken) {
@@ -54,6 +82,10 @@ const Team: React.FC = () => {
     } else {
       openInviteDialog();
     }
+  };
+
+  const goToAdminManagement = () => {
+    navigate("/team/admins");
   };
 
 
@@ -106,10 +138,13 @@ const Team: React.FC = () => {
       cell: (props) => {
         const data = props.row.original;
         const value = props.getValue() as string;
+
+
         return (
           <CustomAvatarAndUsername
             imageUrl={data?.profilePicture}
             userName={value}
+            isContractAdmin={data?.isContractAdmin}
           />
         );
       },
@@ -162,6 +197,18 @@ const Team: React.FC = () => {
     {
       header: "Role Name",
       accessorKey: "agreement.roleName",
+      cell: (props) => {
+        const data = props.row.original;
+        const value = props.getValue() as string;
+        return value ? <div className="flex flex-col">
+          <div>{value}</div>
+          <div>
+            {data?.isContractAdmin && <Tag className="bg-sky-100 text-sky-600 dark:bg-sky-500/20 dark:text-sky-100 rounded-md border-0 p-1">Admin</Tag>
+            }
+          </div>
+
+        </div> : null;
+      }
     },
     // {
     //   header: "Team Points",
@@ -192,23 +239,28 @@ const Team: React.FC = () => {
         return (
           <div>
             {agreement && Object.keys(agreement).length > 0 ? (
-              <div className="grid xl:grid-cols-2 gap-2 grid-cols-1">
-                <Button
-                  size="sm"
-                  icon={<FiEye />}
-                  onClick={() => viewAgreement(contributor)}
-                >
-                  View
-                </Button>
+              <div className="flex items-center gap-1">
+                <Tooltip title="View Agreement">
+                  <Button
+                    size="sm"
+                    shape="circle"
+                    icon={<FiEye />}
+                    onClick={() => viewAgreement(contributor)}
+                  >
+                  </Button>
+                </Tooltip>
+
                 {
                   isAdmin && (
-                    <Button
-                      size="sm"
-                      icon={<FiEdit />}
-                      onClick={() => editAgreement(contributor)}
-                    >
-                      Edit
-                    </Button>
+                    <Tooltip title="Edit Agreement">
+                      <Button
+                        size="sm"
+                        shape="circle"
+                        icon={<FiEdit />}
+                        onClick={() => editAgreement(contributor)}
+                      >
+                      </Button>
+                    </Tooltip>
                   )
                 }
               </div>
@@ -287,17 +339,20 @@ const Team: React.FC = () => {
         <h1>Team</h1>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 flex justify-between items-end">
         <OrganizationCard
           organization={organization}
           onEdit={openEditDialog}
           onInvite={inviteAction}
           isAdmin={isAdmin as boolean}
         />
+        <Button size="sm" variant="solid" className="ltr:mr-2 rtl:ml-2" onClick={goToAdminManagement} icon={<FiUsers />} >
+          {'Admin Management'}
+        </Button>
       </div>
       <div>
         <CustomTableWithSorting
-          data={organization?.contributors || []}
+          data={contributorsWithAdminFlag || []}
           columns={columns}
           initialSort={
             fromDashboard
