@@ -41,12 +41,13 @@ import { useSelector } from "react-redux";
 import { fieldRequired } from "@/components/collabberry/helpers/validations";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi";
-import { ContractResponseStatus, useContractService } from "@/services/ContractsService";
+import { useContractService } from "@/services/ContractsService";
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/clock.json";
 import * as successAnimationData from "@/assets/animations/check2.json";
 import { shortenTxHash } from "@/components/collabberry/custom-components/TransactionSuccessDialog";
 import { environment } from "@/api/environment";
+import { ContractResponseStatus } from "@/utils/parseErrorMessage";
 
 
 const ValidationStepsSchema = Yup.object().shape({
