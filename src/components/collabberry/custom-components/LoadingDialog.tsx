@@ -19,7 +19,7 @@ const ErrorDialog: React.FC<LoadingDialogProps> = ({
 }) => {
 
     return (
-        <Dialog isOpen={dialogVisible} onClose={handleDialogClose} shouldCloseOnOverlayClick>
+        <Dialog isOpen={dialogVisible} onClose={handleDialogClose} closable={false}> 
             <div className=" flex flex-col items-center justify-center p-2 min-h-[200px]">
                 <div className="flex flex-col items-center">
                     <h2 className="text-xl font-bold mb-3 mt-3 text-center">

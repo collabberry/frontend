@@ -73,8 +73,8 @@ const TeamPointsContractSettings: React.FC = () => {
                 setDialogLoading(true);
                 try {
                     const materialWeightWei = ethers.parseUnits(values.materialWeight.toString(), 3);
-                    //TODO: Hardcoded value for now, need to change it 
                     const baseTimeWeightWei = ethers.parseUnits(values.baseTimeWeight.toString(), 3);
+                    //TODO: Hardcoded value for now, need to change it 
                     const maxTimeScalingWei = ethers.parseUnits('4', 3);
                     const enableTimeScaling = false;
                     // const materialWeightBigInt = BigInt(values.materialWeight);
@@ -223,7 +223,7 @@ const TeamPointsContractSettings: React.FC = () => {
                                         />
                                     </FormItem>
                                     <FormItem
-                                        label="Time Contribution"
+                                        label="Time Contribution Multiplier"
                                         asterisk={true}
                                         errorMessage={formik.errors.baseTimeWeight}
                                         invalid={formik.touched.baseTimeWeight && !!formik.errors.baseTimeWeight}
@@ -292,7 +292,7 @@ const TeamPointsContractSettings: React.FC = () => {
                         />
                         <StatisticCard
                             value={contractSettings?.baseTimeWeight ? `${contractSettings.baseTimeWeight}` : "Not Set"}
-                            title="Time Contribution"
+                            title="Time Contribution Multiplier"
                         />
                     </div>
                 )

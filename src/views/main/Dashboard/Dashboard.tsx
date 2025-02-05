@@ -225,7 +225,7 @@ const Dashboard = () => {
     },
     {
       footerAction: numberOfContributorsWithAgreements < numberOfContributors ? contributorsCardAction : undefined,
-      footerButtonTitle: "Add all agreements",
+      footerButtonTitle: "Add agreements",
       footerButtonIcon: <FiFileText style={{ height: "100%", width: "100%" }} />,
       cardContent: (
         <>

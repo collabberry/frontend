@@ -237,7 +237,13 @@ const RoundView: React.FC = () => {
         return (
           <>
             {isCurrentUser ? (
-              <></>
+              <div className="flex flex-row justify-center">
+                {contributor.hasAssessed ? (
+                  <HiCheck className="text-berrylavender-500 text-2xl font-semibold" />
+                ) : (
+                  <></>
+                )}
+              </div>
             ) : (
               <div className="flex flex-row justify-center">
                 {contributor.hasAssessed ? (

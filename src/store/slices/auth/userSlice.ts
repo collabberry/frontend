@@ -8,6 +8,7 @@ export type UserState = {
   email?: string;
   authority?: string[];
   isAdmin?: boolean;
+  isContractAdmin?: boolean;
   totalFiat?: string;
   organization?: any
 };
@@ -19,6 +20,7 @@ const initialState: UserState = {
   email: "",
   authority: [],
   isAdmin: false,
+  isContractAdmin: false,
   totalFiat: '',
   organization: null
 };
@@ -34,6 +36,7 @@ const userSlice = createSlice({
       state.authority = initialState.authority;
       state.id = initialState.id;
       state.isAdmin = initialState.isAdmin;
+      state.isContractAdmin = initialState.isContractAdmin;
       state.totalFiat = initialState.totalFiat;
       state.organization = initialState.organization;
     },
@@ -44,6 +47,7 @@ const userSlice = createSlice({
       state.authority = action.payload?.authority;
       state.id = action.payload?.id;
       state.isAdmin = action.payload?.isAdmin;
+      state.isContractAdmin = action.payload?.isContractAdmin;
       state.totalFiat = action.payload?.totalFiat;
       state.organization = action.payload?.organization;
     },

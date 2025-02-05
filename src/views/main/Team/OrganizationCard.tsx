@@ -2,8 +2,9 @@ import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import { OrgState } from "@/store";
 import React from "react";
-import { FiEdit, FiUserPlus } from "react-icons/fi";
+import { FiActivity, FiEdit, FiExternalLink, FiUserPlus, FiUsers } from "react-icons/fi";
 import orgPlaceholderIcon from '@/assets/images/placeholder-team.jpg';
+import { Tooltip } from "@/components/ui";
 
 
 interface Organization {
@@ -38,33 +39,40 @@ const OrganizationCard: React.FC<OrganizationCardProps> = ({
           />
         )
       }
-      <div className="organization-name text-2xl mr-2 text-gray-900">
-        {organization.name}
-      </div>
-      {isAdmin && (
-        <>
-          <Button
-            shape="circle"
-            size="sm"
-            variant="twoTone"
-            className="mr-2"
-            icon={<FiEdit />}
-            onClick={onEdit}
-          />
-          <Button
-            shape="circle"
-            size="sm"
-            variant="twoTone"
-            className="mr-2"
-            icon={<FiUserPlus />}
-            onClick={onInvite}
-          />
+     
+     <div className="flex flex-col md:flex-row">
+     <div className="organization-name text-2xl mr-2 text-gray-900">
+            {organization.name}
+          </div>
+          {isAdmin && (
+            <div className="flex flex-row"> 
+            
+              <Tooltip title="Edit Organization">
+                <Button
+                  shape="circle"
+                  size="sm"
+                  variant="twoTone"
+                  className="mr-2"
+                  icon={<FiEdit />}
+                  onClick={onEdit}
+                />
+              </Tooltip>
+              <Tooltip title="Invite Members">
+                <Button
+                  shape="circle"
+                  size="sm"
+                  variant="twoTone"
+                  className="mr-2"
+                  icon={<FiUserPlus />}
+                  onClick={onInvite}
+                />
+              </Tooltip>
 
-        </>
-
-
-
-      )}
+            </div>
+          )}
+     </div>
+        
+    
 
     </div>
   );
