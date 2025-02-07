@@ -1,34 +1,24 @@
-import { Assessment } from "@/@types/auth";
 import RoundStatusTag from "@/components/collabberry/custom-components/CustomFields/RoundStatusTag";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
-import { Alert, Button, Dialog, Skeleton, Switcher, Tooltip } from "@/components/ui";
+import { Button, Dialog, Tooltip } from "@/components/ui";
 import { useDialog } from "@/services/DialogService";
 import {
-  apiActivateRounds,
-  apiAddAssessment,
-  apiGetCurrentRound,
-  apiGetOrganizationById,
   apiGetRoundById,
-  apiGetRounds,
 } from "@/services/OrgService";
 import {
   RootState,
-  setAllRounds,
-  setOrganization,
-  setCurrentRound,
   setSelectedRound,
 } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
-import { all } from "axios";
-import { set } from "lodash";
-import React, { useMemo } from "react";
-import { FiEdit, FiEye, FiRefreshCw } from "react-icons/fi";
+import React from "react";
+import { FiEdit, FiList } from "react-icons/fi";
 import { HiInformationCircle } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import EditRoundForm from "./EditRoundForm";
+import { refreshAllRounds } from "@/services/LoadAndDispatchService";
 
 const Rounds: React.FC = () => {
   const dispatch = useDispatch();
@@ -39,20 +29,9 @@ const Rounds: React.FC = () => {
   );
   const { isOpen: isEditRoundDialogOpen, openDialog: openEditRoundDialog, closeDialog: closeEditRoundDialog } = useDialog();
 
-
   React.useEffect(() => {
-    const fetchAllRounds = async () => {
-      try {
-        const allRoundsResponse = await apiGetRounds();
-        if (allRoundsResponse.data) {
-          dispatch(setAllRounds(allRoundsResponse.data));
-        }
-      } catch (error: any) {
-        handleError(error.response.data.message);
-      }
-    };
-    fetchAllRounds();
-  }, []);
+    refreshAllRounds(dispatch);
+  }, [dispatch]);
 
   const goToRound = async (round: any) => {
     try {
@@ -145,7 +124,7 @@ const Rounds: React.FC = () => {
       },
     },
     {
-      header: "Go to Round",
+      header: "Action",
       id: "round",
       cell: (props) => {
         const round = props.row.original;
@@ -153,12 +132,12 @@ const Rounds: React.FC = () => {
           <div>
             {round?.id ? (
               <div className="flex gap-2">
-              
+
                 <Tooltip title="Go To Round">
                   <Button
                     size="sm"
                     shape="circle"
-                    icon={<FiEye />}
+                    icon={<FiList />}
                     onClick={() => goToRound(round)}
                   >
                   </Button>

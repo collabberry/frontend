@@ -11,9 +11,8 @@ import {
 import {
   apiCreateContributorAgreement,
   apiEditContributorAgreement,
-  apiGetOrganizationById,
 } from "@/services/OrgService";
-import { RootState, setOrganization } from "@/store";
+import { RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import {
   handleError,
@@ -25,6 +24,7 @@ import {
   HiOutlineQuestionMarkCircle,
 } from "react-icons/hi";
 import { fieldRequired } from "@/components/collabberry/helpers/validations";
+import { refreshOrganizationData } from "@/services/LoadAndDispatchService";
 
 const validationSchema = Yup.object().shape({
   roleName: Yup.string().required(fieldRequired),
@@ -117,16 +117,7 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
           try {
             const response = await apiEditContributorAgreement(body, contributor?.agreement?.id as string);
             if (response?.data) {
-              try {
-                const orgResponse = await apiGetOrganizationById(
-                  organization.id as string
-                );
-                if (orgResponse.data) {
-                  dispatch(setOrganization(orgResponse.data));
-                }
-              } catch (error: any) {
-                handleError(error.response.data.message);
-              }
+              refreshOrganizationData(organization?.id as string, dispatch);
             }
             handleSuccess(`Agreement for ${contributor.username} has been updated.`);
             formik.setSubmitting(false);
@@ -140,16 +131,7 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
           try {
             const response = await apiCreateContributorAgreement(body);
             if (response?.data) {
-              try {
-                const orgResponse = await apiGetOrganizationById(
-                  organization.id as string
-                );
-                if (orgResponse.data) {
-                  dispatch(setOrganization(orgResponse.data));
-                }
-              } catch (error: any) {
-                handleError(error.response.data.message);
-              }
+              refreshOrganizationData(organization?.id as string, dispatch);
             }
             handleSuccess(`Agreement for ${contributor.username} has been added.`);
             formik.setSubmitting(false);
@@ -301,43 +283,6 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
                 />
               </FormItem>
             </div>
-
-            {/* {formik.values.commitment > 10 &&
-         formik.values.marketRate &&
-         formik.values.fiatRequested && (
-           <div className="mt-4 p-4 bg-gray-100 rounded">
-             <h3 className="text-lg font-bold mb-2">
-               Compensation Calculation
-             </h3>
-             <p>
-               Based on a commitment of{" "}
-               <strong>{formik.values.commitment}%</strong> and a market rate
-               of <strong>${formik.values.marketRate}</strong>, the total
-               compensation would be{" "}
-               <strong>
-                 $
-                 {(
-                   formik.values.marketRate *
-                   (formik.values.commitment / 100)
-                 ).toFixed(0)}
-               </strong>
-               .
-             </p>
-             <p>
-               The requested monetary compensation is{" "}
-               <strong>${formik.values.fiatRequested}</strong>, leaving{" "}
-               <strong>
-                 $
-                 {(
-                   formik.values.marketRate *
-                     (formik.values.commitment / 100) -
-                   formik.values.fiatRequested
-                 ).toFixed(0)}
-               </strong>{" "}
-               to be compensated in points/tokens.
-             </p>
-           </div>
-         )} */}
           </FormContainer>
           <div className="flex justify-end mt-4 gap-4">
             <Button type="button" onClick={() => handleClose()}>

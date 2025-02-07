@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 import placeholderIcon from '@/assets/images/placeholder.jpg';
 
 interface CustomPlaceholderAvatarAndUsernameProps {
@@ -6,7 +6,7 @@ interface CustomPlaceholderAvatarAndUsernameProps {
     avatarSize?: number;
 }
 
-const PlaceholderAvatarAndUsername: React.FC<CustomPlaceholderAvatarAndUsernameProps> = ({
+const PlaceholderAvatarAndUsername: React.FC<CustomPlaceholderAvatarAndUsernameProps> = memo(({
     name = 'User',
     avatarSize = 40,
 }) => {
@@ -19,7 +19,7 @@ const PlaceholderAvatarAndUsername: React.FC<CustomPlaceholderAvatarAndUsernameP
             }}
         >
             <img
-               src={placeholderIcon}
+                src={placeholderIcon}
                 alt="User Avatar Placeholder"
                 style={{
                     width: avatarSize,
@@ -36,6 +36,6 @@ const PlaceholderAvatarAndUsername: React.FC<CustomPlaceholderAvatarAndUsernameP
             </div>
         </div>
     );
-};
+});
 
 export default PlaceholderAvatarAndUsername;
