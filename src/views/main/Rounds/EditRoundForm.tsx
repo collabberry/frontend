@@ -117,7 +117,7 @@ const EditRoundForm: React.FC<EditRoundFormProps> = ({
                             Edit Round
                         </h2>
 
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 xl:grid-cols-1">
                             <FormItem
                                 label="Round Start Date"
                                 className="w-full"
