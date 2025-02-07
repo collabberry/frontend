@@ -77,8 +77,8 @@ const AdminManagement: React.FC = () => {
 
     return (
         <>
-
-            {isAdmin && admins && admins.length && (
+            {/* TODO: Uncomment this page - Admin Management */}
+            {/* {isAdmin && admins && admins.length && (
                 <>
                     <div>
                         <Button
@@ -93,24 +93,6 @@ const AdminManagement: React.FC = () => {
 
                     <h1>Admin Management</h1>
 
-
-                    {/* <SuccessDialog
-                        dialogVisible={isSuccessDialogOpen}
-                        txHash={txHash || ''}
-                        blockExplorer={blockExplorer}
-                        txNetwork={network}
-                        dialogMessage="You have successfully added the admin."
-                        handleDialogClose={() => closeSuccessDialog()}>
-                    </SuccessDialog> */}
-                    {/* <ErrorDialog dialogVisible={isErrorDialogOpen}
-                        errorMessage={errorMessage || ''}
-                        handleDialogClose={() => closeErrorDialog()}>
-                    </ErrorDialog> */}
-                    {/* <LoadingDialog dialogVisible={isLoadingDialogOpen}
-                        message={'You will be promped to sign a transaction. This might take a while, so please be patient.'}
-                        title="Minting Tokens..."
-                        handleDialogClose={() => null}   >
-                    </LoadingDialog> */}
                     {isAddAdminDialogOpen && (
                         <Dialog
                             isOpen={isAddAdminDialogOpen}
@@ -170,7 +152,6 @@ const AdminManagement: React.FC = () => {
 
                                                 <div className="flex flex-col items-start">
                                                     {contributor?.username && <p className="font-bold">{contributor?.username}</p>}
-                                                    {/* {contributor.isAdmin && <Tag className="bg-sky-100 text-sky-600 dark:bg-sky-500/20 dark:text-sky-100 rounded-md border-0 p-1" >Admin</Tag>} */}
                                                     {contributor?.walletAddress && <p>{contributor?.walletAddress}</p>}
                                                 </div>
                                             </div>
@@ -227,7 +208,11 @@ const AdminManagement: React.FC = () => {
                         )}
                     </div>
                 </>
-            )}
+            )} */}
+
+            <div className='text-2xl font-bold'>
+                Coming soon!
+            </div>
         </>
 
     )
