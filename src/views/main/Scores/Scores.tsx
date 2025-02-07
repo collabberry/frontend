@@ -76,7 +76,9 @@ const Scores: React.FC = () => {
           day: "2-digit",
           month: "short",
           year: "numeric",
-          timeZone: "UTC",
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZoneName: "short",
         });
         return formattedDate ? <span>{formattedDate}</span> : null;
       },
@@ -90,7 +92,9 @@ const Scores: React.FC = () => {
           day: "2-digit",
           month: "short",
           year: "numeric",
-          timeZone: "UTC",
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZoneName: "short",
         });
         return formattedDate ? <span>{formattedDate}</span> : null;
       },

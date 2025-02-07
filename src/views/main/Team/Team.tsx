@@ -345,7 +345,7 @@ const Team: React.FC = () => {
             <Button size="sm" variant="solid" className="ltr:mr-2 rtl:ml-2" onClick={goToManualAllocation} icon={<FiPieChart />} >
               {'Manual Allocation'}
             </Button>
-            {/* TODO: Uncomment this */}
+            {/* TODO: Uncomment this button - Admin Management */}
             {/* <Button size="sm" variant="solid" className="ltr:mr-2 rtl:ml-2" onClick={goToAdminManagement} icon={<FiUsers />} >
               {'Admin Management'}
             </Button> */}
