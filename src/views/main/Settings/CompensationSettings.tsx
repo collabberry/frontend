@@ -7,22 +7,14 @@ import {
   Button,
   Card,
   DatePicker,
-  Dialog,
   FormContainer,
   FormItem,
   Input,
-  Radio,
-  Spinner,
-  Tooltip,
 } from "@/components/ui";
 import {
   apiEditOrganization,
-  apiGetCurrentRound,
-  apiGetOrganizationById,
-  apiGetRounds,
 } from "@/services/OrgService";
-import { RootState, setAllRounds, setOrganization, setCurrentRound } from "@/store";
-import CustomCalendar from "@/components/collabberry/custom-components/Calendar";
+import { RootState } from "@/store";
 import VerticalRadio from "@/components/collabberry/custom-components/CustomFields/VerticalRadio";
 import { useFormik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,6 +24,7 @@ import {
   RoundStatus,
 } from "@/components/collabberry/utils/collabberry-constants";
 import { StatisticCard } from "./StatisticCard";
+import { refreshAllRounds, refreshCurrentRound, refreshOrganizationData } from "@/services/LoadAndDispatchService";
 
 const validationSchema = Yup.object().shape({
   compensationStartDay: Yup.mixed().required("Start date is required"),
@@ -135,28 +128,9 @@ const CompensationSettings: React.FC<any> = () => {
         const response = await apiEditOrganization(body);
         const { data } = response;
         if (data) {
-          try {
-            const orgResponse = await apiGetOrganizationById(data.id);
-            if (orgResponse.data) {
-              dispatch(setOrganization(orgResponse.data));
-            }
-          } catch (error: any) {
-            handleError(error.response.data.message);
-          }
-
-          try {
-            const allRoundsResponse = await apiGetRounds();
-            if (allRoundsResponse.data) {
-              dispatch(setAllRounds(allRoundsResponse.data));
-            }
-          } catch (error: any) { }
-
-          try {
-            const roundResponse = await apiGetCurrentRound();
-            if (roundResponse.data) {
-              dispatch(setCurrentRound(roundResponse.data));
-            }
-          } catch (error: any) { }
+          refreshOrganizationData(data?.id, dispatch);
+          refreshAllRounds(dispatch);
+          refreshCurrentRound(dispatch);
         }
 
         handleSuccess(
@@ -368,7 +342,7 @@ const CompensationSettings: React.FC<any> = () => {
           <StatisticCard
             value={
               organization?.assessmentStartDelayInDays !== undefined
-                ? `${+organization.assessmentStartDelayInDays } days`
+                ? `${+organization.assessmentStartDelayInDays} days`
                 : "Not Set"
             }
             title="Assessment Start Delay"

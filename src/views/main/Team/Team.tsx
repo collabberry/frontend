@@ -3,25 +3,24 @@ import { Contributor } from "@/models/Organization.model";
 import { ColumnDef } from "@tanstack/react-table";
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState, setInvitationToken, setOrganization } from "@/store";
+import { RootState, setInvitationToken } from "@/store";
 import { useState } from "react";
 import OrganizationCard from "./OrganizationCard";
-import { Button, Dialog, Skeleton, Tag, Tooltip } from "@/components/ui";
+import { Button, Dialog, Tag, Tooltip } from "@/components/ui";
 import { useLocation, useNavigate } from "react-router-dom";
 import EditOrganizationForm from "./EditOrganization";
 import AddAgreementForm from "./AddAgreement";
 import ViewAgreement from "./ViewAgreement";
 import {
   apiGetInvitationToken,
-  apiGetOrganizationById,
 } from "@/services/OrgService";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import InvitationLink from "../Dashboard/InvitationDialog";
 import { useDialog } from "@/services/DialogService";
-import { FiEdit, FiEye, FiUsers } from "react-icons/fi";
+import { FiEdit, FiEye, FiPieChart, FiUsers } from "react-icons/fi";
 import { useAdminContractService } from "@/services/AdminContractService";
-import { set } from "lodash";
+import { refreshOrganizationData } from "@/services/LoadAndDispatchService";
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -50,19 +49,22 @@ const Team: React.FC = () => {
     const fetchAdminContributors = async () => {
       setLoading(true);
       if (organization?.contributors && organization?.teamPointsContractAddress) {
-        const response = await checkAdminContributors(organization?.teamPointsContractAddress, organization?.contributors || []);
-        const admins = response.data.adminContributors;
-        if (response.status === 'success' && admins) {
-          const adminContributors = organization?.contributors.map((contributor) => {
-            const isContractAdmin = admins.some((admin: Contributor) => admin.walletAddress === contributor.walletAddress);
-            return { ...contributor, isContractAdmin };
-          });
-          setContributorsWithAdminFlag(adminContributors);
-          setLoading(false);
-        } else {
-          console.log('Error:', response.message || "An error occurred while loading contract settings.");
+        try {
+          const response = await checkAdminContributors(organization?.teamPointsContractAddress, organization?.contributors || []);
+          const admins = response.data.adminContributors;
+          if (response.status === 'success') {
+            const adminContributors = organization?.contributors.map((contributor) => {
+              const isContractAdmin = admins.some((admin: Contributor) => admin.walletAddress === contributor.walletAddress);
+              return { ...contributor, isContractAdmin };
+            });
+            setContributorsWithAdminFlag(adminContributors);
+          }
+        } catch (error) {
+          console.error("Failed to fetch admin contributors", error);
+        } finally {
           setLoading(false);
         }
+
       }
     };
     fetchAdminContributors();
@@ -88,23 +90,15 @@ const Team: React.FC = () => {
     navigate("/team/admins");
   };
 
+  const goToManualAllocation = () => {
+    navigate("/team/manual-allocation");
+  }
+
 
   useEffect(() => {
     const fetchOrganization = async () => {
       const orgId = user?.organization?.id
-      try {
-
-        if (orgId) {
-          const orgResponse = await apiGetOrganizationById(orgId);
-          if (orgResponse.data) {
-            dispatch(setOrganization(orgResponse.data));
-          }
-        } else {
-          handleError("Organization ID not found");
-        }
-      } catch (error: any) {
-        handleError(error.response.data.message);
-      }
+      refreshOrganizationData(orgId, dispatch);
     };
     fetchOrganization();
   }, [])
@@ -339,16 +333,26 @@ const Team: React.FC = () => {
         <h1>Team</h1>
       </div>
 
-      <div className="mb-4 flex justify-between items-end">
+      <div className="mb-4 flex justify-between items-start md:items-end flex-col md:flex-row gap-2 md:gap-0">
         <OrganizationCard
           organization={organization}
           onEdit={openEditDialog}
           onInvite={inviteAction}
           isAdmin={isAdmin as boolean}
         />
-        <Button size="sm" variant="solid" className="ltr:mr-2 rtl:ml-2" onClick={goToAdminManagement} icon={<FiUsers />} >
-          {'Admin Management'}
-        </Button>
+        {isAdmin && (
+          <div className="flex gap-2 flex-col sm:flex-row">
+            <Button size="sm" variant="solid" className="ltr:mr-2 rtl:ml-2" onClick={goToManualAllocation} icon={<FiPieChart />} >
+              {'Manual Allocation'}
+            </Button>
+            <Button size="sm" variant="solid" className="ltr:mr-2 rtl:ml-2" onClick={goToAdminManagement} icon={<FiUsers />} >
+              {'Admin Management'}
+            </Button>
+          </div>
+
+
+        )}
+
       </div>
       <div>
         <CustomTableWithSorting

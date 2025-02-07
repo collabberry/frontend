@@ -1,9 +1,8 @@
 
-import { getAdmins, RootState, setAdmins } from '@/store';
+import { RootState, setAdmins } from '@/store';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Card, Dialog, Skeleton, Tag, Tooltip } from '@/components/ui';
-import { environment } from '@/api/environment';
+import { Button, Dialog, Skeleton, Tooltip } from '@/components/ui';
 import LoadingDialog from '@/components/collabberry/custom-components/LoadingDialog';
 import { handleError, handleSuccess } from '@/components/collabberry/helpers/ToastNotifications';
 import { useAdminContractService } from '@/services/AdminContractService';
@@ -14,8 +13,7 @@ import placeholderIcon from '@/assets/images/placeholder.jpg';
 import { HiArrowSmLeft, HiPlus } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
 import AddAdminForm from './AddAdminForm';
-import { FiDelete, FiTrash } from 'react-icons/fi';
-import { ConfirmDialog } from '@/components/shared';
+import { FiTrash } from 'react-icons/fi';
 import { Contributor } from '@/models/Organization.model';
 import ConfirmationDialog from '@/components/collabberry/custom-components/ConfirmationDialog';
 
@@ -41,7 +39,6 @@ const AdminManagement: React.FC = () => {
             const response = await checkAdminContributors(organization?.teamPointsContractAddress, organization?.contributors || []);
             if (response.status === 'success' && response.data) {
                 dispatch(setAdmins({ admins: response.data.adminContributors }));
-                console.log(admins, "ADMINDS");
                 setLoading(false);
             } else {
 
@@ -83,7 +80,7 @@ const AdminManagement: React.FC = () => {
 
             {isAdmin && admins && admins.length && (
                 <>
-                    {/* <div>
+                    <div>
                         <Button
                             size="sm"
                             className="mb-2"
@@ -92,7 +89,7 @@ const AdminManagement: React.FC = () => {
                         >
                             Back
                         </Button>
-                    </div> */}
+                    </div>
 
                     <h1>Admin Management</h1>
 

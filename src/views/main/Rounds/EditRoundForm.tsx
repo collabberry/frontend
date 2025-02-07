@@ -7,10 +7,10 @@ import {
     FormContainer,
     FormItem,
 } from "@/components/ui";
-import { setAllRounds, setCurrentRound } from "@/store";
 import { useDispatch } from "react-redux";
-import { apiEditRound, apiGetCurrentRound, apiGetRounds } from "@/services/OrgService";
+import { apiEditRound } from "@/services/OrgService";
 import { handleError, handleSuccess } from "@/components/collabberry/helpers/ToastNotifications";
+import { refreshAllRounds, refreshCurrentRound } from "@/services/LoadAndDispatchService";
 
 
 const currentUTCMidnight = new Date(Date.UTC(
@@ -84,22 +84,8 @@ const EditRoundForm: React.FC<EditRoundFormProps> = ({
 
                 const response = await apiEditRound(round.id, utcValues);
                 if (response) {
-                    try {
-                        const allRoundsResponse = await apiGetRounds();
-                        if (allRoundsResponse.data) {
-                            dispatch(setAllRounds(allRoundsResponse.data));
-                        }
-
-                    } catch (error: any) {
-                        handleError(error.response.data.message);
-                    }
-
-                    try {
-                        const roundResponse = await apiGetCurrentRound();
-                        if (roundResponse.data) {
-                            dispatch(setCurrentRound(roundResponse.data));
-                        }
-                    } catch (error: any) { }
+                    refreshAllRounds(dispatch);
+                    refreshCurrentRound(dispatch);
 
                 }
 

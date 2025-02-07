@@ -13,21 +13,18 @@ import { useState } from "react";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
-import { RegisterCredential } from "@/@types/auth";
-import { setAllRounds, setCurrentRound, setOrganization, setUser, signUpSuccess } from "@/store";
+import { setOrganization, setUser, signUpSuccess } from "@/store";
 import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useMemo } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import appConfig from "@/configs/app.config";
 import {
-  apiGetCurrentRound,
   apiGetOrganizationById,
-  apiGetRounds,
 } from "@/services/OrgService";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
+import { refreshAllRounds, refreshCurrentRound } from "@/services/LoadAndDispatchService";
 
 const ValidationStepsSchema = Yup.object().shape({
   username: Yup.string()
@@ -93,19 +90,10 @@ const SignUpWithInviteLink = () => {
                   handleError(error.response.data.message);
                 }
 
-                try {
-                  const allRoundsResponse = await apiGetRounds();
-                  if (allRoundsResponse.data) {
-                    dispatch(setAllRounds(allRoundsResponse.data));
-                  }
-                } catch (error: any) { }
+                refreshAllRounds(dispatch);
+                refreshCurrentRound(dispatch);
 
-                try {
-                  const roundResponse = await apiGetCurrentRound();
-                  if (roundResponse.data) {
-                    dispatch(setCurrentRound(roundResponse.data));
-                  }
-                } catch (error) { }
+
               }
               dispatch(
                 setUser({

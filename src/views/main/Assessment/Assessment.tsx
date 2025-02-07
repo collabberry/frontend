@@ -1,9 +1,9 @@
 import CustomSelectTable from "@/components/collabberry/custom-components/CustomTables/CustomSelectTable";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState, setCurrentRound, setReviewedMembers, setSelectedTeamMembers } from "@/store";
+import { RootState, setReviewedMembers, setSelectedTeamMembers } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { Contributor } from "@/models/Organization.model";
-import { Alert, Avatar, Button, Skeleton } from "@/components/ui";
+import { Alert, Button, Skeleton } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useMemo, useState } from "react";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
@@ -11,7 +11,8 @@ import CustomAvatarAndUsername from "@/components/collabberry/custom-components/
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/tea.json";
 import { useEffect } from "react";
-import { apiGetAssessmentsByAssessor, apiGetCurrentRound } from "@/services/OrgService";
+import { apiGetAssessmentsByAssessor } from "@/services/OrgService";
+import { refreshCurrentRound, refreshOrganizationData } from "@/services/LoadAndDispatchService";
 
 const Assessment = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -19,7 +20,6 @@ const Assessment = () => {
     (state: RootState) => state.auth.rounds.currentRound
   );
   const user = useSelector((state: RootState) => state.auth.user);
-  // const { submittedAssessments } = currentRound || {};
   const [submittedAssessments, setSubmittedAssessments] = useState([]);
   const [isRoundLoading, setIsRoundLoading] = useState(false);
   const [isAssessmentLoading, setIsAssessmentLoading] = useState(false);
@@ -38,18 +38,23 @@ const Assessment = () => {
   useEffect(() => {
     const fetchCurrentRound = async () => {
       setIsRoundLoading(true);
-      try {
-        const roundResponse = await apiGetCurrentRound();
-        if (roundResponse.data) {
-          dispatch(setCurrentRound(roundResponse.data));
-        }
-      } catch (error) {
-      } finally {
+      refreshCurrentRound(dispatch).finally(() => {
         setIsRoundLoading(false);
       }
-    };
+      )
+    }
     fetchCurrentRound();
   }, []);
+
+  useEffect(() => {
+    const fetchOrganization = async () => {
+      const orgId = user?.organization?.id
+      refreshOrganizationData(orgId, dispatch);
+    };
+    fetchOrganization();
+  }, [])
+
+
 
   useEffect(() => {
     if (hasRoundAndUserLoaded) {
@@ -85,7 +90,6 @@ const Assessment = () => {
     ) {
       return true;
     }
-
     if (isTableDisabled) {
       return true;
     }

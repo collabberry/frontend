@@ -1,15 +1,15 @@
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
-import { RootState, setAllRounds, setSelectedRound } from "@/store";
+import { RootState, setSelectedRound } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui";
+import { Button, Tooltip } from "@/components/ui";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
 import RoundStatusTag from "@/components/collabberry/custom-components/CustomFields/RoundStatusTag";
-import { all } from "axios";
 import { HiInformationCircle } from "react-icons/hi";
-import { apiGetRounds } from "@/services/OrgService";
+import { refreshAllRounds } from "@/services/LoadAndDispatchService";
+import { FiList } from "react-icons/fi";
 
 const Scores: React.FC = () => {
   const dispatch = useDispatch();
@@ -19,16 +19,8 @@ const Scores: React.FC = () => {
   );
 
   React.useEffect(() => {
-    const fetchAllRounds = async () => {
-      try {
-        const allRoundsResponse = await apiGetRounds();
-        if (allRoundsResponse.data) {
-          dispatch(setAllRounds(allRoundsResponse.data));
-        }
-      } catch (error: any) { }
-    };
-    fetchAllRounds();
-  }, []);
+    refreshAllRounds(dispatch);
+  }, [dispatch]);
 
 
   const seeMyScores = (round: any) => {
@@ -118,20 +110,23 @@ const Scores: React.FC = () => {
     // },
 
     {
-      header: "My Results",
+      header: "Results",
       id: "round",
       cell: (props) => {
         const round = props.row.original;
         return (
           <div>
             {round && round.status === RoundStatus.Completed ? (
-              <Button
-                size="sm"
-                variant="plain"
-                onClick={() => seeMyScores(round)}
-              >
-                See My Results
-              </Button>
+               <Tooltip title={`Go to scores`}>
+                            <Button
+                              size="sm"
+                              shape="circle"
+                              icon={<FiList />}
+                              onClick={() => seeMyScores(round)}
+                            >
+                            </Button>
+                          </Tooltip>
+           
             ) : null}
           </div>
         );

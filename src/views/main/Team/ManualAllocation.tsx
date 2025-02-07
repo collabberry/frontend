@@ -1,12 +1,11 @@
 
 import { RootState } from '@/store';
-import { ErrorMessage, Field, FieldArray, Form, Formik, FormikProps, getIn } from 'formik';
+import { Field, FieldArray, Form, Formik, FormikProps, getIn } from 'formik';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Button, Card, FormContainer, FormItem, Input, InputGroup } from '@/components/ui';
-import { HiArrowSmLeft, HiMinus, HiPlus, HiTrash } from 'react-icons/hi';
+import { HiArrowSmLeft, HiPlus, HiTrash } from 'react-icons/hi';
 import { ethers } from 'ethers';
 import CustomAvatarAndUsername from '@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername';
 import PlaceholderAvatarAndUsername from '@/components/collabberry/custom-components/CustomRainbowKit/PlaceholderAvatarAndUsername';
@@ -15,7 +14,6 @@ import { environment } from '@/api/environment';
 import SuccessDialog from '@/components/collabberry/custom-components/TransactionSuccessDialog';
 import ErrorDialog from '@/components/collabberry/custom-components/TransactionErrorDialog';
 import LoadingDialog from '@/components/collabberry/custom-components/LoadingDialog';
-import { handleError } from '@/components/collabberry/helpers/ToastNotifications';
 import Addon from '@/components/ui/InputGroup/Addon';
 import { useNavigate } from 'react-router-dom';
 
@@ -117,7 +115,7 @@ const ManualAllocation: React.FC = () => {
 
             {isAdmin && (
                 <>
-                    {/* <div>
+                    <div>
                         <Button
                             size="sm"
                             className="mb-2"
@@ -126,7 +124,7 @@ const ManualAllocation: React.FC = () => {
                         >
                             Back
                         </Button>
-                    </div> */}
+                    </div>
                     <h1>Manual Allocation</h1>
                     <SuccessDialog
                         dialogVisible={dialogVisible}

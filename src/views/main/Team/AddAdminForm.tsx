@@ -1,26 +1,24 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Field, FieldProps, FormikProvider, useFormik } from "formik";
 import * as Yup from "yup";
 import {
     Button,
     FormContainer,
     FormItem,
-    Input,
     InputGroup,
     Select,
 } from "@/components/ui";
-import { RootState, setAdmins, setOrganization } from "@/store";
+import { RootState, setAdmins } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { fieldRequired } from "@/components/collabberry/helpers/validations";
 import Addon from "@/components/ui/InputGroup/Addon";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 import PlaceholderAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/PlaceholderAvatarAndUsername";
-import CreatableSelect from "react-select/creatable";
 import { useAdminContractService } from "@/services/AdminContractService";
 import { handleError, handleSuccess } from "@/components/collabberry/helpers/ToastNotifications";
-import { apiGetOrganizationById } from "@/services/OrgService";
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/clock.json";
+import { ethers } from "ethers";
 
 
 const formatContributorLabel = (username: string, walletAddress: string) => {
@@ -29,8 +27,8 @@ const formatContributorLabel = (username: string, walletAddress: string) => {
 };
 
 const validationSchema = Yup.object().shape({
-    walletAddress: Yup.string().required(fieldRequired),
-
+    walletAddress: Yup.string().required(fieldRequired).test('is-valid-eth-address', 'Invalid wallet address', value => ethers.isAddress(value))
+    ,
 });
 interface FormData {
     walletAddress: string;
@@ -51,6 +49,15 @@ const AddAdminForm: React.FC<AddAdminFormProps> = ({
         walletAddress: "",
     };
     const dispatch = useDispatch();
+
+    const contributorOptions = useMemo(() => (
+        (organization?.contributors || []).map(contributor => ({
+            ...contributor,
+            value: contributor.walletAddress,
+            label: formatContributorLabel(contributor.username, contributor.walletAddress),
+            isDisabled: admins?.some(admin => admin.walletAddress === contributor.walletAddress),
+        }))
+    ), [organization?.contributors, admins]);
 
     const formik = useFormik({
         initialValues: initialData,
@@ -77,11 +84,9 @@ const AddAdminForm: React.FC<AddAdminFormProps> = ({
                         }
 
                     } else {
-                        console.log("Error adding admin:", response);
                         handleError(response.message || "An error occurred while adding admin.");
                     }
                 } catch (error) {
-                    console.log("Error adding admin:", error);
                     handleError("An error occurred while adding admin.");
                 } finally {
                     formik.setSubmitting(false);
@@ -128,12 +133,7 @@ const AddAdminForm: React.FC<AddAdminFormProps> = ({
                                                     placeholder="Select contributor..."
                                                     field={field}
                                                     form={form}
-                                                    options={organization?.contributors?.map(contributor => ({
-                                                        ...contributor,
-                                                        value: contributor.walletAddress,
-                                                        label: formatContributorLabel(contributor.username, contributor.walletAddress),
-                                                        isDisabled: admins?.some(admin => admin.walletAddress === contributor.walletAddress),
-                                                    })) || []}
+                                                    options={contributorOptions}
                                                     value={organization?.contributors?.map(
                                                         (contributor) => ({
                                                             ...contributor,

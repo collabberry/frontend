@@ -1,6 +1,5 @@
-import React from "react";
+import { memo } from "react";
 import placeholderIcon from '@/assets/images/placeholder.jpg';
-import Tag from "@/components/ui/Tag";
 
 
 interface CustomAvatarAndUsernameProps {
@@ -12,7 +11,7 @@ interface CustomAvatarAndUsernameProps {
   userNameBold?: boolean;
 }
 
-const CustomAvatarAndUsername: React.FC<CustomAvatarAndUsernameProps> = ({
+const CustomAvatarAndUsername: React.FC<CustomAvatarAndUsernameProps> = memo(({
   imageUrl,
   userName,
   displayName,
@@ -57,6 +56,6 @@ const CustomAvatarAndUsername: React.FC<CustomAvatarAndUsernameProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default CustomAvatarAndUsername;
