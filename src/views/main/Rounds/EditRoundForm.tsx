@@ -126,6 +126,8 @@ const EditRoundForm: React.FC<EditRoundFormProps> = ({
                                 invalid={
                                     formik.touched?.startDate && !!formik.errors?.startDate
                                 }
+                                extraTooltip="The start date of the round will be set as 0:00:00 UTC on the selected date."
+
                             >
                                 <DatePicker
                                     name="startDate"
@@ -143,6 +145,7 @@ const EditRoundForm: React.FC<EditRoundFormProps> = ({
                                 invalid={
                                     formik.touched?.endDate && !!formik.errors?.endDate
                                 }
+                                extraTooltip="The end date of the round will be set as 23:59:59 UTC on the selected date."
                             >
                                 <DatePicker
                                     name="endDate"
