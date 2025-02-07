@@ -53,6 +53,12 @@ export const protectedRoutes = [
     authority: [],
   },
   {
+    key: "org.team",
+    path: "/team/admins",
+    component: lazy(() => import("@/views/main/Team/AdminManagement")),
+    authority: [],
+  },
+  {
     key: "org.settings",
     path: "/settings",
     component: lazy(() => import("@/views/main/Settings/Settings")),

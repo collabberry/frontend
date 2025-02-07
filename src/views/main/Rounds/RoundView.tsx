@@ -10,15 +10,14 @@ import {
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
-import { Avatar, Button, Tag } from "@/components/ui";
+import { Button, Tooltip } from "@/components/ui";
 import { useContractService } from "@/services/ContractsService";
 import { apiAddTxHashToRound, apiGetRoundById, apiRemindContributors } from "@/services/OrgService";
 import { RootState, setSelectedRound, setSelectedUser } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
-import { round, set } from "lodash";
 import React, { useState } from "react";
 import Countdown from "react-countdown";
-import { FiClock } from "react-icons/fi";
+import { FiClock, FiList } from "react-icons/fi";
 import {
   HiArrowSmLeft, HiCheck, HiExternalLink
 } from "react-icons/hi";
@@ -204,20 +203,21 @@ const RoundView: React.FC = () => {
       cell: (props) => {
         const contributor = props.row.original;
         const reminded = contributor.reminded;
-
         return (
           <div className="flex flex-row justify-center">
-            <Button
-              size="sm"
-              loading={contributor.loading}
-              disabled={false}
-              onClick={(event) => {
-                event.preventDefault();
-                goToContributorAssessments(contributor);
-              }}
-            >
-              View
-            </Button>
+            <Tooltip title={`Go to ${contributor.username}'s assessments`}>
+              <Button
+                size="sm"
+                shape="circle"
+                icon={<FiList />}
+                disabled={false}
+                onClick={(event) => {
+                  event.preventDefault();
+                  goToContributorAssessments(contributor);
+                }}
+              >
+              </Button>
+            </Tooltip>
           </div>
         );
       },
@@ -237,7 +237,13 @@ const RoundView: React.FC = () => {
         return (
           <>
             {isCurrentUser ? (
-              <></>
+              <div className="flex flex-row justify-center">
+                {contributor.hasAssessed ? (
+                  <HiCheck className="text-berrylavender-500 text-2xl font-semibold" />
+                ) : (
+                  <></>
+                )}
+              </div>
             ) : (
               <div className="flex flex-row justify-center">
                 {contributor.hasAssessed ? (
@@ -271,16 +277,19 @@ const RoundView: React.FC = () => {
 
         return (
           <div className="flex flex-row justify-start">
-            <Button
-              size="sm"
-              disabled={false}
-              onClick={(event) => {
-                event.preventDefault();
-                goToContributorAssessments(contributor);
-              }}
-            >
-              View
-            </Button>
+            <Tooltip title={`Go to ${contributor.username}'s assessments`}>
+              <Button
+                size="sm"
+                shape="circle"
+                icon={<FiList />}
+                disabled={false}
+                onClick={(event) => {
+                  event.preventDefault();
+                  goToContributorAssessments(contributor);
+                }}
+              >
+              </Button>
+            </Tooltip>
           </div>
         );
       },

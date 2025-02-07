@@ -1,10 +1,9 @@
 import Card from "@/components/ui/Card";
 import {
-  apiGetCurrentRound,
   apiGetInvitationToken,
   apiRemindContributors,
 } from "@/services/OrgService";
-import { RootState, setCurrentRound, setInvitationToken, setUser } from "@/store";
+import { RootState, setInvitationToken, setUser } from "@/store";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -32,6 +31,7 @@ import { SvgIcon } from "@/components/shared";
 import { StatRow } from "@/components/collabberry/custom-components/StatRow";
 import teamPic from '@/assets/images/team.png';
 import bannerPic from '@/assets/images/banner.png';
+import { refreshCurrentRound } from "@/services/LoadAndDispatchService";
 
 
 
@@ -191,18 +191,9 @@ const Dashboard = () => {
   }, [])
 
   useEffect(() => {
-    const fetchCurrentRound = async () => {
-      try {
-        const roundResponse = await apiGetCurrentRound();
-        if (roundResponse.data) {
-          dispatch(setCurrentRound(roundResponse.data));
-        }
-      } catch (error) {
-        console.error("Error fetching current round:", error);
-      }
-    };
-    fetchCurrentRound();
+    refreshCurrentRound(dispatch);
   }, []);
+
 
   const adminCards = [
     {
@@ -225,7 +216,7 @@ const Dashboard = () => {
     },
     {
       footerAction: numberOfContributorsWithAgreements < numberOfContributors ? contributorsCardAction : undefined,
-      footerButtonTitle: "Add all agreements",
+      footerButtonTitle: "Add agreements",
       footerButtonIcon: <FiFileText style={{ height: "100%", width: "100%" }} />,
       cardContent: (
         <>

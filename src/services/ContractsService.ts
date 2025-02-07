@@ -4,6 +4,7 @@ import { useEthersSigner } from '@/utils/hooks/useEthersSigner';
 import { ethers, EventLog } from 'ethers';
 import { useAccount } from 'wagmi';
 import { environment } from '@/api/environment';
+import { ContractResponseStatus, DEFAULT_ERROR_MESSAGE } from '@/utils/parseErrorMessage';
 
 
 function generateSymbol(orgName: string): string {
@@ -30,19 +31,15 @@ function generateSymbol(orgName: string): string {
     return symbol;
 }
 
-const getEvent = (logs: any, eventName: string): EventLog => {
+export const getEvent = (logs: any, eventName: string): EventLog => {
     return logs
         .filter((e: any) => e instanceof EventLog)
         .find((e: EventLog) => e.eventName === eventName);
 };
 
-const DEFAULT_ERROR_MESSAGE = 'Transaction failed! Please try again.';
-export enum ContractResponseStatus {
-    Success = 'success',
-    Failed = 'failed',
-}
 
-interface ContractResponse {
+
+export interface ContractResponse {
     data?: any;
     event?: EventLog;
     message: string;
@@ -265,6 +262,76 @@ const _getTotalSupply = async (
     };
 }
 
+const _checkAdminContributors = async (
+    contractAddress: string,
+    contributors: any[],
+    ethersSigner: ethers.JsonRpcSigner | undefined
+  ): Promise<ContractResponse> => {
+    if (!ethersSigner) {
+      return {
+        message: 'Signer is not available',
+        status: ContractResponseStatus.Failed,
+      };
+    }
+  
+    try {
+      const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
+  
+      const adminStatuses = await Promise.all(
+        contributors.map(async (contributor) => {
+          const isAdmin = await contract.isAdmin(contributor.address);
+          return { contributor, isAdmin };
+        })
+      );
+  
+      const adminContributors = adminStatuses
+        .filter(({ isAdmin }) => isAdmin)
+        .map(({ contributor }) => contributor);
+  
+      return {
+        data: { adminContributors },
+        message: 'Admin contributors checked successfully',
+        status: ContractResponseStatus.Success,
+      };
+    } catch (error) {
+      console.error('Error checking admin contributors:', error);
+      return {
+        message: DEFAULT_ERROR_MESSAGE,
+        status: ContractResponseStatus.Failed,
+      };
+    }
+  };
+
+  const _addAdmin = async (
+    contractAddress: string,
+    newAdminAddress: string,
+    ethersSigner: ethers.JsonRpcSigner | undefined
+  ): Promise<ContractResponse> => {
+    if (!ethersSigner) {
+      return {
+        message: 'Signer is not available',
+        status: ContractResponseStatus.Failed,
+      };
+    }
+  
+    try {
+      const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
+      const tx = await contract.addAdmin(newAdminAddress);
+      await tx.wait(); // Wait for the transaction to be mined
+  
+      return {
+        message: 'Admin added successfully',
+        status: ContractResponseStatus.Success,
+      };
+    } catch (error) {
+      console.error('Error adding admin:', error);
+      return {
+        message: DEFAULT_ERROR_MESSAGE,
+        status: ContractResponseStatus.Failed,
+      };
+    }
+  };
+
 
 export const useContractService = () => {
     const { address } = useAccount();
@@ -386,10 +453,10 @@ export const useContractService = () => {
         return await _getTotalSupply(contractAddress, ethersSigner);
     };
 
-
-
-
-
+    const checkAdminContributors = async (contractAddress: string, contributors: any[]): Promise<ContractResponse> => {
+        return await _checkAdminContributors(contractAddress, contributors, ethersSigner);
+      };
+    
 
 
 
@@ -401,6 +468,7 @@ export const useContractService = () => {
         updateConfig,
         batchMint,
         manualAllocation,
+        checkAdminContributors,
         ethersSigner,
     };
 }

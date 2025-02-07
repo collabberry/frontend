@@ -1,12 +1,11 @@
 
 import { RootState } from '@/store';
-import { ErrorMessage, Field, FieldArray, Form, Formik, FormikProps, getIn } from 'formik';
+import { Field, FieldArray, Form, Formik, FormikProps, getIn } from 'formik';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Button, Card, FormContainer, FormItem, Input, InputGroup } from '@/components/ui';
-import { HiMinus, HiPlus, HiTrash } from 'react-icons/hi';
+import { HiArrowSmLeft, HiPlus, HiTrash } from 'react-icons/hi';
 import { ethers } from 'ethers';
 import CustomAvatarAndUsername from '@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername';
 import PlaceholderAvatarAndUsername from '@/components/collabberry/custom-components/CustomRainbowKit/PlaceholderAvatarAndUsername';
@@ -15,8 +14,8 @@ import { environment } from '@/api/environment';
 import SuccessDialog from '@/components/collabberry/custom-components/TransactionSuccessDialog';
 import ErrorDialog from '@/components/collabberry/custom-components/TransactionErrorDialog';
 import LoadingDialog from '@/components/collabberry/custom-components/LoadingDialog';
-import { handleError } from '@/components/collabberry/helpers/ToastNotifications';
 import Addon from '@/components/ui/InputGroup/Addon';
+import { useNavigate } from 'react-router-dom';
 
 type FormModel = {
     contributors: {
@@ -53,6 +52,7 @@ const fieldFeedback = (form: FormikProps<FormModel>, name: string) => {
 const ManualAllocation: React.FC = () => {
     const organization = useSelector((state: RootState) => state.auth.org);
     const { isAdmin } = useSelector((state: RootState) => state.auth.user);
+    const navigate = useNavigate();
     const { manualAllocation, ethersSigner } = useContractService();
     const [dialogVisible, setDialogVisible] = useState(false);
     const [errrorDialogVisible, setErrorDialogVisible] = useState(false);
@@ -106,11 +106,25 @@ const ManualAllocation: React.FC = () => {
 
     }
 
+    const navigateBack = () => {
+        navigate(-1);
+    }
+
     return (
         <>
 
             {isAdmin && (
                 <>
+                    <div>
+                        <Button
+                            size="sm"
+                            className="mb-2"
+                            onClick={navigateBack}
+                            icon={<HiArrowSmLeft />}
+                        >
+                            Back
+                        </Button>
+                    </div>
                     <h1>Manual Allocation</h1>
                     <SuccessDialog
                         dialogVisible={dialogVisible}

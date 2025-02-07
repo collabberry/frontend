@@ -1,20 +1,18 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Button, FormContainer, FormItem, Input, toast } from "@/components/ui";
+import { Button, FormContainer, FormItem, Input } from "@/components/ui";
 import AvatarImage from "../../../components/collabberry/custom-components/CustomFields/AvatarUpload";
 import {
   apiEditOrganization,
-  apiGetCurrentRound,
-  apiGetOrganizationById,
-  apiGetRounds,
 } from "@/services/OrgService";
-import { OrgState, setAllRounds, setOrganization, setCurrentRound } from "@/store";
+import { OrgState } from "@/store";
 import { useDispatch } from "react-redux";
 import {
   handleError,
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
+import { refreshOrganizationData } from "@/services/LoadAndDispatchService";
 
 const validationSchema = Yup.object().shape({
   logo: Yup.mixed().notRequired(),
@@ -64,16 +62,7 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
         const response = await apiEditOrganization(body);
         const { data } = response;
         if (data) {
-          try {
-            const orgResponse = await apiGetOrganizationById(data.id);
-            if (orgResponse.data) {
-              dispatch(setOrganization(orgResponse.data));
-            }
-          } catch (error: any) {
-            handleError(error.response.data.message);
-            onSubmit();
-          }
-
+          refreshOrganizationData(data?.id, dispatch);
         }
 
         handleSuccess("You have successfully edited your organization");

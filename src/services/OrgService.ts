@@ -44,6 +44,13 @@ export async function apiGetRoundById(id: string) {
   });
 }
 
+export async function apiEditRound(id: string, data: any) {
+  return ApiService.fetchData<any>({
+    url: `/rounds/${id}`,
+    method: "put",
+    data
+  });
+}
 
 export async function apiRemindContributors(roundId: any, data: any) {
   return ApiService.fetchData<any>({

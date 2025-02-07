@@ -1,19 +1,21 @@
-import React from "react";
+import { memo } from "react";
 import placeholderIcon from '@/assets/images/placeholder.jpg';
 
 
 interface CustomAvatarAndUsernameProps {
   imageUrl?: string;
+  isContractAdmin?: boolean;
   userName?: string;
   avatarSize?: number;
   displayName?: string;
   userNameBold?: boolean;
 }
 
-const CustomAvatarAndUsername: React.FC<CustomAvatarAndUsernameProps> = ({
+const CustomAvatarAndUsername: React.FC<CustomAvatarAndUsernameProps> = memo(({
   imageUrl,
   userName,
   displayName,
+  isContractAdmin,
   avatarSize = 40,
   userNameBold = false,
 }) => {
@@ -31,6 +33,7 @@ const CustomAvatarAndUsername: React.FC<CustomAvatarAndUsernameProps> = ({
         style={{
           width: avatarSize,
           height: avatarSize,
+          minWidth: avatarSize,
           borderRadius: "50%",
           marginRight: 8,
           objectFit: "cover",
@@ -39,12 +42,20 @@ const CustomAvatarAndUsername: React.FC<CustomAvatarAndUsernameProps> = ({
 
       <div className="flex flex-col items-start">
         {userName && (
-          <p className={userNameBold ? "font-bold" : ""}>{userName}</p>
+          <div className="flex items-center">
+            <p className={userNameBold ? "font-bold" : ""}>{userName}</p>
+            {/* {isContractAdmin && <Tag className="bg-sky-100 text-sky-600 dark:bg-sky-500/20 dark:text-sky-100 rounded-md border-0 p-1 ml-1">
+              <span>
+                Admin
+              </span>
+            </Tag>} */}
+          </div>
         )}
         {displayName && <p>{displayName}</p>}
+
       </div>
     </div>
   );
-};
+});
 
 export default CustomAvatarAndUsername;

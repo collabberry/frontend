@@ -12,27 +12,25 @@ import {
   resetInvitationToken,
   resetRoundsState,
   saveInvitationToken,
-  setAllRounds,
-  setCurrentRound,
-  RootState,
+  resetAdmins,
 } from "@/store";
 import appConfig from "@/configs/app.config";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAccount, useDisconnect } from "wagmi";
 import { useEffect, useMemo } from "react";
 import {
-  apiGetCurrentRound,
   apiGetOrganizationById,
-  apiGetRounds,
 } from "@/services/OrgService";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
-import { useSelector } from "react-redux";
+import { useAdminContractService } from "@/services/AdminContractService";
+import { refreshAllRounds, refreshCurrentRound } from "@/services/LoadAndDispatchService";
 
 type Status = "success" | "failed";
 
 function useAuth() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { checkIsAdmin, ethersSigner } = useAdminContractService();
   const { disconnectAsync } = useDisconnect();
   const { isDisconnected } = useAccount();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -73,6 +71,7 @@ function useAuth() {
         } else {
           dispatch(signInSuccess(token));
         }
+
         dispatch(
           setUser({
             profilePicture: user?.profilePicture,
@@ -101,18 +100,8 @@ function useAuth() {
             handleError(error.response.data.message);
           }
 
-          try {
-            const allRoundsResponse = await apiGetRounds();
-            if (allRoundsResponse.data) {
-              dispatch(setAllRounds(allRoundsResponse.data));
-            }
-          } catch (error: any) { }
-          try {
-            const roundResponse = await apiGetCurrentRound();
-            if (roundResponse.data) {
-              dispatch(setCurrentRound(roundResponse.data));
-            }
-          } catch (error: any) { }
+          refreshAllRounds(dispatch);
+          refreshCurrentRound(dispatch);
         }
         navigate(url);
         return {
@@ -155,6 +144,7 @@ function useAuth() {
     dispatch(signOutSuccess());
     dispatch(resetUser());
     dispatch(resetOrganization());
+    dispatch(resetAdmins());
     dispatch(resetInvitationToken());
     dispatch(resetRoundsState());
 

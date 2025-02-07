@@ -1,4 +1,4 @@
-import { addReviewedMember, RootState, setAllRounds, setCurrentRound } from "@/store";
+import { RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { useEffect, useMemo, useState } from "react";
@@ -10,27 +10,23 @@ import {
   FormContainer,
   FormItem,
   Input,
-  Steps,
 } from "@/components/ui";
 import ViewAgreement, { ContributorHeader } from "../Team/ViewAgreement";
 import { Contributor } from "@/models/Organization.model";
 import BerryRating from "@/components/collabberry/custom-components/CustomFields/BerryRating";
 import { useFormik } from "formik";
-import { StepStatus } from "@/components/ui/@types/common";
 import { CustomSteps } from "@/components/ui/Steps";
-import { set } from "lodash";
-import { ReactElement } from "react-markdown/lib/react-markdown";
 import {
   getCultureScoreDescription,
   getWorkContributionDescription,
 } from "./score-helpers";
-import { apiAddAssessment, apiGetCurrentRound, apiGetRounds } from "@/services/OrgService";
+import { apiAddAssessment } from "@/services/OrgService";
 import {
   handleError,
-  handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/success.json";
+import { refreshAllRounds, refreshCurrentRound } from "@/services/LoadAndDispatchService";
 
 const Assess = () => {
   const dispatch = useDispatch();
@@ -113,25 +109,8 @@ const Assess = () => {
       const response = await apiAddAssessment(assessment);
       const { data } = response;
       if (data && organization.id) {
-
-
-        try {
-          const allRoundsResponse = await apiGetRounds();
-          if (allRoundsResponse.data) {
-            dispatch(setAllRounds(allRoundsResponse.data));
-          }
-        } catch (error: any) { }
-
-        try {
-          const roundResponse = await apiGetCurrentRound();
-          if (roundResponse.data) {
-            dispatch(setCurrentRound(roundResponse.data));
-          }
-        } catch (error: any) {
-          handleError(error.response.data.message);
-        }
-
-
+        refreshAllRounds(dispatch);
+        refreshCurrentRound(dispatch);      
       }
 
       setReviewedMembers([...reviewedMembers, currentMember.id]);

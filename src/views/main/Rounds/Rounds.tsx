@@ -1,56 +1,37 @@
-import { Assessment } from "@/@types/auth";
 import RoundStatusTag from "@/components/collabberry/custom-components/CustomFields/RoundStatusTag";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
 import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
-import { Alert, Button, Skeleton, Switcher } from "@/components/ui";
+import { Button, Dialog, Tooltip } from "@/components/ui";
+import { useDialog } from "@/services/DialogService";
 import {
-  apiActivateRounds,
-  apiAddAssessment,
-  apiGetCurrentRound,
-  apiGetOrganizationById,
   apiGetRoundById,
-  apiGetRounds,
 } from "@/services/OrgService";
 import {
   RootState,
-  setAllRounds,
-  setOrganization,
-  setCurrentRound,
   setSelectedRound,
 } from "@/store";
 import { ColumnDef } from "@tanstack/react-table";
-import { all } from "axios";
-import { set } from "lodash";
-import React, { useMemo } from "react";
-import { FiRefreshCw } from "react-icons/fi";
+import React from "react";
+import { FiEdit, FiList } from "react-icons/fi";
 import { HiInformationCircle } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import EditRoundForm from "./EditRoundForm";
+import { refreshAllRounds } from "@/services/LoadAndDispatchService";
 
 const Rounds: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [loading, setLoading] = React.useState(false);
-  const { allRounds } = useSelector(
+  const { isAdmin } = useSelector((state: RootState) => state.auth.user);
+  const { allRounds, selectedRound } = useSelector(
     (state: RootState) => state.auth.rounds
   );
-
-
+  const { isOpen: isEditRoundDialogOpen, openDialog: openEditRoundDialog, closeDialog: closeEditRoundDialog } = useDialog();
 
   React.useEffect(() => {
-    const fetchAllRounds = async () => {
-      try {
-        const allRoundsResponse = await apiGetRounds();
-        if (allRoundsResponse.data) {
-          dispatch(setAllRounds(allRoundsResponse.data));
-        }
-      } catch (error: any) {
-        handleError(error.response.data.message);
-      }
-    };
-    fetchAllRounds();
-  }, []);
+    refreshAllRounds(dispatch);
+  }, [dispatch]);
 
   const goToRound = async (round: any) => {
     try {
@@ -63,6 +44,8 @@ const Rounds: React.FC = () => {
       handleError(error.response.data.message);
     }
   };
+
+
 
   const columns: ColumnDef<any>[] = [
     {
@@ -141,20 +124,37 @@ const Rounds: React.FC = () => {
       },
     },
     {
-      header: "Go to Round",
+      header: "Action",
       id: "round",
       cell: (props) => {
         const round = props.row.original;
         return (
           <div>
             {round?.id ? (
-              <Button
-                size="sm"
-                variant="plain"
-                onClick={() => goToRound(round)}
-              >
-                Go to Round
-              </Button>
+              <div className="flex gap-2">
+
+                <Tooltip title="Go To Round">
+                  <Button
+                    size="sm"
+                    shape="circle"
+                    icon={<FiList />}
+                    onClick={() => goToRound(round)}
+                  >
+                  </Button>
+                </Tooltip>
+                {isAdmin && (round.status === RoundStatus.InProgress || round.status === RoundStatus.NotStarted) && (
+                  <Tooltip title="Edit Round">
+                    <Button
+                      size="sm"
+                      shape="circle"
+                      icon={<FiEdit />}
+                      onClick={() => editRound(round)}
+                    >
+                    </Button>
+                  </Tooltip>
+
+                )}
+              </div>
             ) : null}
           </div>
         );
@@ -162,11 +162,35 @@ const Rounds: React.FC = () => {
     },
   ];
 
+  const editRound = async (round: any) => {
+    try {
+      const selRound = await apiGetRoundById(round.id);
+      if (selRound?.data) {
+        dispatch(setSelectedRound(selRound.data));
+        openEditRoundDialog();
+      }
+    } catch (error: any) {
+      handleError(error.response.data.message);
+    }
+
+  }
+
   return (
     <div>
       <div className="flex flex-row gap-2 items-center">
         <h1>Rounds</h1>
       </div>
+      {
+        isEditRoundDialogOpen && (
+          <Dialog
+            isOpen={isEditRoundDialogOpen}
+            onClose={closeEditRoundDialog}
+            width={600}
+          >
+            <EditRoundForm handleClose={closeEditRoundDialog} round={selectedRound} />
+          </Dialog>
+        )
+      }
 
       <div className="mt-4">
         {allRounds.length ? (
@@ -178,10 +202,10 @@ const Rounds: React.FC = () => {
               </>) : ()
             } */}
             <CustomTableWithSorting
-                data={allRounds || []}
-                columns={columns}
-                initialSort={[{ id: "roundNumber", desc: true }]}
-              />
+              data={allRounds || []}
+              columns={columns}
+              initialSort={[{ id: "roundNumber", desc: true }]}
+            />
 
           </>
         ) : (
