@@ -415,7 +415,7 @@ const RoundView: React.FC = () => {
 
             </div>
             {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && !selectedRound.txHash && (<div>
-              <Button type="button" onClick={mintTeamPoints} disabled={loading}>
+              <Button  variant="solid" type="button" onClick={mintTeamPoints} disabled={loading}>
                 Mint Team Points
               </Button>
             </div>)}

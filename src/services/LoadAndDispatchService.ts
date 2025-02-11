@@ -21,6 +21,8 @@ export const refreshOrganizationData = async (orgId: string, dispatch: Dispatch<
       const allRoundsResponse = await apiGetRounds();
       if (allRoundsResponse.data) {
         dispatch(setAllRounds(allRoundsResponse.data));
+      } else{
+        dispatch(setAllRounds([]));
       }
     } catch (error: any) {
       handleError(error.response.data.message);
@@ -32,7 +34,10 @@ export const refreshOrganizationData = async (orgId: string, dispatch: Dispatch<
       const roundResponse = await apiGetCurrentRound();
       if (roundResponse.data) {
         dispatch(setCurrentRound(roundResponse.data));
+      } else {
+        dispatch(setCurrentRound({}));
       }
+
     } catch (error: any) {
       handleError(error.response.data.message);
     }
