@@ -32,12 +32,16 @@ const ValidationStepsSchema = Yup.object().shape({
     .required("Name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
   image: Yup.mixed().notRequired(),
+  telegramHandle: Yup.string().notRequired(),
+
+
 });
 
 const initialValues = {
   username: "",
   email: "",
   image: null,
+  telegramHandle: "",
 };
 
 const SignUpWithInviteLink = () => {
@@ -58,7 +62,7 @@ const SignUpWithInviteLink = () => {
 
   const formik = useFormik({
     onSubmit: async (values) => {
-      const { username, email, image } = values;
+      const { username, email, image, telegramHandle } = values;
       const data: any = {
         username,
         email,
@@ -67,6 +71,10 @@ const SignUpWithInviteLink = () => {
 
       if (image) {
         data.profilePicture = image;
+      }
+
+      if (telegramHandle) {
+        data.telegramHandle = telegramHandle;
       }
       try {
         const response = await apiRegisterAccount(data);
@@ -167,7 +175,13 @@ const SignUpWithInviteLink = () => {
                     value={formik.values.image}
                   />
                 </FormItem>
-                <FormItem label="Name">
+                <FormItem label="Name"
+                  errorMessage={formik.errors?.username}
+                  invalid={
+                    formik.touched?.username && !!formik.errors?.username
+                  }
+                  asterisk
+                >
                   <Input
                     name="username"
                     onChange={formik.handleChange}
@@ -175,14 +189,39 @@ const SignUpWithInviteLink = () => {
                     value={formik.values.username}
                   />
                 </FormItem>
-                <FormItem label="Email">
-                  <Input
-                    name="email"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.email}
-                  />
-                </FormItem>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormItem label="Email"
+                    invalid={
+                      formik.touched?.email && !!formik.errors?.email
+                    }
+                    errorMessage={formik.errors?.email
+                    }
+
+                  >
+                    <Input
+                      name="email"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.email}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="Telegram Handle"
+                    invalid={
+                      formik.touched?.telegramHandle && !!formik.errors?.telegramHandle
+                    }
+                    errorMessage={formik.errors?.telegramHandle}
+                  >
+                    <Input
+                      name="telegramHandle"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.telegramHandle}
+                    />
+                  </FormItem>
+
+                </div>
+
               </FormContainer>
               <div className="mt-4 text-right">
                 <Button

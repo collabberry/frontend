@@ -78,6 +78,7 @@ function useAuth() {
             userName: user?.username,
             authority: user?.isAdmin ? ["ADMIN"] : ["USER"],
             email: user?.email,
+            telegramHandle: user?.telegramHandle,
             id: user?.id,
             isAdmin: user?.isAdmin,
             totalFiat: user?.totalFiat,

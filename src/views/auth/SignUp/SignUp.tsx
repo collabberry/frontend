@@ -56,7 +56,9 @@ const ValidationStepsSchema = Yup.object().shape({
       .min(3, "Username must be at least 3 characters.")
       .required(fieldRequired),
     email: Yup.string().email("Invalid e-mail.").required(fieldRequired),
+    telegramHandle: Yup.string().notRequired(),
     image: Yup.mixed().notRequired(),
+    
   }),
   step2: Yup.object().shape({
     logo: Yup.mixed().notRequired(),
@@ -93,6 +95,7 @@ const initialValues = {
   step1: {
     username: "",
     email: "",
+    telegramHandle: "",
     image: null,
   },
   step2: {
@@ -142,7 +145,7 @@ const SignUp = () => {
 
   const createProfile = async () => {
     formik.setSubmitting(true);
-    const { username, email, image } = formik.values.step1;
+    const { username, email, image, telegramHandle } = formik.values.step1;
     const data: RegisterCredential = {
       username,
       email,
@@ -151,6 +154,10 @@ const SignUp = () => {
     if (image) {
       data.profilePicture = image;
     }
+
+    if (telegramHandle) {
+      data.telegramHandle = telegramHandle;
+    } 
     try {
       const response = await apiRegisterAccount(data);
       if (response?.data) {
@@ -172,6 +179,7 @@ const SignUp = () => {
                 userName: response?.data?.username,
                 authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
                 email: response?.data?.email,
+                telegramHandle: response?.data?.telegramHandle,
                 isAdmin: response?.data?.isAdmin,
                 organization: response?.data?.organization,
                 totalFiat: response?.data?.totalFiat
@@ -256,6 +264,7 @@ const SignUp = () => {
                     userName: response?.data?.username,
                     authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
                     email: response?.data?.email,
+                    telegramHandle: response?.data?.telegramHandle,
                     isAdmin: response?.data?.isAdmin,
                     totalFiat: response?.data?.totalFiat
                   })
@@ -454,7 +463,8 @@ const SignUp = () => {
                 value={formik.values.step1.username}
               />
             </FormItem>
-            <FormItem
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormItem
               label="Email"
               asterisk
               invalid={
@@ -469,6 +479,21 @@ const SignUp = () => {
                 value={formik.values.step1.email}
               />
             </FormItem>
+            <FormItem
+              label="Telegram Handle"
+              invalid={
+                formik.touched?.step1?.telegramHandle && !!formik.errors?.step1?.telegramHandle
+              }
+              errorMessage={formik.errors?.step1?.telegramHandle}
+            >
+              <Input
+                name="step1.telegramHandle"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.step1.telegramHandle}
+              />
+            </FormItem>
+        </div>
           </FormContainer>
         );
       case 1:
