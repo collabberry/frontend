@@ -3,11 +3,17 @@ import { RootState, setSelectedRound } from "@/store";
 import React from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { ScoreCard, ScoreDetailCard } from "../Scores/MyScores";
 import { Alert, Avatar, Button, Card, Skeleton } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
 import { HiArrowSmLeft } from "react-icons/hi";
 import placeholderIcon from '@/assets/images/placeholder.jpg';
+import { ScoreDetailCard } from "../Scores/ScoreDetailCard";
+import BerryPartialRating from "@/components/collabberry/custom-components/CustomFields/BerryPartialRating";
+import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
+
+const NoScoreAvailable: React.FC = () => (
+  <span className="font-semibold ml-1">N/A</span>
+);
 
 
 const ContributorScoreView: React.FC = () => {
@@ -89,21 +95,57 @@ const ContributorScoreView: React.FC = () => {
                     <div>
                       <div className="flex justify-between">
                         <span>Total Score:</span>
-                        <span className="font-bold ml-1">
-                          {selectedUser?.totalScore.toFixed(1) || 0}
-                        </span>
+                        {
+                          selectedRound?.status === RoundStatus.Completed ? (
+                            <div className="flex flex-row gap-1 items-center">
+                              <span className="font-bold ml-1">
+                                {selectedUser?.totalScore.toFixed(1) || 0}
+                              </span>
+                              <BerryPartialRating rating={+selectedUser?.totalScore?.toFixed(1)} width={14} height={14} />
+                            </div>
+
+                          ) : (
+                            <NoScoreAvailable />
+                          )
+                        }
+
+
                       </div>
                       <div className="flex justify-between">
                         <span> Work Score:</span>
-                        <span className="font-bold ml-1">
-                          {selectedUser?.workScore.toFixed(1) || 0}
-                        </span>
+
+                        {
+                          selectedRound?.status === RoundStatus.Completed ? (
+                            <div className="flex flex-row gap-1 items-center">
+                              <span className="font-bold ml-1">
+                                {selectedUser?.workScore.toFixed(1) || 0}
+                              </span>
+                              <BerryPartialRating rating={+selectedUser?.workScore?.toFixed(1)} width={14} height={14} />
+                            </div>
+
+                          ) : (
+                            <NoScoreAvailable />
+                          )
+                        }
+
                       </div>
                       <div className="flex justify-between">
                         <span> Culture Score:</span>
-                        <span className="font-bold ml-1">
-                          {selectedUser?.cultureScore.toFixed(1) || 0}
-                        </span>
+
+                        {
+                          selectedRound?.status === RoundStatus.Completed ? (
+                            <div className="flex flex-row gap-1 items-center">
+                              <span className="font-bold ml-1">
+                                {selectedUser?.cultureScore.toFixed(1) || 0}
+                              </span>
+                              <BerryPartialRating rating={+selectedUser?.cultureScore?.toFixed(1)} width={14} height={14} />
+                            </div>
+
+                          ) : (
+                            <NoScoreAvailable />
+                          )
+                        }
+
                       </div>
                     </div>
                   </div>

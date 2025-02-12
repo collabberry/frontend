@@ -412,21 +412,19 @@ const RoundView: React.FC = () => {
               {selectedRound?.status === RoundStatus.Completed && (
                 <MintStatusTag minted={selectedRound?.txHash ? true : false} />
               )}
-
             </div>
-            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && !selectedRound.txHash && (<div>
+            {user?.isAdmin && contributors.length && selectedRound?.status === RoundStatus.Completed && !selectedRound.txHash ? (<div>
               <Button  variant="solid" type="button" onClick={mintTeamPoints} disabled={loading}>
                 Mint Team Points
               </Button>
-            </div>)}
-            {user?.isAdmin && selectedRound?.status === RoundStatus.Completed && selectedRound.txHash && (<div>
+            </div>) : null}
+            {user?.isAdmin && contributors.length && selectedRound?.status === RoundStatus.Completed && selectedRound.txHash ? (<div>
 
               <a
                 href={`${blockExplorer}/${selectedRound.txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-
                 <p className="button flex items-center bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 active:bg-gray-100 dark:active:bg-gray-500 dark:active:border-gray-500 text-gray-600 dark:text-gray-100 radius-round h-9 px-3 py-2 text-sm"
                 >
                   <span>View Team Points Minted</span>
@@ -435,9 +433,8 @@ const RoundView: React.FC = () => {
                 </p>
 
               </a>
-
-            </div>)}
-            {selectedRound?.status === RoundStatus.InProgress && (
+            </div>) : null}
+            {selectedRound?.status === RoundStatus.InProgress && contributors.length && (
               <div className="flex flex-row items-center rounded bg-gray-200 p-2">
                 <FiClock className="text-berrylavender-500 mr-2 text-2xl" />
                 <div className="text-gray-900 mr-2 text-lg">Time left</div>
@@ -451,6 +448,7 @@ const RoundView: React.FC = () => {
           <div className="mt-4">
             <CustomTableWithSorting
               data={contributors || []}
+              loadingEnabled={false}
               columns={
                 user?.isAdmin &&
                   selectedRound?.status === RoundStatus.InProgress

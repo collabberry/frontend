@@ -30,6 +30,7 @@ export type SignUpCredential = {
 export type RegisterCredential = {
   username: string;
   email: string;
+  telegramHandle?: string;
   profilePicture?: File | null;
 };
 

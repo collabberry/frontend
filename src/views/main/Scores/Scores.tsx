@@ -9,7 +9,9 @@ import CustomTableWithSorting from "@/components/collabberry/custom-components/C
 import RoundStatusTag from "@/components/collabberry/custom-components/CustomFields/RoundStatusTag";
 import { HiInformationCircle } from "react-icons/hi";
 import { refreshAllRounds } from "@/services/LoadAndDispatchService";
-import { FiList } from "react-icons/fi";
+import { MdOutlineAssessment } from "react-icons/md";
+import { BsListStars } from "react-icons/bs";
+
 
 const Scores: React.FC = () => {
   const dispatch = useDispatch();
@@ -28,13 +30,20 @@ const Scores: React.FC = () => {
     navigate("my-scores");
   };
 
+  const seeMyAssessments = (round: any) => {
+    dispatch(setSelectedRound(round));
+    navigate("my-submitted-assessments");
+  };
+
+
   const columns: ColumnDef<any>[] = [
     {
       header: "Round",
+      accessorKey: "roundNumber",
       cell: (props) => {
         const data = props.row.original;
         const value = props.getValue() as string;
-        return <span>{"Round 1"}</span>;
+        return <span>{`Round ${data?.roundNumber}`}</span>;
       },
     },
     {
@@ -114,24 +123,36 @@ const Scores: React.FC = () => {
     // },
 
     {
-      header: "Results",
+      header: "Assessments",
       id: "round",
       cell: (props) => {
         const round = props.row.original;
         return (
-          <div>
+          <div className="flex gap-2">
+             <Tooltip title={`Go to Submitted Assessments`}>
+              <Button
+                size="sm"
+                shape="circle"
+                icon={<MdOutlineAssessment />}
+                onClick={() => seeMyAssessments(round)}
+              >
+              </Button>
+            </Tooltip>
             {round && round.status === RoundStatus.Completed ? (
-               <Tooltip title={`Go to scores`}>
-                            <Button
-                              size="sm"
-                              shape="circle"
-                              icon={<FiList />}
-                              onClick={() => seeMyScores(round)}
-                            >
-                            </Button>
-                          </Tooltip>
-           
+              <Tooltip title={`Go to My Results`}>
+                <Button
+                  size="sm"
+                  shape="circle"
+                  variant="solid"
+                  color="emerald"
+                  icon={<BsListStars />}
+                  onClick={() => seeMyScores(round)}
+                >
+                </Button>
+              </Tooltip>
+
             ) : null}
+           
           </div>
         );
       },
@@ -143,7 +164,8 @@ const Scores: React.FC = () => {
       <h1>Results</h1>
       <div className="mt-4">
         {allRounds && allRounds.length ? (
-          <CustomTableWithSorting data={allRounds || []} columns={columns} />
+          <CustomTableWithSorting data={allRounds || []} columns={columns} initialSort={[{ id: "roundNumber", desc: true }]}
+          />
         ) : (
           <div className="mt-4 flex-row flex justify-start items-center bg-gray-100 dark:bg-gray-700 gap-1 p-3 rounded-lg">
             <HiInformationCircle className="text-2xl" />
