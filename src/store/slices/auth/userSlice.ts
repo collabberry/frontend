@@ -6,6 +6,7 @@ export type UserState = {
   profilePicture?: string;
   userName?: string;
   email?: string;
+  telegramHandle?: string;
   authority?: string[];
   isAdmin?: boolean;
   isContractAdmin?: boolean;
@@ -18,6 +19,7 @@ const initialState: UserState = {
   id: "",
   userName: "",
   email: "",
+  telegramHandle: "",
   authority: [],
   isAdmin: false,
   isContractAdmin: false,
@@ -32,6 +34,7 @@ const userSlice = createSlice({
     resetUser(state) {
       state.profilePicture = initialState.profilePicture;
       state.email = initialState.email;
+      state.telegramHandle = initialState.telegramHandle;
       state.userName = initialState.userName;
       state.authority = initialState.authority;
       state.id = initialState.id;
@@ -43,6 +46,7 @@ const userSlice = createSlice({
     setUser(state, action: PayloadAction<UserState>) {
       state.profilePicture = action.payload?.profilePicture;
       state.email = action.payload?.email;
+      state.telegramHandle = action.payload?.telegramHandle;
       state.userName = action.payload?.userName;
       state.authority = action.payload?.authority;
       state.id = action.payload?.id;

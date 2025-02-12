@@ -177,6 +177,7 @@ const Dashboard = () => {
               userName: response?.data?.username,
               authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
               email: response?.data?.email,
+              telegramHandle: response?.data?.telegramHandle,
               isAdmin: response?.data?.isAdmin,
               totalFiat: response?.data?.totalFiat,
               organization: response?.data?.organization,
