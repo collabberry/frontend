@@ -20,7 +20,7 @@ import {
   getCultureScoreDescription,
   getWorkContributionDescription,
 } from "./score-helpers";
-import { apiAddAssessment } from "@/services/OrgService";
+import { apiAddAssessment, apiEditAssessment } from "@/services/OrgService";
 import {
   handleError,
 } from "@/components/collabberry/helpers/ToastNotifications";
@@ -31,12 +31,16 @@ import { refreshAllRounds, refreshCurrentRound } from "@/services/LoadAndDispatc
 const Assess = () => {
   const dispatch = useDispatch();
   const organization = useSelector((state: RootState) => state.auth.org);
+  const currentRound = useSelector(
+    (state: RootState) => state.auth.rounds.currentRound
+  );
   const [teamMemberIndex, setTeamMemberIndex] = useState(0);
   const [reviewedMembers, setReviewedMembers] = useState<string[]>([]);
 
   const { teamMembers } = useSelector(
     (state: RootState) => state.auth.assessment
   );
+
   const validationSchema = useMemo(() => {
     const schemaShape = teamMembers.reduce(
       (acc: { [key: string]: Yup.ObjectSchema<any> }, member) => {
@@ -73,25 +77,23 @@ const Assess = () => {
     feedbackPositive: "",
     feedbackNegative: "",
   };
+  const getInitialValues = (member: Contributor) => {
+    if (member.submittedAssessment && member.submittedAssessment.id) {
+      return {
+        cultureScore: member.submittedAssessment.cultureScore,
+        workScore: member.submittedAssessment.workScore,
+        feedbackPositive: member.submittedAssessment.feedbackPositive,
+        feedbackNegative: member.submittedAssessment.feedbackNegative,
+      };
+    }
+    return memberInitialValues;
+  };
 
   const formik = useFormik({
-    initialValues: teamMembers.reduce(
-      (
-        acc: {
-          [key: string]: {
-            cultureScore: number;
-            workScore: number;
-            feedbackPositive: string;
-            feedbackNegative: string;
-          };
-        },
-        member
-      ) => {
-        acc[member.id] = memberInitialValues;
-        return acc;
-      },
-      {}
-    ),
+    initialValues: teamMembers.reduce((acc: any, member: Contributor) => {
+      acc[member.id] = getInitialValues(member);
+      return acc;
+    }, {}),
     validateOnMount: true,
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -99,31 +101,95 @@ const Assess = () => {
     },
   });
 
+  // const handleSubmit = async (values: any) => {
+  //   const currentMemberData = values[currentMember.id];
+  //   const assessment = {
+  //     ...currentMemberData,
+  //     contributorId: currentMember.id,
+  //   };
+  //   try {
+  //     const response = await apiAddAssessment(assessment);
+  //     const { data } = response;
+  //     if (data && organization.id) {
+  //       refreshAllRounds(dispatch);
+  //       refreshCurrentRound(dispatch);
+  //     }
+
+  //     setReviewedMembers([...reviewedMembers, currentMember.id]);
+  //     const nextIncompleteStep = teamMembers.findIndex(
+  //       (member, index) =>
+  //         !reviewedMembers.includes(member.id) && index !== teamMemberIndex
+  //     );
+
+  //     if (nextIncompleteStep !== -1) {
+  //       setTeamMemberIndex(nextIncompleteStep);
+  //     }
+  //   } catch (error: any) {
+  //     handleError(error.response.data.message);
+  //   }
+  // };
+
+
   const handleSubmit = async (values: any) => {
     const currentMemberData = values[currentMember.id];
-    const assessment = {
-      ...currentMemberData,
-      contributorId: currentMember.id,
-    };
+
     try {
-      const response = await apiAddAssessment(assessment);
-      const { data } = response;
-      if (data && organization.id) {
-        refreshAllRounds(dispatch);
-        refreshCurrentRound(dispatch);      
+      if (currentMember.submittedAssessment && currentMember.submittedAssessment.id) {
+        const { submittedAssessment } = currentMember;
+        const { id, assessedId, assessedName, assessorId, assessorName, ...restOfSubmittedAssessment } = submittedAssessment;
+        const updatedAssessment = {
+          ...restOfSubmittedAssessment,
+          ...currentMemberData,
+          contributorId: currentMember.id,
+        };
+        // If editing fails, the following line throws an error and execution jumps to catch.
+        await onEditAssessment(updatedAssessment, id);
+      } else {
+        // Create a new assessment.
+        const assessment = {
+          ...currentMemberData,
+          contributorId: currentMember.id,
+        };
+        const response = await apiAddAssessment(assessment);
+        if (response && response.data && organization.id) {
+          refreshAllRounds(dispatch);
+          refreshCurrentRound(dispatch);
+        }
       }
 
-      setReviewedMembers([...reviewedMembers, currentMember.id]);
+      // If execution reaches here, neither adding nor editing failed.
+      if (!reviewedMembers.includes(currentMember.id)) {
+        setReviewedMembers([...reviewedMembers, currentMember.id]);
+      }
+
       const nextIncompleteStep = teamMembers.findIndex(
         (member, index) =>
           !reviewedMembers.includes(member.id) && index !== teamMemberIndex
       );
-
       if (nextIncompleteStep !== -1) {
         setTeamMemberIndex(nextIncompleteStep);
       }
     } catch (error: any) {
-      handleError(error.response.data.message);
+      // The error is handled here. The current member remains unchanged (i.e. not marked as reviewed)
+      // and the user will not navigate to the next member.
+      const errorMessage = currentMember.submittedAssessment
+        ? error.response?.data?.message || "Error editing assessment"
+        : error.response?.data?.message || "Error creating assessment";
+
+      handleError(errorMessage);
+    }
+  };
+
+  const onEditAssessment = async (assessment: any, assessmentId: string) => {
+    try {
+      const response = await apiEditAssessment(
+        assessmentId,
+        currentRound?.id,
+        assessment
+      );
+
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -290,7 +356,7 @@ const Assess = () => {
                   onClick={() => handleSubmit(formik.values)}
                   disabled={!isMemberFormValid || formik.isSubmitting}
                 >
-                  Submit
+                  {currentMember.submittedAssessment?.id ? "Edit Assessment" : "Submit Assessment"}
                 </Button>
               </div>
             </div>

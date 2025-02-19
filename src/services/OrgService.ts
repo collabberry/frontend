@@ -68,6 +68,14 @@ export async function apiAddAssessment(data: Assessment) {
   });
 }
 
+export async function apiEditAssessment(assessmentId: string, roundId: string, data: Assessment) {
+  return ApiService.fetchData<any>({
+    url: `/rounds/${roundId}/assessments/${assessmentId}`,
+    method: "put",
+    data,
+  });
+}
+
 export async function apiCreateContributorAgreement(data: any) {
   return ApiService.fetchData<any>({
     url: `/orgs/agreement`,

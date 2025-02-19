@@ -15,6 +15,7 @@ export interface Contributor {
     profilePicture?: string;
     isAdmin?: boolean;
     isContractAdmin?: boolean;
+    submittedAssessment?: any
 }
 
 export interface Organization {

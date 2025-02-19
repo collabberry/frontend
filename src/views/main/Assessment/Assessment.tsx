@@ -120,11 +120,17 @@ const Assessment = () => {
           Object.keys(contributor.agreement).length > 0 &&
           !isCurrentUser(contributor)
         ) {
+          // Find the submitted assessment for this contributor if one exists
+          const submittedAssessment = submittedAssessments?.find(
+            (assessment: { assessedId: string }) => assessment.assessedId === contributor.id
+          );
+  
           acc.push({
             ...contributor,
             disabled: isContributorDisabled(contributor),
             hasAgreement: true,
-            alreadyReviewed: isContributorAlreadyReviewed(contributor),
+            alreadyReviewed: Boolean(submittedAssessment),
+            submittedAssessment: submittedAssessment, 
           });
         }
         return acc;
@@ -132,13 +138,14 @@ const Assessment = () => {
       [] as any[]
     );
     return filteredContributors;
-  }, [organization, submittedAssessments]);
+  }, [organization, submittedAssessments, isCurrentUser, isContributorDisabled]);
 
-  const isAssessmentDone = useMemo(() => {
-    return contributorsWithDisabledFlag.every(
-      (contributor) => contributor.alreadyReviewed
-    );
-  }, [submittedAssessments, contributorsWithDisabledFlag]);
+
+  // const isAssessmentDone = useMemo(() => {
+  //   return contributorsWithDisabledFlag.every(
+  //     (contributor) => contributor.alreadyReviewed
+  //   );
+  // }, [submittedAssessments, contributorsWithDisabledFlag]);
 
   const columns = useMemo<ColumnDef<Contributor>[]>(() => [
     {
@@ -190,13 +197,15 @@ const Assessment = () => {
                     assessments once the next round starts.
                   </p>
                 </Alert>
-              ) : isAssessmentDone ? (
-                <Alert showIcon type="warning" className="mt-4">
-                  <p>
-                    It looks like you've already assessed all the members of your team. See you for the next round!
-                  </p>
-                </Alert>
-              ) : (
+              ) : 
+              // isAssessmentDone ? (
+              //   <Alert showIcon type="warning" className="mt-4">
+              //     <p>
+              //       It looks like you've already assessed all the members of your team. See you for the next round!
+              //     </p>
+              //   </Alert>
+              // ) : 
+              (
                 <div className="mt-4 text-md font-bold text-gray-500">
                   Select the team members you interacted with last month.
                 </div>
@@ -208,15 +217,16 @@ const Assessment = () => {
 
       {isLoading ? (<Skeleton height={200} className="mt-8 mb-8" />) : (
         <>
-          {isTableDisabled || isAssessmentDone ? (
+          {isTableDisabled  ? (
             <div className="mt-8 mb-8">
               <LottieAnimation animationData={animationData} />
             </div>
-          ) : contributorsWithDisabledFlag.length > 0 && !isAssessmentDone ? (
+          ) : contributorsWithDisabledFlag.length > 0 ? (
             <CustomSelectTable
               data={contributorsWithDisabledFlag || []}
               columns={columns}
               onSubmit={onSubmit}
+              submitBtnText="Proceed to Assessment"
               disabled={isTableDisabled}
             />
           ) : (
