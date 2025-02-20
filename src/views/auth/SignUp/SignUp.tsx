@@ -111,6 +111,19 @@ const initialValues = {
   },
 };
 
+const getButtonText = (step: number) => {
+  switch (step) {
+    case 0:
+      return "Create Profile";
+    case 1:
+      return "Create Organization";
+    case 2:
+      return "Add Agreement";
+    default:
+      return "Submit";
+  }
+};
+
 const SignUp = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -431,11 +444,11 @@ const SignUp = () => {
         return (
           <FormContainer>
             <h2 className="text-2xl font-bold mb-4 mt-4">
-              Create Your Profile
+              Create Your Admin Profile
             </h2>
 
             <FormItem
-              label="Profile Picture"
+              label="Your Profile Picture"
               errorMessage={formik.errors?.step1?.image}
               invalid={
                 formik.touched?.step1?.image && !!formik.errors?.step1?.image
@@ -448,7 +461,7 @@ const SignUp = () => {
               />
             </FormItem>
             <FormItem
-              label="Name"
+              label="Your Name"
               asterisk
               invalid={
                 formik.touched?.step1?.username &&
@@ -558,7 +571,7 @@ const SignUp = () => {
             </Dialog>
             <FormContainer>
               <h2 className="text-2xl font-bold mb-4 mt-4">
-                Create New Organization
+                Create Your Organization
               </h2>
               <FormItem
                 label="Image"
@@ -858,7 +871,7 @@ const SignUp = () => {
                 variant="solid"
                 onClick={handleNext}
               >
-                {currentStep === 3 ? "Completed" : "Submit"}
+                {getButtonText(currentStep)}
               </Button>
             </div>
           </form>
