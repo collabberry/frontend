@@ -168,14 +168,14 @@ const SignUpWithInviteLink = () => {
                   Create Your Profile
                 </h2>
 
-                <FormItem label="Profile Picture">
+                <FormItem label="Your Profile Picture">
                   <AvatarImage
                     setFieldValue={formik.setFieldValue}
                     field="image"
                     value={formik.values.image}
                   />
                 </FormItem>
-                <FormItem label="Name"
+                <FormItem label="Your Name"
                   errorMessage={formik.errors?.username}
                   invalid={
                     formik.touched?.username && !!formik.errors?.username

@@ -7,20 +7,20 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import Pagination from "@/components/ui/Pagination";
-import type { ColumnDef, ColumnSort } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
   Button,
   Checkbox,
   CheckboxProps,
   Select,
-  Tooltip,
+  Tag,
 } from "@/components/ui";
-import { FiInfo } from "react-icons/fi";
 
 type CustomSelectTableProps<T> = {
   data: T[];
   columns: ColumnDef<T>[];
   onSubmit: (data: any) => void;
+  submitBtnText?: string;
   disabled?: boolean;
 };
 
@@ -61,6 +61,7 @@ const CustomSelectTable = <T,>({
   data,
   columns,
   onSubmit,
+  submitBtnText = "Submit",
   disabled = false,
 }: CustomSelectTableProps<T>) => {
   const shouldShowPagination = data.length >= 10;
@@ -75,57 +76,29 @@ const CustomSelectTable = <T,>({
 
   const [rowSelection, setRowSelection] = useState({});
 
-  const columnsWithSelect = useMemo<ColumnDef<any>[]>(() => {
-    return [
+  // Append a third column for assessment status.
+  // This column will show "Assessment Submitted" when the row’s contributor
+  // has already been reviewed (i.e. row.original.disabled is true).
+  const columnsWithSelect = useMemo<ColumnDef<any>[]>(
+    () => [
       ...columns,
-      // {
-      //   id: "select",
-      //   header: ({ table }) => (
-      //     <div className="flex justify-end">
-      //       <Button
-      //         color="primary"
-      //         className="min-w-[130px]"
-      //         disabled={disabled}
-      //         onClick={() => {
-      //           const isAllSelected = table.getIsAllRowsSelected();
-      //           table.toggleAllRowsSelected(!isAllSelected);
-      //         }}
-      //       >
-      //         {table.getIsAllRowsSelected() ? "Clear" : "Select All"}
-      //       </Button>
-      //     </div>
-
-      //     //   <div className="flex flex-row gap-2">
-      //     //     <div>Select All</div>
-      //     //     <IndeterminateCheckbox
-      //     //       {...{
-      //     //         checked: table.getIsAllRowsSelected(),
-      //     //         indeterminate: table.getIsSomeRowsSelected(),
-      //     //         onChange: table.getToggleAllRowsSelectedHandler(),
-      //     //       }}
-      //     //     />
-      //     //   </div>
-      //   ),
-      //   cell: ({ row }) => (
-      //     <div className="px-1 flex justify-end items-center">
-      //       {row.original?.alreadyReviewed && (
-      //         <Tooltip title="You've already submitted an assessment for this person.">
-      //           <FiInfo className="text-gray-400 mr-2 text-lg" />
-      //         </Tooltip>
-      //       )}
-      //       <IndeterminateCheckbox
-      //         {...{
-      //           checked: row.getIsSelected(),
-      //           disabled: !row.getCanSelect(),
-      //           indeterminate: row.getIsSomeSelected(),
-      //           onChange: row.getToggleSelectedHandler(),
-      //         }}
-      //       />
-      //     </div>
-      //   ),
-      // },
-    ];
-  }, []);
+      {
+        header: "",
+        id: "assessmentStatus",
+        cell: ({ row }) => {
+          return row.original.disabled ? (
+            // <span className="text-sm text-gray-500 font-semibold">
+            //   Assessed ✅
+            // </span>
+            <Tag className={`text-emerald-500 bg-emerald-50 border-0 h-6`}>
+              Assessed
+            </Tag>
+          ) : null;
+        },
+      },
+    ],
+    [columns]
+  );
 
   const table = useReactTable({
     data,
@@ -133,9 +106,11 @@ const CustomSelectTable = <T,>({
     state: {
       rowSelection,
     },
+    // Keep previously disabling selection for rows that have already been reviewed.
     enableRowSelection: (row) => {
-      if (disabled) return false;
-      return !row.original.disabled;
+      return true;
+      // if (disabled) return false;
+      // return !row.original.disabled;
     },
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
@@ -168,21 +143,23 @@ const CustomSelectTable = <T,>({
                     colSpan={header.colSpan}
                     className={header.id === "select" ? "select-header" : ""}
                   >
-                    {header.isPlaceholder ? null : (
-                      <div
-                        {...{
-                          className: header.column.getCanSort()
-                            ? "cursor-pointer select-none"
-                            : "",
-                          onClick: header.column.getToggleSortingHandler(),
-                        }}
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                      </div>
-                    )}
+                    {header.isPlaceholder
+                      ? null
+                      : (
+                        <div
+                          {...{
+                            className: header.column.getCanSort()
+                              ? "cursor-pointer select-none"
+                              : "",
+                            onClick: header.column.getToggleSortingHandler(),
+                          }}
+                        >
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </div>
+                      )}
                   </Th>
                 );
               })}
@@ -202,13 +179,12 @@ const CustomSelectTable = <T,>({
                   border: "none",
                   cursor: row.getCanSelect() ? "pointer" : "default",
                 }}
-                className={`${
-                  row.getIsSelected()
-                    ? "bg-berrylavender-100"
-                    : row.getCanSelect()
-                      ? ""
-                      : "non-hoverable bg-gray-50 opacity-50"
-                }`}
+                className={`${row.getIsSelected()
+                  ? "bg-berrylavender-100"
+                  : row.getCanSelect()
+                    ? ""
+                    : "non-hoverable bg-gray-50 opacity-50"
+                  }`}
                 onClick={() => {
                   if (row.getCanSelect()) {
                     row.toggleSelected();
@@ -255,7 +231,9 @@ const CustomSelectTable = <T,>({
       <div className="flex justify-end mt-4">
         <Button
           color="primary"
-          disabled={table.getSelectedRowModel().rows.length === 0 || disabled}
+          disabled={
+            table.getSelectedRowModel().rows.length === 0 || disabled
+          }
           onClick={() => {
             const data = table
               .getSelectedRowModel()
@@ -263,7 +241,7 @@ const CustomSelectTable = <T,>({
             onSubmit(data);
           }}
         >
-          Submit
+          {submitBtnText}
         </Button>
       </div>
     </>

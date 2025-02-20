@@ -1,27 +1,18 @@
-import AnimatedRainbowBerrySvg from "@/assets/svg/AnimatedRainbowBerry";
-import { Alert, Avatar, Button, Card, Skeleton } from "@/components/ui";
+import { Alert, Button, Skeleton } from "@/components/ui";
 import { Contributor } from "@/models/Organization.model";
 import {
-    apiGetAssessmentsByAssessed,
     apiGetAssessmentsByAssessor,
-    apiGetMyScores,
 } from "@/services/OrgService";
 import { RootState } from "@/store";
-import { use } from "i18next";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { HiArrowSmLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
-import { round, set } from "lodash";
 import { ScoreDetailCard } from "./ScoreDetailCard";
-import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
 
 
 const MySubmittedAssessments: React.FC = () => {
     const organization = useSelector((state: RootState) => state.auth.org);
-    const currentRound = useSelector(
-        (state: RootState) => state.auth.rounds.currentRound
-    );
     const [loading, setLoading] = useState(false);
     const user = useSelector((state: RootState) => state.auth.user);
     const { selectedRound } = useSelector(
@@ -33,33 +24,31 @@ const MySubmittedAssessments: React.FC = () => {
     const navigateBack = () => {
         navigate(-1);
     };
+    const fetchSubmittedAssessments = async () => {
+        setLoading(true);
+        try {
+            const submittedAssessments = await apiGetAssessmentsByAssessor(selectedRound?.id, user?.id);
+            if (submittedAssessments.data) {
+                const assessmentsWithContributor = submittedAssessments.data.map((assessment: any) => {
+                    const assessed = organization?.contributors?.find((contributor: Contributor) => contributor.id === assessment.assessedId);
+                    return { ...assessment, assessed };
+                });
+                setMySubmittedAssessments(assessmentsWithContributor);
+
+            }
+        } catch {
+            console.error("Error fetching assessments");
+        } finally {
+            setLoading(false);
+        }
+
+    };
 
     React.useEffect(() => {
-        const fetchScores = async () => {
-            setLoading(true);
-            try {
-                const submittedAssessments = await apiGetAssessmentsByAssessor(selectedRound?.id, user?.id);
-                if (submittedAssessments.data) {
-                    const assessmentsWithContributor = submittedAssessments.data.map((assessment: any) => {
-                        const assessed = organization?.contributors?.find((contributor: Contributor) => contributor.id === assessment.assessedId);
-                        return { ...assessment, assessed };
-                    });
-                    setMySubmittedAssessments(assessmentsWithContributor);
-
-                }
-            } catch {
-                console.error("Error fetching scores");
-            } finally {
-                setLoading(false);
-            }
-
-        };
-        fetchScores();
+        fetchSubmittedAssessments();
     }, []);
 
-    const onEditAssessment = (assessment: any) => {
-        console.log(assessment, "ASSESSMENT");
-    };
+
 
     return (
         <>
@@ -103,12 +92,6 @@ const MySubmittedAssessments: React.FC = () => {
                                                         cultureScore={cultureScore}
                                                         feedbackPositive={feedbackPositive}
                                                         feedbackNegative={feedbackNegative}
-                                                        // onEdit={
-                                                        //     selectedRound.status === RoundStatus.InProgress
-                                                        //         ? () => onEditAssessment(assessment)
-                                                        //         : undefined
-                                                        // }
-                                                        
                                                     />
                                                 );
                                             })}
