@@ -116,12 +116,14 @@ const SignUpWithInviteLink = () => {
                 })
               );
             }
-          } catch (error) { }
+          } catch (error: any) {
+            handleError(error.response.data.message);
+          }
         }
         formik.setSubmitting(false);
         dispatch(signUpSuccess(true));
-      } catch (error) {
-        console.error("Error registering account:", error);
+      } catch (error: any) {
+        handleError(error.response.data.message);
         formik.setSubmitting(false);
       }
     },
