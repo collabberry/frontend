@@ -77,8 +77,7 @@ const AdminManagement: React.FC = () => {
 
     return (
         <>
-            {/* TODO: Uncomment this page - Admin Management */}
-            {/* {isAdmin && admins && admins.length && (
+            {isAdmin && admins && admins.length && (
                 <>
                     <div>
                         <Button
@@ -208,11 +207,11 @@ const AdminManagement: React.FC = () => {
                         )}
                     </div>
                 </>
-            )} */}
+            )}
 
-            <div className='text-2xl font-bold'>
+            {/* <div className='text-2xl font-bold'>
                 Coming soon!
-            </div>
+            </div> */}
         </>
 
     )
