@@ -19,7 +19,7 @@ import {
   handleError,
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
-import { Dialog, Skeleton } from "@/components/ui";
+import { Button, Dialog, Skeleton, Tooltip } from "@/components/ui";
 import InvitationLink from "./InvitationDialog";
 import { HiOutlineCurrencyDollar, HiUsers } from "react-icons/hi";
 import { useContractService } from "@/services/ContractsService";
@@ -30,13 +30,16 @@ import PurpleBerryLogo from "@/assets/svg/PurpleBerryLogo";
 import { SvgIcon } from "@/components/shared";
 import { StatRow } from "@/components/collabberry/custom-components/StatRow";
 import teamPic from '@/assets/images/team.png';
-import bannerPic from '@/assets/images/banner.png';
+import useAuth from '@/utils/hooks/useAuth'
 import { refreshCurrentRound } from "@/services/LoadAndDispatchService";
+import { RiCopperCoinFill } from "react-icons/ri";
+
 
 
 
 const Dashboard = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
+  const { signOut } = useAuth();
   const user = useSelector((state: RootState) => state.auth.user);
   const currentRound = useSelector(
     (state: RootState) => state.auth.rounds.currentRound
@@ -47,7 +50,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [teamPointsBalance, setTeamPointsBalance] = useState(0);
   const [totalSupply, setTotalSupply] = useState(0);
-  const { getBalance, fetchTotalSupply, ethersSigner } = useContractService();
+  const { getBalance, fetchTotalSupply, fetchTokenDetailsAndAddToWallet, ethersSigner } = useContractService();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -185,7 +188,7 @@ const Dashboard = () => {
           );
         }
       } catch (error) {
-        console.error("Error getting user:", error);
+        signOut();
       }
     };
     fetchUser();
@@ -303,14 +306,30 @@ const Dashboard = () => {
           <InvitationLink invitationToken={invitationToken} />
         </Dialog>
       )}
-   
+
       {/* stats card */}
       <div className="px-4">
         <Card
           className="w-full sm:w-full md:w-full xl:w-3/4 2xl:w-1/2 mb-4"
           bodyClass="h-full flex flex-col justify-between"
         >
-          <h4>{`Welcome back, ${user.userName}!`}</h4>
+          <div className="flex items-center justify-between">
+            <h4>{`Welcome back, ${user.userName}!`}</h4>
+
+            <Tooltip title="Add Token to Wallet">
+              <Button
+                size="sm"
+                shape="circle"
+                icon={<RiCopperCoinFill />}
+                variant="twoTone"
+                color="berrylavender"
+                onClick={() => fetchTokenDetailsAndAddToWallet(organization?.teamPointsContractAddress || "", organization?.logo || "")}
+              >
+              </Button>
+            </Tooltip>
+          </div>
+
+
 
           <div className="mt-4 flex flex-col gap-4">
             {loading ? (

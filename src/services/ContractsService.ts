@@ -46,6 +46,8 @@ export interface ContractResponse {
     status: ContractResponseStatus;
 }
 
+
+
 const _deployTeamPoints = async (ethersSigner: ethers.JsonRpcSigner | undefined, orgName: string): Promise<ContractResponse> => {
     try {
         const factoryAddress = environment?.teamPointsFactoryAddress;
@@ -80,6 +82,79 @@ const _deployTeamPoints = async (ethersSigner: ethers.JsonRpcSigner | undefined,
         status: ContractResponseStatus.Failed,
     };
 };
+
+
+const _fetchTokenDetailsAndAddToWallet = async (contractAddress: string, ethersSigner: ethers.JsonRpcSigner, tokenImage: string) => {
+    debugger;
+    try {
+      // Get your active provider (if using wagmi/RainbowKit, you likely have this available)
+      const provider = window.ethereum;
+      if (!provider) {
+        return {
+          message:
+            "Ethereum provider is not available. Please install MetaMask or use a compatible wallet.",
+          status: ContractResponseStatus.Failed,
+        };
+      }
+  
+      // Instantiate the contract using ethers.js
+      const tokenContract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
+  
+      // Fetch token details in parallel
+      const [name, symbol, decimals] = await Promise.all([
+        tokenContract.name(),
+        tokenContract.symbol(),
+        tokenContract.decimals(),
+      ]);
+  
+      if (typeof provider.request !== "function") {
+        return {
+          message:
+            "Your wallet does not support automatic token addition. Please add it manually.",
+          status: ContractResponseStatus.Failed,
+        };
+      }
+
+    const decimalsAsNumber = Number(decimals);
+  
+      const wasAdded = await provider.request({
+        method: "wallet_watchAsset",
+        params: {
+          type: "ERC20",
+          options: {
+            address: contractAddress,
+            symbol: symbol,
+            decimals: decimalsAsNumber,
+            image: tokenImage,
+          },
+        },
+      });
+  
+      if (wasAdded) {
+        return {
+          data: {
+            contractAddress,
+            tokenName: name,
+            tokenSymbol: symbol,
+          },
+          message: "Token added to wallet successfully",
+          status: ContractResponseStatus.Success,
+        };
+      } else {
+        return {
+          message: "User rejected token addition",
+          status: ContractResponseStatus.Failed,
+        };
+      }
+    } catch (error) {
+      console.error("Error fetching token details or adding to wallet:", error);
+      return {
+        message: DEFAULT_ERROR_MESSAGE,
+        status: ContractResponseStatus.Failed,
+      };
+    }
+  };
+
 
 const _readSettings = async (contractAddress: string, ethersSigner: ethers.JsonRpcSigner | undefined): Promise<ContractResponse> => {
     try {
@@ -348,6 +423,17 @@ export const useContractService = () => {
         return await _deployTeamPoints(ethersSigner, orgName);
     };
 
+    const fetchTokenDetailsAndAddToWallet = async (contractAddress: string, tokenImage: string) => {
+        if (!ethersSigner) {
+            return {
+                message: 'Please connect your wallet',
+                status: ContractResponseStatus.Failed,
+            };
+        }
+        return await _fetchTokenDetailsAndAddToWallet(contractAddress, ethersSigner, tokenImage);
+    };
+
+
     const readSettings = async (contractAddress: string): Promise<ContractResponse> => {
         if (!ethersSigner || !address) {
             return {
@@ -469,6 +555,7 @@ export const useContractService = () => {
         batchMint,
         manualAllocation,
         checkAdminContributors,
+        fetchTokenDetailsAndAddToWallet,
         ethersSigner,
     };
 }
