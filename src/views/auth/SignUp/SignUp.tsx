@@ -45,9 +45,9 @@ import { useContractService } from "@/services/ContractsService";
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/clock.json";
 import * as successAnimationData from "@/assets/animations/check2.json";
-import { shortenTxHash } from "@/components/collabberry/custom-components/TransactionSuccessDialog";
 import { environment } from "@/api/environment";
 import { ContractResponseStatus } from "@/utils/parseErrorMessage";
+import { shortenTxHash } from "@/components/collabberry/utils/shorten-address";
 
 
 const ValidationStepsSchema = Yup.object().shape({

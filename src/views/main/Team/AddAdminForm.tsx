@@ -19,10 +19,11 @@ import { handleError, handleSuccess } from "@/components/collabberry/helpers/Toa
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/clock.json";
 import { ethers } from "ethers";
+import { shortenAddress } from "@/components/collabberry/utils/shorten-address";
 
 
 const formatContributorLabel = (username: string, walletAddress: string) => {
-    const shortenedAddress = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+    const shortenedAddress = shortenAddress(walletAddress);
     return `${username} - ${shortenedAddress}`;
 };
 

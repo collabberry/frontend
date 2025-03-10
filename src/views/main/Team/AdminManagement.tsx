@@ -16,11 +16,16 @@ import AddAdminForm from './AddAdminForm';
 import { FiTrash } from 'react-icons/fi';
 import { Contributor } from '@/models/Organization.model';
 import ConfirmationDialog from '@/components/collabberry/custom-components/ConfirmationDialog';
+import { ethers } from 'ethers';
+import { refreshUser } from '@/services/LoadAndDispatchService';
+import useAuth from '@/utils/hooks/useAuth';
+import { shortenAddress } from '@/components/collabberry/utils/shorten-address';
 
 
 const AdminManagement: React.FC = () => {
     const organization = useSelector((state: RootState) => state.auth.org);
     const { admins } = useSelector((state: RootState) => state.auth.admin);
+    const { signOut } = useAuth();
     const dispatch = useDispatch();
     const { isAdmin } = useSelector((state: RootState) => state.auth.user);
     const navigate = useNavigate();
@@ -54,14 +59,23 @@ const AdminManagement: React.FC = () => {
 
     const confirmRemoveAdmin = async (contributor: any) => {
 
+
+
         if (organization?.teamPointsContractAddress && ethersSigner) {
             closeRemoveAdminDialog();
             openLoadingDialog();
+            const signerAddress = await ethersSigner.getAddress();
+            const isAdminCurrentUser = ethers.getAddress(contributor.walletAddress) === ethers.getAddress(signerAddress);
             const response = await removeAdmin(organization?.teamPointsContractAddress, contributor.walletAddress);
             if (response.status === 'success') {
                 fetchAdminContributors();
                 closeLoadingDialog();
                 handleSuccess("Admin removed successfully.");
+
+                if (isAdminCurrentUser) {
+                    refreshUser(dispatch, signOut);
+                    navigate('/team');
+                }
             } else {
                 handleError(response.message || "An error occurred while removing the admin.");
                 closeLoadingDialog();
@@ -136,7 +150,7 @@ const AdminManagement: React.FC = () => {
                                         <div
                                             key={contributor.walletAddress}
                                             className={classNames(
-                                                'flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-4',
+                                                'flex flex-row lg:flex-row lg:items-center justify-between gap-3 p-4',
                                                 !isLastChild(admins, index) &&
                                                 'border-b border-gray-200 dark:border-gray-600'
                                             )}
@@ -151,7 +165,12 @@ const AdminManagement: React.FC = () => {
 
                                                 <div className="flex flex-col items-start">
                                                     {contributor?.username && <p className="font-bold">{contributor?.username}</p>}
-                                                    {contributor?.walletAddress && <p>{contributor?.walletAddress}</p>}
+                                                    {contributor.walletAddress && (
+                                                        <p className="hidden lg:block">{contributor.walletAddress}</p>
+                                                    )}
+                                                    {contributor.walletAddress && (
+                                                        <p className="block lg:hidden">{shortenAddress(contributor.walletAddress)}</p>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="flex">

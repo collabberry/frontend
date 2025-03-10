@@ -31,7 +31,7 @@ import { SvgIcon } from "@/components/shared";
 import { StatRow } from "@/components/collabberry/custom-components/StatRow";
 import teamPic from '@/assets/images/team.png';
 import useAuth from '@/utils/hooks/useAuth'
-import { refreshCurrentRound } from "@/services/LoadAndDispatchService";
+import { refreshCurrentRound, refreshUser } from "@/services/LoadAndDispatchService";
 import { RiCopperCoinFill } from "react-icons/ri";
 
 
@@ -169,27 +169,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      try {
-        let response: any = await apiGetUser();
-        let user = response?.data || {};
-        if (user) {
-          dispatch(
-            setUser({
-              id: user.id,
-              profilePicture: user?.profilePicture,
-              userName: response?.data?.username,
-              authority: response?.data?.isAdmin ? ["ADMIN"] : ["USER"],
-              email: response?.data?.email,
-              telegramHandle: response?.data?.telegramHandle,
-              isAdmin: response?.data?.isAdmin,
-              totalFiat: response?.data?.totalFiat,
-              organization: response?.data?.organization,
-            })
-          );
-        }
-      } catch (error) {
-        signOut();
-      }
+      refreshUser(dispatch, signOut);
     };
     fetchUser();
   }, [])

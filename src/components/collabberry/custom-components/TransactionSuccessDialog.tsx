@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { Dialog } from '@/components/ui'
 import LottieAnimation from '../LottieAnimation';
 import * as animationData from "@/assets/animations/check2.json";
+import { shortenTxHash } from '../utils/shorten-address';
 
 
 interface SuccessDialogProps {
@@ -13,10 +14,7 @@ interface SuccessDialogProps {
     handleDialogClose: () => void;
 }
 
-export const shortenTxHash = (hash: string, blockExplorer: string, start = 6, end = 4,) => {
-    if (!hash) return ''
-    return `${blockExplorer}/${hash.slice(0, start)}...${hash.slice(-end)}`
-}
+
 
 const SuccessDialog: React.FC<SuccessDialogProps> = ({
     dialogVisible,

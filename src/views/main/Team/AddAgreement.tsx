@@ -152,7 +152,7 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
       {contributor && (
         <>
           <FormContainer
-            className="xl:max-h-[750px] max-h-[500px] overflow-y-auto"
+            className="xl:max-h-[750px] max-h-[420px] overflow-y-auto"
           >
             <h2 className="text-2xl font-bold mb-4 mt-4">
               {hasAgreement ? 'Edit ' : 'Add '} Agreement for {contributor?.username}

@@ -45,8 +45,8 @@ const Assess = () => {
     const schemaShape = teamMembers.reduce(
       (acc: { [key: string]: Yup.ObjectSchema<any> }, member) => {
         acc[member.id] = Yup.object().shape({
-          cultureScore: Yup.number().required("Rating is required"),
-          workScore: Yup.number().required("Rating is required"),
+          cultureScore: Yup.number().required("Rating is required").min(1),
+          workScore: Yup.number().required("Rating is required").min(1),
           feedbackPositive: Yup.string(),
           feedbackNegative: Yup.string(),
         });
@@ -243,10 +243,10 @@ const Assess = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-row gap-4 w-full">
+        <div className="flex flex-col md:flex-row gap-4 w-full">
           <CustomSteps
             current={teamMemberIndex}
-            vertical
+            vertical={window.innerWidth >= 768}
             onChange={(index) => onStepChange(index)}
             className="justify-start mr-4"
           >
@@ -266,8 +266,8 @@ const Assess = () => {
             ))}
           </CustomSteps>
           <Card className="w-full">
-            <div className="flex justify-between items-center">
-              <ContributorHeader contributor={currentMember} />
+            <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center">
+              <ContributorHeader contributor={currentMember} shortAddress />
               <Button
                 size="sm"
                 onClick={() => {
@@ -280,7 +280,7 @@ const Assess = () => {
             </div>
             <div>
               <FormContainer>
-                <div className="grid grid-cols-2 gap-4 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
                   <FormItem label="">
                     <div className="text-2xl">Culture Impact</div>
                     <BerryRating

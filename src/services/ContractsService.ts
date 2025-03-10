@@ -85,7 +85,6 @@ const _deployTeamPoints = async (ethersSigner: ethers.JsonRpcSigner | undefined,
 
 
 const _fetchTokenDetailsAndAddToWallet = async (contractAddress: string, ethersSigner: ethers.JsonRpcSigner, tokenImage: string) => {
-    debugger;
     try {
       // Get your active provider (if using wagmi/RainbowKit, you likely have this available)
       const provider = window.ethereum;
