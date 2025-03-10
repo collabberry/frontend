@@ -2,6 +2,7 @@ import { Button } from "@/components/ui";
 import { Contributor } from "@/models/Organization.model";
 import React from "react";
 import placeholderIcon from '@/assets/images/placeholder.jpg';
+import { shortenAddress } from "@/components/collabberry/utils/shorten-address";
 
 
 interface ViewAgreementProps {
@@ -9,10 +10,15 @@ interface ViewAgreementProps {
   handleClose: () => void;
 }
 
-export const ContributorHeader: React.FC<{ contributor: Contributor }> = ({
+
+
+export const ContributorHeader: React.FC<{ contributor: Contributor, shortAddress?: boolean }> = ({
   contributor,
+  shortAddress = false,
 }) => {
   const { profilePicture, username, walletAddress } = contributor;
+  const address = shortAddress ? shortenAddress(walletAddress) : walletAddress;
+
   return (
     <>
       <div className="flex flex-row items-center mb-4 mt-4">
@@ -26,7 +32,12 @@ export const ContributorHeader: React.FC<{ contributor: Contributor }> = ({
 
         <div className="flex flex-col items-start">
           {username && <p className="font-bold">{username}</p>}
-          {walletAddress && <p>{walletAddress}</p>}
+          {walletAddress && (
+            <p className="hidden xl:block">{walletAddress}</p>
+          )}
+          {walletAddress && (
+            <p className="block xl:hidden">{address}</p>
+          )}
         </div>
       </div>
     </>
