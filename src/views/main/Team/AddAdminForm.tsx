@@ -15,11 +15,12 @@ import Addon from "@/components/ui/InputGroup/Addon";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
 import PlaceholderAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/PlaceholderAvatarAndUsername";
 import { useAdminContractService } from "@/services/AdminContractService";
-import { handleError, handleSuccess } from "@/components/collabberry/helpers/ToastNotifications";
+import { handleSuccess } from "@/components/collabberry/helpers/ToastNotifications";
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/clock.json";
 import { ethers } from "ethers";
 import { shortenAddress } from "@/components/collabberry/utils/shorten-address";
+import { useHandleError } from "@/services/HandleError";
 
 
 const formatContributorLabel = (username: string, walletAddress: string) => {
@@ -50,6 +51,7 @@ const AddAdminForm: React.FC<AddAdminFormProps> = ({
         walletAddress: "",
     };
     const dispatch = useDispatch();
+    const handleError = useHandleError();
 
     const contributorOptions = useMemo(() => (
         (organization?.contributors || []).map(contributor => ({

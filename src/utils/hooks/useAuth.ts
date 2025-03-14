@@ -21,9 +21,9 @@ import { useEffect, useMemo } from "react";
 import {
   apiGetOrganizationById,
 } from "@/services/OrgService";
-import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { useAdminContractService } from "@/services/AdminContractService";
 import { refreshAllRounds, refreshCurrentRound } from "@/services/LoadAndDispatchService";
+import { handleErrorMessage } from "@/components/collabberry/helpers/ToastNotifications";
 
 type Status = "success" | "failed";
 
@@ -98,11 +98,13 @@ function useAuth() {
               })
             );
           } catch (error: any) {
-            handleError(error.response.data.message);
+            // since useHandleError depends on auth hook, it cannot be used here, so we only use the message without auto signout
+            handleErrorMessage(error);
           }
 
-          refreshAllRounds(dispatch);
-          refreshCurrentRound(dispatch);
+          // since useHandleError depends on auth hook, it cannot be used here, so we only use the message without auto signout
+          refreshAllRounds(dispatch, () => handleErrorMessage("Failed to fetch rounds"));
+          refreshCurrentRound(dispatch, () => handleErrorMessage("Failed to fetch current round"));
         }
         navigate(url);
         return {

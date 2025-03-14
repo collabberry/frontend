@@ -23,8 +23,8 @@ import appConfig from "@/configs/app.config";
 import {
   apiGetOrganizationById,
 } from "@/services/OrgService";
-import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { refreshAllRounds, refreshCurrentRound } from "@/services/LoadAndDispatchService";
+import { useHandleError } from "@/services/HandleError";
 
 const ValidationStepsSchema = Yup.object().shape({
   username: Yup.string()
@@ -47,7 +47,7 @@ const initialValues = {
 const SignUpWithInviteLink = () => {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const handleError = useHandleError();
   const invitationToken = useMemo(() => {
     return searchParams.get("invitationToken");
   }, [searchParams.get("invitationToken")]);
@@ -95,11 +95,11 @@ const SignUpWithInviteLink = () => {
                     })
                   );
                 } catch (error: any) {
-                  handleError(error.response.data.message);
+                  handleError(error);
                 }
 
-                refreshAllRounds(dispatch);
-                refreshCurrentRound(dispatch);
+                refreshAllRounds(dispatch, handleError);
+                refreshCurrentRound(dispatch, handleError);
 
 
               }
@@ -117,13 +117,13 @@ const SignUpWithInviteLink = () => {
               );
             }
           } catch (error: any) {
-            handleError(error.response.data.message);
+            handleError(error);
           }
         }
         formik.setSubmitting(false);
         dispatch(signUpSuccess(true));
       } catch (error: any) {
-        handleError(error.response.data.message);
+        handleError(error);
         formik.setSubmitting(false);
       }
     },

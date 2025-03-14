@@ -16,7 +16,6 @@ import { FiUserPlus } from "react-icons/fi";
 import { FiPieChart } from "react-icons/fi";
 import { FiCheckCircle } from "react-icons/fi";
 import {
-  handleError,
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
 import { Button, Dialog, Skeleton, Tooltip } from "@/components/ui";
@@ -33,12 +32,14 @@ import teamPic from '@/assets/images/team.png';
 import useAuth from '@/utils/hooks/useAuth'
 import { refreshCurrentRound, refreshUser } from "@/services/LoadAndDispatchService";
 import { RiCopperCoinFill } from "react-icons/ri";
+import { useHandleError } from "@/services/HandleError";
 
 
 
 
 const Dashboard = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
+  const handleError  = useHandleError();
   const { signOut } = useAuth();
   const user = useSelector((state: RootState) => state.auth.user);
   const currentRound = useSelector(
@@ -83,7 +84,7 @@ const Dashboard = () => {
         }
         setInviteDialogOpen(true);
       } catch (error: any) {
-        handleError(error.response.data.message);
+        handleError(error);
       }
     } else {
       setInviteDialogOpen(true);
@@ -105,7 +106,7 @@ const Dashboard = () => {
         handleSuccess("All members have been reminded!");
       }
     } catch (error: any) {
-      handleError(error.response.data.message);
+      handleError(error);
     }
   };
 
@@ -169,13 +170,13 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      refreshUser(dispatch, signOut);
+      refreshUser(dispatch, handleError);
     };
     fetchUser();
   }, [])
 
   useEffect(() => {
-    refreshCurrentRound(dispatch);
+    refreshCurrentRound(dispatch, handleError);
   }, []);
 
 

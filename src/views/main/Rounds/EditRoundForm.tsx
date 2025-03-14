@@ -9,8 +9,9 @@ import {
 } from "@/components/ui";
 import { useDispatch } from "react-redux";
 import { apiEditRound } from "@/services/OrgService";
-import { handleError, handleSuccess } from "@/components/collabberry/helpers/ToastNotifications";
+import { handleSuccess } from "@/components/collabberry/helpers/ToastNotifications";
 import { refreshAllRounds, refreshCurrentRound } from "@/services/LoadAndDispatchService";
+import { useHandleError } from "@/services/HandleError";
 
 
 const currentUTCMidnight = new Date(Date.UTC(
@@ -57,6 +58,7 @@ const EditRoundForm: React.FC<EditRoundFormProps> = ({
     handleClose,
 }) => {
     const dispatch = useDispatch();
+    const handleError = useHandleError();
     const initialData: FormData = {
         startDate: round?.startDate ? new Date(Date.parse(round.startDate)) : null,
         endDate: round?.endDate ? new Date(Date.parse(round.endDate)) : null
@@ -84,15 +86,14 @@ const EditRoundForm: React.FC<EditRoundFormProps> = ({
 
                 const response = await apiEditRound(round.id, utcValues);
                 if (response) {
-                    refreshAllRounds(dispatch);
-                    refreshCurrentRound(dispatch);
-
+                    refreshAllRounds(dispatch, handleError);
+                    refreshCurrentRound(dispatch, handleError);
                 }
 
                 handleSuccess("You have successfully edited the round.");
                 handleClose();
             } catch (error: any) {
-                handleError(error.response.data.message);
+                handleError(error);
             }
         },
     });

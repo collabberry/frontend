@@ -6,7 +6,6 @@ import LoadingDialog from "@/components/collabberry/custom-components/LoadingDia
 import ErrorDialog from "@/components/collabberry/custom-components/TransactionErrorDialog";
 import SuccessDialog from "@/components/collabberry/custom-components/TransactionSuccessDialog";
 import {
-  handleError,
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
@@ -25,6 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import MintStatusTag from "./MintStatusTag";
 import { environment } from "@/api/environment";
+import { useHandleError } from "@/services/HandleError";
 
 const RoundView: React.FC = () => {
   const { selectedRound, currentRound } = useSelector(
@@ -33,6 +33,7 @@ const RoundView: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
   const user = useSelector((state: RootState) => state.auth.user);
   const { batchMint, ethersSigner } = useContractService();
+  const handleError = useHandleError();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [contributors, setContributors] = React.useState<any[]>([]);
@@ -91,7 +92,7 @@ const RoundView: React.FC = () => {
         c.id === contributor?.id ? { ...c, loading: false } : c
       );
       setContributors(loadingContributor);
-      handleError(error.response.data.message);
+      handleError(error);
     }
   };
   const columnsWithoutReminderAndViewAssessments: ColumnDef<any>[] = [
@@ -350,13 +351,13 @@ const RoundView: React.FC = () => {
                 }
                 catch (error: any) {
                   setLoading(false);
-                  handleError(error?.message || "An error occurred while fetching the selected round");
+                  handleError(error || "An error occurred while fetching the selected round");
                 }
               }
             }
             catch (error: any) {
               setLoading(false);
-              handleError(error?.message || "An error occurred while adding the txHash to the selected round.");
+              handleError(error || "An error occurred while adding the txHash to the selected round.");
             }
           }
         } else {
@@ -414,7 +415,7 @@ const RoundView: React.FC = () => {
               )}
             </div>
             {user?.isAdmin && contributors.length && selectedRound?.status === RoundStatus.Completed && !selectedRound.txHash ? (<div>
-              <Button  variant="solid" type="button" onClick={mintTeamPoints} disabled={loading}>
+              <Button variant="solid" type="button" onClick={mintTeamPoints} disabled={loading}>
                 Mint Team Points
               </Button>
             </div>) : null}

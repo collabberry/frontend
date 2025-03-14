@@ -39,7 +39,6 @@ import CustomRangeSlider from "@/components/collabberry/custom-components/Custom
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { fieldRequired } from "@/components/collabberry/helpers/validations";
-import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi";
 import { useContractService } from "@/services/ContractsService";
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
@@ -48,6 +47,7 @@ import * as successAnimationData from "@/assets/animations/check2.json";
 import { environment } from "@/api/environment";
 import { ContractResponseStatus } from "@/utils/parseErrorMessage";
 import { shortenTxHash } from "@/components/collabberry/utils/shorten-address";
+import { useHandleError } from "@/services/HandleError";
 
 
 const ValidationStepsSchema = Yup.object().shape({
@@ -126,6 +126,7 @@ const getButtonText = (step: number) => {
 
 const SignUp = () => {
   const user = useSelector((state: RootState) => state.auth.user);
+  const handleError = useHandleError();
   const organization = useSelector((state: RootState) => state.auth.org);
   const { network, blockExplorer } = environment;
   const dispatch = useDispatch();
@@ -200,12 +201,12 @@ const SignUp = () => {
             );
           }
         } catch (error: any) {
-          handleError(error.response.data.message);
+          handleError(error);
         }
       }
       formik.setSubmitting(false);
     } catch (error: any) {
-      handleError(error.response.data.message);
+      handleError(error);
       formik.setSubmitting(false);
       return false;
     }
@@ -297,7 +298,7 @@ const SignUp = () => {
           });
         } catch (error: any) {
           setDialogOpen(false);
-          handleError(error.response.data.message);
+          handleError(error);
           formik.setSubmitting(false);
           return false;
         }
@@ -309,7 +310,7 @@ const SignUp = () => {
       }
     }
     catch (error: any) {
-      handleError(error.response.data.message);
+      handleError(error);
       formik.setSubmitting(false);
       return false;
     }
