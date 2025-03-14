@@ -9,10 +9,11 @@ import {
 import { OrgState } from "@/store";
 import { useDispatch } from "react-redux";
 import {
-  handleError,
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
 import { refreshOrganizationData } from "@/services/LoadAndDispatchService";
+import { use } from "i18next";
+import { useHandleError } from "@/services/HandleError";
 
 const validationSchema = Yup.object().shape({
   logo: Yup.mixed().notRequired(),
@@ -31,6 +32,7 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
   onSubmit,
 }) => {
   const dispatch = useDispatch();
+  const handleError = useHandleError();
 
   const formik = useFormik({
     initialValues: {
@@ -62,13 +64,13 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
         const response = await apiEditOrganization(body);
         const { data } = response;
         if (data) {
-          refreshOrganizationData(data?.id, dispatch);
+          refreshOrganizationData(data?.id, dispatch, handleError);
         }
 
         handleSuccess("You have successfully edited your organization");
         onSubmit();
       } catch (error: any) {
-        handleError(error.response.data.message);
+        handleError(error);
         onSubmit();
       }
     },

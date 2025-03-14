@@ -15,7 +15,6 @@ import {
 import { RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  handleError,
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
 import { Contributor } from "@/models/Organization.model";
@@ -25,6 +24,8 @@ import {
 } from "react-icons/hi";
 import { fieldRequired } from "@/components/collabberry/helpers/validations";
 import { refreshOrganizationData } from "@/services/LoadAndDispatchService";
+import { use } from "i18next";
+import { useHandleError } from "@/services/HandleError";
 
 const validationSchema = Yup.object().shape({
   roleName: Yup.string().required(fieldRequired),
@@ -68,6 +69,7 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
   handleClose,
 }) => {
   const dispatch = useDispatch();
+  const handleError = useHandleError();
   const organization = useSelector((state: RootState) => state.auth.org);
   const hasAgreement = useMemo(() => {
     return contributor?.agreement && contributor.agreement.id;
@@ -117,13 +119,13 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
           try {
             const response = await apiEditContributorAgreement(body, contributor?.agreement?.id as string);
             if (response?.data) {
-              refreshOrganizationData(organization?.id as string, dispatch);
+              refreshOrganizationData(organization?.id as string, dispatch, handleError);
             }
             handleSuccess(`Agreement for ${contributor.username} has been updated.`);
             formik.setSubmitting(false);
             handleClose();
           } catch (error: any) {
-            handleError(error.response.data.message);
+            handleError(error);
             formik.setSubmitting(false);
             handleClose();
           }
@@ -131,13 +133,13 @@ const AddAgreementForm: React.FC<AddAgreementFormProps> = ({
           try {
             const response = await apiCreateContributorAgreement(body);
             if (response?.data) {
-              refreshOrganizationData(organization?.id as string, dispatch);
+              refreshOrganizationData(organization?.id as string, dispatch, handleError);
             }
             handleSuccess(`Agreement for ${contributor.username} has been added.`);
             formik.setSubmitting(false);
             handleClose();
           } catch (error: any) {
-            handleError(error.response.data.message);
+            handleError(error);
             formik.setSubmitting(false);
             handleClose();
           }

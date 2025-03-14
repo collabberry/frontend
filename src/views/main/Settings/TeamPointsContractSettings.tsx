@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useFormik, useFormikContext } from 'formik';
+import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Button, Card, FormContainer, FormItem, Input, Spinner, Alert, Switcher, Skeleton, Dialog } from '@/components/ui';
 import { useContractService } from '@/services/ContractsService';
-import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { useSelector } from 'react-redux';
 import { RootState } from "@/store";
 import SuccessDialog from '@/components/collabberry/custom-components/TransactionSuccessDialog';
@@ -12,7 +11,7 @@ import LoadingDialog from '@/components/collabberry/custom-components/LoadingDia
 import { ethers } from 'ethers';
 import { environment } from '@/api/environment';
 import { StatisticCard } from './StatisticCard';
-import { base } from 'viem/chains';
+import { useHandleError } from '@/services/HandleError';
 
 
 const validationSchema = Yup.object().shape({
@@ -42,6 +41,7 @@ const validationSchema = Yup.object().shape({
 
 const TeamPointsContractSettings: React.FC = () => {
     const { readSettings, updateConfig, ethersSigner } = useContractService();
+    const handleError = useHandleError();
     const [loading, setLoading] = useState(false)
     const [dialogLoading, setDialogLoading] = useState(false);
     const [contractSettings, setContractSettings] = useState<any | null>(null);

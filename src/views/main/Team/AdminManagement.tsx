@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Dialog, Skeleton, Tooltip } from '@/components/ui';
 import LoadingDialog from '@/components/collabberry/custom-components/LoadingDialog';
-import { handleError, handleSuccess } from '@/components/collabberry/helpers/ToastNotifications';
+import { handleSuccess } from '@/components/collabberry/helpers/ToastNotifications';
 import { useAdminContractService } from '@/services/AdminContractService';
 import { useDialog } from '@/services/DialogService';
 import isLastChild from '@/utils/isLastChild';
@@ -20,12 +20,14 @@ import { ethers } from 'ethers';
 import { refreshUser } from '@/services/LoadAndDispatchService';
 import useAuth from '@/utils/hooks/useAuth';
 import { shortenAddress } from '@/components/collabberry/utils/shorten-address';
+import { useHandleError } from '@/services/HandleError';
 
 
 const AdminManagement: React.FC = () => {
     const organization = useSelector((state: RootState) => state.auth.org);
     const { admins } = useSelector((state: RootState) => state.auth.admin);
     const { signOut } = useAuth();
+    const handleError = useHandleError();
     const dispatch = useDispatch();
     const { isAdmin } = useSelector((state: RootState) => state.auth.user);
     const navigate = useNavigate();
@@ -46,7 +48,6 @@ const AdminManagement: React.FC = () => {
                 dispatch(setAdmins({ admins: response.data.adminContributors }));
                 setLoading(false);
             } else {
-
                 setLoading(false);
                 handleError(response.message || "An error occurred while loading contract settings.");
             }

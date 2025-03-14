@@ -1,6 +1,5 @@
 import RoundStatusTag from "@/components/collabberry/custom-components/CustomFields/RoundStatusTag";
 import CustomTableWithSorting from "@/components/collabberry/custom-components/CustomTables/CustomTableWithSorting";
-import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { RoundStatus } from "@/components/collabberry/utils/collabberry-constants";
 import { Button, Dialog, Tooltip } from "@/components/ui";
 import { useDialog } from "@/services/DialogService";
@@ -19,10 +18,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import EditRoundForm from "./EditRoundForm";
 import { refreshAllRounds } from "@/services/LoadAndDispatchService";
+import { useHandleError } from "@/services/HandleError";
 
 const Rounds: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const handleError = useHandleError();
   const { isAdmin } = useSelector((state: RootState) => state.auth.user);
   const { allRounds, selectedRound } = useSelector(
     (state: RootState) => state.auth.rounds
@@ -30,7 +31,7 @@ const Rounds: React.FC = () => {
   const { isOpen: isEditRoundDialogOpen, openDialog: openEditRoundDialog, closeDialog: closeEditRoundDialog } = useDialog();
 
   React.useEffect(() => {
-    refreshAllRounds(dispatch);
+    refreshAllRounds(dispatch, handleError);
   }, [dispatch]);
 
   const goToRound = async (round: any) => {
@@ -41,7 +42,7 @@ const Rounds: React.FC = () => {
         navigate("round");
       }
     } catch (error: any) {
-      handleError(error.response.data.message);
+      handleError(error);
     }
   };
 
@@ -174,7 +175,7 @@ const Rounds: React.FC = () => {
         openEditRoundDialog();
       }
     } catch (error: any) {
-      handleError(error.response.data.message);
+      handleError(error);
     }
 
   }

@@ -15,12 +15,12 @@ import {
   apiGetInvitationToken,
 } from "@/services/OrgService";
 import CustomAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername";
-import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import InvitationLink from "../Dashboard/InvitationDialog";
 import { useDialog } from "@/services/DialogService";
 import { FiEdit, FiEye, FiPieChart, FiUsers } from "react-icons/fi";
 import { useAdminContractService } from "@/services/AdminContractService";
 import { refreshOrganizationData } from "@/services/LoadAndDispatchService";
+import { useHandleError } from "@/services/HandleError";
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -31,7 +31,7 @@ const Team: React.FC = () => {
     (state: RootState) => state.auth.invite.invitationToken
   );
   const { checkAdminContributors } = useAdminContractService();
-
+  const handleError = useHandleError();
   const location = useLocation();
   const dispatch = useDispatch();
   const { isOpen: isEditDialogOpen, openDialog: openEditDialog, closeDialog: closeEditDialog } = useDialog();
@@ -79,7 +79,7 @@ const Team: React.FC = () => {
         }
         openInviteDialog();
       } catch (error: any) {
-        handleError(error.response.data.message);
+        handleError(error);
       }
     } else {
       openInviteDialog();
@@ -98,7 +98,7 @@ const Team: React.FC = () => {
   useEffect(() => {
     const fetchOrganization = async () => {
       const orgId = user?.organization?.id
-      refreshOrganizationData(orgId, dispatch);
+      refreshOrganizationData(orgId, dispatch, handleError);
     };
     fetchOrganization();
   }, [])
