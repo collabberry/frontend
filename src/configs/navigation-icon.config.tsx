@@ -5,11 +5,13 @@ import {
   HiOutlineViewGridAdd,
   HiOutlineHome,
 } from "react-icons/hi";
-import { FiUserCheck } from "react-icons/fi";
+import { FiPieChart, FiUserCheck } from "react-icons/fi";
 import { FiBarChart2 } from "react-icons/fi";
 import { FiUsers } from "react-icons/fi";
 import { FiSettings } from "react-icons/fi";
 import { FiRefreshCw } from "react-icons/fi";
+import ManualAllocation from "@/views/main/Team/ManualAllocation";
+import { RiMoneyDollarCircleLine } from "react-icons/ri";
 
 
 
@@ -22,6 +24,9 @@ const navigationIcon: NavigationIcons = {
   team: <FiUsers />,
   settings: <FiSettings />,
   rounds: <FiRefreshCw />,
+  adminManagement: <FiUserCheck />,
+  manualAllocation: <FiPieChart />,
+  materialContribution: <RiMoneyDollarCircleLine />,
 //   singleMenu: <HiOutlineViewGridAdd />,
 //   collapseMenu: <HiOutlineTemplate />,
 //   groupSingleMenu: <HiOutlineDesktopComputer />,

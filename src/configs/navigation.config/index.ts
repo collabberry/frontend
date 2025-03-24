@@ -4,14 +4,13 @@ import {
   NAV_ITEM_TYPE_COLLAPSE,
 } from "@/constants/navigation.constant";
 import type { NavigationTree } from "@/@types/navigation";
-import { FiUserCheck } from "react-icons/fi";
 
 const navigationConfig: NavigationTree[] = [
   {
-    key: "admin",
+    key: "user",
     path: "",
     title: " ",
-    translateKey: "nav.admin.admin",
+    translateKey: "nav.user.user",
     icon: "",
     type: NAV_ITEM_TYPE_TITLE,
     authority: [],
@@ -118,6 +117,47 @@ const navigationConfig: NavigationTree[] = [
         icon: "rounds",
         type: NAV_ITEM_TYPE_ITEM,
         authority: [],
+        subMenu: [],
+      },
+    ],
+  },
+  {
+    key: "admin",
+    path: "",
+    title: "Admin",
+    translateKey: "nav.admin.admin",
+    icon: "",
+    type: NAV_ITEM_TYPE_TITLE,
+    authority: ['ADMIN'],
+    subMenu: [
+      {
+        key: "admin.admins",
+        path: "/admins",
+        title: "Admin Management",
+        translateKey: "nav.admin.admins",
+        icon: "adminManagement",
+        type: NAV_ITEM_TYPE_ITEM,
+        authority: ['ADMIN'],
+        subMenu: [],
+      },
+      {
+        key: "admin.manual-allocation",
+        path: "/manual-allocation",
+        title: "Manual Allocation",
+        translateKey: "nav.admin.manual-allocation",
+        icon: "manualAllocation",
+        type: NAV_ITEM_TYPE_ITEM,
+        authority: ['ADMIN'],
+        subMenu: [],
+      },
+      {
+        key: "admin.material-contribution",
+        path: "/material-contribution",
+        title: "Material Contribution",
+        translateKey: "nav.admin.material-contribution",
+        icon: "materialContribution",
+        type: NAV_ITEM_TYPE_ITEM,
+        authority: ['ADMIN'],
         subMenu: [],
       },
     ],
