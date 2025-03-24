@@ -94,7 +94,7 @@ const AdminManagement: React.FC = () => {
         <>
             {isAdmin && admins && admins.length && (
                 <>
-                    <div>
+                    {/* <div>
                         <Button
                             size="sm"
                             className="mb-2"
@@ -103,7 +103,7 @@ const AdminManagement: React.FC = () => {
                         >
                             Back
                         </Button>
-                    </div>
+                    </div> */}
 
                     <h1>Admin Management</h1>
 

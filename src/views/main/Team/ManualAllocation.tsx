@@ -35,7 +35,9 @@ const validationSchema = Yup.object().shape({
                     return contribitors.filter((contributor: any) => contributor?.walletAddress === value).length === 1;
                 }),
 
-            amount: Yup.number().min(1, 'Amount must be at least 1').required('Amount is required')
+            amount: Yup.number().min(1, 'Amount must be at least 1').
+                max(1000000, 'Max. 1,000,000').
+                required('Amount is required')
         })
     )
 });
@@ -107,7 +109,7 @@ const ManualAllocation: React.FC = () => {
     }
 
     const navigateBack = () => {
-        navigate(-1);
+        navigate('/team');
     }
 
     return (
@@ -115,7 +117,7 @@ const ManualAllocation: React.FC = () => {
 
             {isAdmin && (
                 <>
-                    <div>
+                    {/* <div>
                         <Button
                             size="sm"
                             className="mb-2"
@@ -124,7 +126,7 @@ const ManualAllocation: React.FC = () => {
                         >
                             Back
                         </Button>
-                    </div>
+                    </div> */}
                     <h1>Manual Allocation</h1>
                     <SuccessDialog
                         dialogVisible={dialogVisible}
@@ -278,9 +280,9 @@ const ManualAllocation: React.FC = () => {
                                                                                 shape="circle"
                                                                                 size="sm"
                                                                                 variant="twoTone"
-                                                                                color='red-500'
+                                                                                color="pink-600"
                                                                                 icon={
-                                                                                    <HiTrash className='text-red-500' />
+                                                                                    <HiTrash className='text-pink-600' />
                                                                                 }
                                                                                 onClick={() =>
                                                                                     remove(

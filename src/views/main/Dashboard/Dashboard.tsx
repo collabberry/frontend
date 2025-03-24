@@ -65,7 +65,7 @@ const Dashboard = () => {
   };
 
   const manualAllocationAction = () => {
-    navigate("/team/manual-allocation");
+    navigate("/manual-allocation");
   }
 
 

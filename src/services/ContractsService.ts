@@ -86,87 +86,88 @@ const _deployTeamPoints = async (ethersSigner: ethers.JsonRpcSigner | undefined,
 
 const _fetchTokenDetailsAndAddToWallet = async (contractAddress: string, ethersSigner: ethers.JsonRpcSigner, tokenImage: string) => {
     try {
-      // Get your active provider (if using wagmi/RainbowKit, you likely have this available)
-      const provider = window.ethereum;
-      if (!provider) {
-        return {
-          message:
-            "Ethereum provider is not available. Please install MetaMask or use a compatible wallet.",
-          status: ContractResponseStatus.Failed,
-        };
-      }
-  
-      // Instantiate the contract using ethers.js
-      const tokenContract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
-  
-      // Fetch token details in parallel
-      const [name, symbol, decimals] = await Promise.all([
-        tokenContract.name(),
-        tokenContract.symbol(),
-        tokenContract.decimals(),
-      ]);
-  
-      if (typeof provider.request !== "function") {
-        return {
-          message:
-            "Your wallet does not support automatic token addition. Please add it manually.",
-          status: ContractResponseStatus.Failed,
-        };
-      }
+        // Get your active provider (if using wagmi/RainbowKit, you likely have this available)
+        const provider = window.ethereum;
+        if (!provider) {
+            return {
+                message:
+                    "Ethereum provider is not available. Please install MetaMask or use a compatible wallet.",
+                status: ContractResponseStatus.Failed,
+            };
+        }
 
-    const decimalsAsNumber = Number(decimals);
-  
-      const wasAdded = await provider.request({
-        method: "wallet_watchAsset",
-        params: {
-          type: "ERC20",
-          options: {
-            address: contractAddress,
-            symbol: symbol,
-            decimals: decimalsAsNumber,
-            image: tokenImage,
-          },
-        },
-      });
-  
-      if (wasAdded) {
-        return {
-          data: {
-            contractAddress,
-            tokenName: name,
-            tokenSymbol: symbol,
-          },
-          message: "Token added to wallet successfully",
-          status: ContractResponseStatus.Success,
-        };
-      } else {
-        return {
-          message: "User rejected token addition",
-          status: ContractResponseStatus.Failed,
-        };
-      }
+        // Instantiate the contract using ethers.js
+        const tokenContract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
+
+        // Fetch token details in parallel
+        const [name, symbol, decimals] = await Promise.all([
+            tokenContract.name(),
+            tokenContract.symbol(),
+            tokenContract.decimals(),
+        ]);
+
+        if (typeof provider.request !== "function") {
+            return {
+                message:
+                    "Your wallet does not support automatic token addition. Please add it manually.",
+                status: ContractResponseStatus.Failed,
+            };
+        }
+
+        const decimalsAsNumber = Number(decimals);
+
+        const wasAdded = await provider.request({
+            method: "wallet_watchAsset",
+            params: {
+                type: "ERC20",
+                options: {
+                    address: contractAddress,
+                    symbol: symbol,
+                    decimals: decimalsAsNumber,
+                    image: tokenImage,
+                },
+            },
+        });
+
+        if (wasAdded) {
+            return {
+                data: {
+                    contractAddress,
+                    tokenName: name,
+                    tokenSymbol: symbol,
+                },
+                message: "Token added to wallet successfully",
+                status: ContractResponseStatus.Success,
+            };
+        } else {
+            return {
+                message: "User rejected token addition",
+                status: ContractResponseStatus.Failed,
+            };
+        }
     } catch (error) {
-      console.error("Error fetching token details or adding to wallet:", error);
-      return {
-        message: DEFAULT_ERROR_MESSAGE,
-        status: ContractResponseStatus.Failed,
-      };
+        console.error("Error fetching token details or adding to wallet:", error);
+        return {
+            message: DEFAULT_ERROR_MESSAGE,
+            status: ContractResponseStatus.Failed,
+        };
     }
-  };
+};
 
 
 const _readSettings = async (contractAddress: string, ethersSigner: ethers.JsonRpcSigner | undefined): Promise<ContractResponse> => {
     try {
         const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
-        const [isTransferable, isOutsideTransferAllowed, materialWeight, baseTimeWeight] = await Promise.all([
+        const [isTransferable, isOutsideTransferAllowed, materialWeight, baseTimeWeight, enableTimeScaling, maxTimeScaling] = await Promise.all([
             contract.isTransferable(),
             contract.isOutsideTransferAllowed(),
             contract.materialContributionWeight(),
-            contract.baseTimeWeight()
-
+            contract.baseTimeWeight(),
+            contract.enableTimeScaling(),
+            contract.maxTimeScaling()
         ]);
         return {
-            data: { isTransferable, isOutsideTransferAllowed, materialWeight, baseTimeWeight },
+            data: { isTransferable, isOutsideTransferAllowed, materialWeight, baseTimeWeight, enableTimeScaling, maxTimeScaling },
             message: 'Success',
             status: ContractResponseStatus.Success,
         };
@@ -229,10 +230,63 @@ const _updateConfig = async (
     };
 };
 
+const _getMaterialContributionWeight = async (
+    contractAddress: string,
+    ethersSigner: ethers.JsonRpcSigner | undefined
+): Promise<ContractResponse> => {
+    try {
+        const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
+        const multiplier = await contract.materialContributionWeight();
+
+        return {
+            data: { multiplier: multiplier.toString() },
+            message: 'Material weight fetched successfully',
+            status: ContractResponseStatus.Success,
+        };
+    } catch (error) {
+        console.error('Error fetching material weight:', error);
+        return {
+            message: DEFAULT_ERROR_MESSAGE,
+            status: ContractResponseStatus.Failed,
+        };
+    }
+};
+
+const _mint = async (
+    contractAddress: string,
+    recipient: string,
+    materialContribution: bigint,
+    timeContribution: bigint,
+    ethersSigner: ethers.JsonRpcSigner | undefined
+): Promise<ContractResponse> => {
+    try {
+
+        const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
+        // single mint, for material contribution only time contribution will be 0, and vice versa
+        const tx = await contract.mint(recipient, materialContribution, timeContribution);
+        const receipt = await tx.wait();
+
+        return {
+            data: {
+                transactionHash: receipt.hash,
+                appliedMaterialContribution: materialContribution.toString(),
+            },
+            message: 'Mint successful',
+            status: ContractResponseStatus.Success,
+        };
+    } catch (error) {
+        console.error('Error minting material contribution:', error);
+        return {
+            message: DEFAULT_ERROR_MESSAGE,
+            status: ContractResponseStatus.Failed,
+        };
+    }
+};
+
 const _batchMint = async (
     contractAddress: string,
     recipients: string[],
-    materialContributions: number[],
+    materialContributions: bigint[],
     timeContributions: bigint[],
     ethersSigner: ethers.JsonRpcSigner | undefined
 ): Promise<ContractResponse> => {
@@ -340,71 +394,71 @@ const _checkAdminContributors = async (
     contractAddress: string,
     contributors: any[],
     ethersSigner: ethers.JsonRpcSigner | undefined
-  ): Promise<ContractResponse> => {
+): Promise<ContractResponse> => {
     if (!ethersSigner) {
-      return {
-        message: 'Signer is not available',
-        status: ContractResponseStatus.Failed,
-      };
+        return {
+            message: 'Signer is not available',
+            status: ContractResponseStatus.Failed,
+        };
     }
-  
-    try {
-      const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
-  
-      const adminStatuses = await Promise.all(
-        contributors.map(async (contributor) => {
-          const isAdmin = await contract.isAdmin(contributor.address);
-          return { contributor, isAdmin };
-        })
-      );
-  
-      const adminContributors = adminStatuses
-        .filter(({ isAdmin }) => isAdmin)
-        .map(({ contributor }) => contributor);
-  
-      return {
-        data: { adminContributors },
-        message: 'Admin contributors checked successfully',
-        status: ContractResponseStatus.Success,
-      };
-    } catch (error) {
-      console.error('Error checking admin contributors:', error);
-      return {
-        message: DEFAULT_ERROR_MESSAGE,
-        status: ContractResponseStatus.Failed,
-      };
-    }
-  };
 
-  const _addAdmin = async (
+    try {
+        const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
+
+        const adminStatuses = await Promise.all(
+            contributors.map(async (contributor) => {
+                const isAdmin = await contract.isAdmin(contributor.address);
+                return { contributor, isAdmin };
+            })
+        );
+
+        const adminContributors = adminStatuses
+            .filter(({ isAdmin }) => isAdmin)
+            .map(({ contributor }) => contributor);
+
+        return {
+            data: { adminContributors },
+            message: 'Admin contributors checked successfully',
+            status: ContractResponseStatus.Success,
+        };
+    } catch (error) {
+        console.error('Error checking admin contributors:', error);
+        return {
+            message: DEFAULT_ERROR_MESSAGE,
+            status: ContractResponseStatus.Failed,
+        };
+    }
+};
+
+const _addAdmin = async (
     contractAddress: string,
     newAdminAddress: string,
     ethersSigner: ethers.JsonRpcSigner | undefined
-  ): Promise<ContractResponse> => {
+): Promise<ContractResponse> => {
     if (!ethersSigner) {
-      return {
-        message: 'Signer is not available',
-        status: ContractResponseStatus.Failed,
-      };
+        return {
+            message: 'Signer is not available',
+            status: ContractResponseStatus.Failed,
+        };
     }
-  
+
     try {
-      const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
-      const tx = await contract.addAdmin(newAdminAddress);
-      await tx.wait(); // Wait for the transaction to be mined
-  
-      return {
-        message: 'Admin added successfully',
-        status: ContractResponseStatus.Success,
-      };
+        const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
+        const tx = await contract.addAdmin(newAdminAddress);
+        await tx.wait(); // Wait for the transaction to be mined
+
+        return {
+            message: 'Admin added successfully',
+            status: ContractResponseStatus.Success,
+        };
     } catch (error) {
-      console.error('Error adding admin:', error);
-      return {
-        message: DEFAULT_ERROR_MESSAGE,
-        status: ContractResponseStatus.Failed,
-      };
+        console.error('Error adding admin:', error);
+        return {
+            message: DEFAULT_ERROR_MESSAGE,
+            status: ContractResponseStatus.Failed,
+        };
     }
-  };
+};
 
 
 export const useContractService = () => {
@@ -459,15 +513,17 @@ export const useContractService = () => {
                 status: ContractResponseStatus.Failed,
             };
         }
-        return await _updateConfig(contractAddress, 
-            isTransferable, 
-            isOutsideTransferAllowed, 
-            materialWeight, 
+        return await _updateConfig(contractAddress,
+            isTransferable,
+            isOutsideTransferAllowed,
+            materialWeight,
             baseTimeWeight,
             enableTimeScaling,
-            maxTimeScaling, 
+            maxTimeScaling,
             ethersSigner);
     };
+
+
 
     const batchMint = async (
         contractAddress: string,
@@ -494,8 +550,39 @@ export const useContractService = () => {
         const timeContributionsInWei = timeContributions.map((contribution) =>
             ethers.parseUnits(contribution.toString(), 18)
         );
-        return await _batchMint(contractAddress, recipients, materialContributions, timeContributionsInWei, ethersSigner);
+
+        const materialContributionsInWei = materialContributions.map((contribution) =>
+            ethers.parseUnits(contribution.toString(), 18)
+        );
+        return await _batchMint(contractAddress, recipients, materialContributionsInWei, timeContributionsInWei, ethersSigner);
     };
+
+    const mint = async (
+        contractAddress: string,
+        recipient: string,
+        materialContribution: number,
+        timeContribution: number
+    ): Promise<ContractResponse> => {
+        if (!ethersSigner || !address) {
+            return {
+                message: 'Please connect your wallet',
+                status: ContractResponseStatus.Failed,
+            };
+        }
+
+        const materialContributionInWei =
+            ethers.parseUnits(materialContribution.toString(), 18)
+        const timeContributionInWei = ethers.parseUnits(timeContribution.toString(), 18)
+
+        return await _mint(
+            contractAddress,
+            recipient,
+            materialContributionInWei,
+            timeContributionInWei,
+            ethersSigner
+        );
+    };
+
 
     const manualAllocation = async (
         contractAddress: string,
@@ -538,10 +625,20 @@ export const useContractService = () => {
         return await _getTotalSupply(contractAddress, ethersSigner);
     };
 
+    const getMaterialWeight = async (contractAddress: string): Promise<ContractResponse> => {
+        if (!ethersSigner || !address) {
+            return {
+                message: 'Please connect your wallet',
+                status: ContractResponseStatus.Failed,
+            };
+        }
+        return await _getMaterialContributionWeight(contractAddress, ethersSigner);
+    };
+
     const checkAdminContributors = async (contractAddress: string, contributors: any[]): Promise<ContractResponse> => {
         return await _checkAdminContributors(contractAddress, contributors, ethersSigner);
-      };
-    
+    };
+
 
 
 
@@ -555,6 +652,8 @@ export const useContractService = () => {
         manualAllocation,
         checkAdminContributors,
         fetchTokenDetailsAndAddToWallet,
+        getMaterialWeight,
+        mint,
         ethersSigner,
     };
 }

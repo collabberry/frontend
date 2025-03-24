@@ -194,6 +194,7 @@ const AddAdminForm: React.FC<AddAdminFormProps> = ({
                     </Button>
                     <Button
                         type="submit"
+                        variant="solid"
                         onClick={() => formik.handleSubmit()}
                         disabled={!formik.isValid || formik.isSubmitting}
                     >

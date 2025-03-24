@@ -21,6 +21,8 @@ import { FiEdit, FiEye, FiPieChart, FiUsers } from "react-icons/fi";
 import { useAdminContractService } from "@/services/AdminContractService";
 import { refreshOrganizationData } from "@/services/LoadAndDispatchService";
 import { useHandleError } from "@/services/HandleError";
+import { RiMoneyDollarCircleLine } from "react-icons/ri";
+import { ethers } from "ethers";
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -52,12 +54,16 @@ const Team: React.FC = () => {
         try {
           const response = await checkAdminContributors(organization?.teamPointsContractAddress, organization?.contributors || []);
           const admins = response.data.adminContributors;
+          const contributorsWithBalance = response.data.contributorsStatusAndBalance;
           if (response.status === 'success') {
-            const adminContributors = organization?.contributors.map((contributor) => {
+
+            const adminContributorsWithBalance = organization?.contributors.map((contributor) => {
               const isContractAdmin = admins.some((admin: Contributor) => admin.walletAddress === contributor.walletAddress);
-              return { ...contributor, isContractAdmin };
+              const contributorWithBalance = contributorsWithBalance.find((c: Contributor) => c.walletAddress === contributor.walletAddress);
+              return { ...contributor, isContractAdmin, balance: Math.floor(Number(ethers.formatUnits(contributorWithBalance?.balance, 'ether'))) || 0 };
             });
-            setContributorsWithAdminFlag(adminContributors);
+
+            setContributorsWithAdminFlag(adminContributorsWithBalance);
           }
         } catch (error) {
           console.error("Failed to fetch admin contributors", error);
@@ -87,11 +93,15 @@ const Team: React.FC = () => {
   };
 
   const goToAdminManagement = () => {
-    navigate("/team/admins");
+    navigate("/admins");
   };
 
   const goToManualAllocation = () => {
-    navigate("/team/manual-allocation");
+    navigate("/manual-allocation");
+  }
+
+  const goToMaterialContribution = () => {
+    navigate("/material-contribution");
   }
 
 
@@ -183,6 +193,24 @@ const Team: React.FC = () => {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
               })}
+            </span>
+          );
+        }
+      },
+    },
+    {
+      header: "TP Balance",
+      accessorKey: "balance",
+      cell: (props) => {
+        const value = props.getValue() as number;
+        if (value) {
+          return (
+            <span>
+              {`${Number(value).toLocaleString("en-US", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })}`}
+
             </span>
           );
         }
@@ -341,14 +369,36 @@ const Team: React.FC = () => {
           isAdmin={isAdmin as boolean}
         />
         {isAdmin && (
-          <div className="flex gap-2 flex-col sm:flex-row">
-            <Button size="sm" variant="solid" className="ltr:mr-2 rtl:ml-2" onClick={goToManualAllocation} icon={<FiPieChart />} >
-              {'Manual Allocation'}
-            </Button>
-            <Button size="sm" variant="solid" className="ltr:mr-2 rtl:ml-2" onClick={goToAdminManagement} icon={<FiUsers />} >
-              {'Admin Management'}
-            </Button>
+          <div className="flex gap-2 flex-col sm:flex-row mx-2">
+
+            <Tooltip title="Admin Management">
+              <Button size="sm"
+                color="berrylavender"
+                variant="twoTone"
+                shape="circle" onClick={goToAdminManagement} icon={<FiUsers />} >
+              </Button>
+            </Tooltip>
+            <Tooltip title="Manual Allocation">
+              <Button size="sm"
+                color="berrylavender"
+                variant="twoTone"
+                shape="circle" onClick={goToManualAllocation} icon={<FiPieChart />} >
+
+              </Button>
+            </Tooltip>
+            <Tooltip title="Material Contribution">
+              <Button size="sm"
+                color="berrylavender"
+                variant="twoTone"
+                shape="circle" onClick={goToMaterialContribution} icon={<RiMoneyDollarCircleLine />} >
+
+              </Button>
+            </Tooltip>
+
+
+
           </div>
+
 
 
         )}

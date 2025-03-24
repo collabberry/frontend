@@ -1,7 +1,7 @@
 {
   "nav": {
-    "admin": {
-      "admin": " ",
+    "user": {
+      "user": "",
       "dashboard": "Dashboard",
       "assessment": "Assessment",
       "assess": "Assess",
@@ -20,6 +20,13 @@
       "rounds": "Rounds",
       "round": "Round",
       "team": "Team"
+    },
+    "admin": {
+      "admin": "Admin",
+      "admins": "Admin Management",
+      "manual-allocation": "Manual Allocation",
+      "material-contribution": "Material Contribution"
     }
+
   }
 }

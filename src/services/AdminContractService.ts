@@ -5,9 +5,6 @@ import { useAccount } from 'wagmi';
 import { ContractResponse, } from './ContractsService';
 import { Contributor } from '@/models/Organization.model';
 import { ContractResponseStatus, parseErrorMessage } from '@/utils/parseErrorMessage';
-import { parse } from 'path';
-
-
 
 
 const _checkAdminContributors = async (
@@ -24,23 +21,25 @@ const _checkAdminContributors = async (
 
     try {
         const contract = new ethers.Contract(contractAddress, teamPointsAbi, ethersSigner);
-        const adminStatuses = await Promise.all(
+        const contributorsStatusAndBalance = await Promise.all(
             contributors.map(async (contributor) => {
                 const isAdmin = await contract.isAdmin(contributor.walletAddress);
+                const balance = await contract.balanceOf(contributor.walletAddress);
                 return {
                     ...contributor,
                     isAdmin,
+                    balance: balance.toString(),
                 };
             })
         );
 
-        const adminContributors = adminStatuses
+        const adminContributors = contributorsStatusAndBalance
             .filter(({ isAdmin }) => isAdmin)
             .map(contributor => contributor);
 
 
         return {
-            data: { adminContributors },
+            data: { contributorsStatusAndBalance, adminContributors },
             message: 'Admin contributors checked successfully',
             status: ContractResponseStatus.Success,
         };
