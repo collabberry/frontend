@@ -51,7 +51,7 @@ const OrganizationCard: React.FC<OrganizationCardProps> = ({
                 <Button
                   shape="circle"
                   size="sm"
-                  variant="twoTone"
+                  variant="solid"
                   className="mr-2"
                   icon={<FiEdit />}
                   onClick={onEdit}
@@ -61,7 +61,7 @@ const OrganizationCard: React.FC<OrganizationCardProps> = ({
                 <Button
                   shape="circle"
                   size="sm"
-                  variant="twoTone"
+                  variant="solid"
                   className="mr-2"
                   icon={<FiUserPlus />}
                   onClick={onInvite}

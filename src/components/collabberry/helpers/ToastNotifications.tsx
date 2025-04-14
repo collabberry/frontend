@@ -4,6 +4,7 @@ import { Status } from "viem";
 import { TypeAttributes } from "@/components/ui/@types/common";
 import { NotificationPlacement } from "@/components/ui/@types/placement";
 
+
 interface OpenNotificationProps {
   title?: string;
   message: string;
@@ -30,7 +31,8 @@ export const openToastNotification = ({
   );
 };
 
-export const handleError = (message: any, placement = "top-center") => {
+export const handleErrorMessage = (error: any, placement = "top-center") => {
+  const message = error?.response?.data?.message || error?.message || error;
   openToastNotification({
     message,
     type: "danger",

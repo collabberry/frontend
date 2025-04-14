@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useFormik, useFormikContext } from 'formik';
+import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Button, Card, FormContainer, FormItem, Input, Spinner, Alert, Switcher, Skeleton, Dialog } from '@/components/ui';
 import { useContractService } from '@/services/ContractsService';
-import { handleError } from "@/components/collabberry/helpers/ToastNotifications";
 import { useSelector } from 'react-redux';
 import { RootState } from "@/store";
 import SuccessDialog from '@/components/collabberry/custom-components/TransactionSuccessDialog';
@@ -12,12 +11,14 @@ import LoadingDialog from '@/components/collabberry/custom-components/LoadingDia
 import { ethers } from 'ethers';
 import { environment } from '@/api/environment';
 import { StatisticCard } from './StatisticCard';
-import { base } from 'viem/chains';
+import { useHandleError } from '@/services/HandleError';
+import { max } from 'lodash';
 
 
 const validationSchema = Yup.object().shape({
     isTransferable: Yup.boolean().required("This field is required."),
     isOutsideTransferAllowed: Yup.boolean(),
+    enableTimeScaling: Yup.boolean(),
     materialWeight: Yup.number()
         .required("This field is required.")
         .max(10, "The material weight must be at most 10")
@@ -37,11 +38,22 @@ const validationSchema = Yup.object().shape({
                 return !decimalPlaces || decimalPlaces.length <= 3;
             }
             return true;
+        }),
+    maxTimeScaling: Yup.number()
+        .required("This field is required.")
+        .max(10, "The time scaling must be at most 10")
+        .test("is-decimal-places", "The time scaling cannot have more than 3 decimal places.", value => {
+            if (value) {
+                const decimalPlaces = value.toString().split('.')[1];
+                return !decimalPlaces || decimalPlaces.length <= 3;
+            }
+            return true;
         })
 });
 
 const TeamPointsContractSettings: React.FC = () => {
     const { readSettings, updateConfig, ethersSigner } = useContractService();
+    const handleError = useHandleError();
     const [loading, setLoading] = useState(false)
     const [dialogLoading, setDialogLoading] = useState(false);
     const [contractSettings, setContractSettings] = useState<any | null>(null);
@@ -63,20 +75,19 @@ const TeamPointsContractSettings: React.FC = () => {
             isTransferable: false,
             isOutsideTransferAllowed: false,
             materialWeight: 0,
-            baseTimeWeight: 0
+            baseTimeWeight: 0,
+            enableTimeScaling: false,
+            maxTimeScaling: 0
         },
 
         validationSchema,
         onSubmit: async (values) => {
-
             if (organization?.teamPointsContractAddress) {
                 setDialogLoading(true);
                 try {
                     const materialWeightWei = ethers.parseUnits(values.materialWeight.toString(), 3);
                     const baseTimeWeightWei = ethers.parseUnits(values.baseTimeWeight.toString(), 3);
-                    //TODO: Hardcoded value for now, need to change it 
-                    const maxTimeScalingWei = ethers.parseUnits('4', 3);
-                    const enableTimeScaling = false;
+                    const maxTimeScalingWei = ethers.parseUnits(values.maxTimeScaling.toString(), 3);
                     // const materialWeightBigInt = BigInt(values.materialWeight);
                     const response = await updateConfig(
                         organization.teamPointsContractAddress,
@@ -84,7 +95,7 @@ const TeamPointsContractSettings: React.FC = () => {
                         values.isOutsideTransferAllowed,
                         materialWeightWei,
                         baseTimeWeightWei,
-                        enableTimeScaling,
+                        values.enableTimeScaling,
                         maxTimeScalingWei
                     );
 
@@ -114,20 +125,25 @@ const TeamPointsContractSettings: React.FC = () => {
                 setLoading(true);
                 const response = await readSettings(organization.teamPointsContractAddress);
                 if (response.status === 'success' && response.data) {
-                    const { materialWeight, baseTimeWeight } = response.data || {};
+                    const { materialWeight, baseTimeWeight, maxTimeScaling } = response.data || {};
                     const humanReadableMaterialWeight = Number(materialWeight) / 1000;
                     const humanReadableBaseTimeWeight = Number(baseTimeWeight) / 1000;
+                    const humanReadableMaxTimeScaling = Number(maxTimeScaling) / 1000;
                     formik.setValues({
                         isTransferable: response.data.isTransferable,
+                        enableTimeScaling: response.data.enableTimeScaling,
                         isOutsideTransferAllowed: response.data.isOutsideTransferAllowed,
                         materialWeight: humanReadableMaterialWeight,
-                        baseTimeWeight: humanReadableBaseTimeWeight
+                        baseTimeWeight: humanReadableBaseTimeWeight,
+                        maxTimeScaling: humanReadableMaxTimeScaling
                     });
                     setContractSettings({
                         isTransferable: response.data.isTransferable,
                         isOutsideTransferAllowed: response.data.isOutsideTransferAllowed,
+                        enableTimeScaling: response.data.enableTimeScaling,
                         materialWeight: humanReadableMaterialWeight,
-                        baseTimeWeight: humanReadableBaseTimeWeight
+                        baseTimeWeight: humanReadableBaseTimeWeight,
+                        maxTimeScaling: humanReadableMaxTimeScaling
                     })
                     setLoading(false);
                 } else {
@@ -143,7 +159,7 @@ const TeamPointsContractSettings: React.FC = () => {
     return (
         <>
             {isAdmin ? (
-                <Card className="w-3/4">
+                <Card className="w-full md:w-3/4 ">
                     <SuccessDialog
                         dialogVisible={dialogVisible}
                         txHash={txHash || ''}
@@ -172,72 +188,110 @@ const TeamPointsContractSettings: React.FC = () => {
                         ) : (
                             <>
                                 <>
-                                    <FormItem
-                                        label="Transferable Within the Team"
-                                        asterisk={true}
-                                        errorMessage={formik.errors.isTransferable}
-                                        invalid={formik.touched.isTransferable && !!formik.errors.isTransferable}
-                                        extraTooltip="If enabled, team members can transfer their team points to other team members."
+                                    <div className='flex flex-col xl:flex-row xl:space-x-4'>
+                                        <FormItem
+                                            label="Transferable Within the Team"
+                                            asterisk={true}
+                                            errorMessage={formik.errors.isTransferable}
+                                            invalid={formik.touched.isTransferable && !!formik.errors.isTransferable}
+                                            extraTooltip="If enabled, team members can transfer their team points to other team members."
 
-                                    >
-                                        <Switcher
-                                            name="isTransferable"
-                                            defaultChecked={formik.values.isTransferable}
-                                            onChange={(value: any) => {
-                                                formik.setFieldValue('isTransferable', value);
-                                                if (value === false) {
-                                                    formik.setFieldValue('isOutsideTransferAllowed', false);
-                                                }
-                                            }}
+                                        >
+                                            <Switcher
+                                                name="isTransferable"
+                                                defaultChecked={formik.values.isTransferable}
+                                                onChange={(value: any) => {
+                                                    formik.setFieldValue('isTransferable', value);
+                                                    if (value === false) {
+                                                        formik.setFieldValue('isOutsideTransferAllowed', false);
+                                                    }
+                                                }}
 
-                                        />
-                                    </FormItem>
-                                    <FormItem
-                                        label="Transferable Outside the Team"
-                                        errorMessage={formik.errors.isOutsideTransferAllowed}
-                                        invalid={formik.touched.isOutsideTransferAllowed && !!formik.errors.isOutsideTransferAllowed}
-                                        extraTooltip="If enabled, team members can transfer their team points to people outside of their organization."
-                                    >
-                                        <Switcher
-                                            name="isOutsideTransferAllowed"
-                                            disabled={!formik.values.isTransferable}
-                                            checked={formik.values.isOutsideTransferAllowed}
-                                            onChange={() => {
-                                                formik.setFieldValue('isOutsideTransferAllowed', !formik.values.isOutsideTransferAllowed);
-                                            }} />
-                                    </FormItem>
-                                    <FormItem
-                                        label="Material Contribution Multiplier"
-                                        asterisk={true}
-                                        errorMessage={formik.errors.materialWeight}
-                                        invalid={formik.touched.materialWeight && !!formik.errors.materialWeight}
-                                        extraTooltip="This multiplier is applied to points earned for any material (financial) contributions that a team member makes. For example: If a team member invests $1,000 in the organisation they will get 4,000 team points for that if the multiplier is 4."
-                                    >
-                                        <Input
-                                            type="text"
-                                            name="materialWeight"
-                                            value={formik.values.materialWeight}
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
+                                            />
+                                        </FormItem>
+                                        <FormItem
+                                            label="Transferable Outside the Team"
+                                            errorMessage={formik.errors.isOutsideTransferAllowed}
+                                            invalid={formik.touched.isOutsideTransferAllowed && !!formik.errors.isOutsideTransferAllowed}
+                                            extraTooltip="If enabled, team members can transfer their team points to people outside of their organization."
+                                        >
+                                            <Switcher
+                                                name="isOutsideTransferAllowed"
+                                                disabled={!formik.values.isTransferable}
+                                                checked={formik.values.isOutsideTransferAllowed}
+                                                onChange={() => {
+                                                    formik.setFieldValue('isOutsideTransferAllowed', !formik.values.isOutsideTransferAllowed);
+                                                }} />
+                                        </FormItem>
+                                        <FormItem
+                                            asterisk={true}
+                                            label="Enable Time Scaling"
+                                            errorMessage={formik.errors.enableTimeScaling}
+                                            invalid={formik.touched.enableTimeScaling && !!formik.errors.enableTimeScaling}
+                                            extraTooltip="If enabled, team points earned for time contributions will be scaled by the time contribution multiplier."
+                                        >
+                                            <Switcher
+                                                name="enableTimeScaling"
+                                                checked={formik.values.enableTimeScaling}
+                                                onChange={() => {
+                                                    formik.setFieldValue('enableTimeScaling', !formik.values.enableTimeScaling);
+                                                }} />
+                                        </FormItem>
+                                    </div>
+
+                                    <div className='flex flex-col xl:flex-row xl:space-x-4'>
+                                        <FormItem
+                                            label="Material Contribution Multiplier"
+                                            asterisk={true}
+                                            errorMessage={formik.errors.materialWeight}
                                             invalid={formik.touched.materialWeight && !!formik.errors.materialWeight}
-                                        />
-                                    </FormItem>
-                                    <FormItem
-                                        label="Time Contribution Multiplier"
-                                        asterisk={true}
-                                        errorMessage={formik.errors.baseTimeWeight}
-                                        invalid={formik.touched.baseTimeWeight && !!formik.errors.baseTimeWeight}
-                                        extraTooltip="This multiplier is applied to time contribution."
-                                    >
-                                        <Input
-                                            type="text"
-                                            name="baseTimeWeight"
-                                            value={formik.values.baseTimeWeight}
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
+                                            extraTooltip="This multiplier is applied to points earned for any material (financial) contributions that a team member makes. For example: If a team member invests $1,000 in the organisation they will get 4,000 team points for that if the multiplier is 4."
+                                        >
+                                            <Input
+                                                type="text"
+                                                name="materialWeight"
+                                                value={formik.values.materialWeight}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                invalid={formik.touched.materialWeight && !!formik.errors.materialWeight}
+                                            />
+                                        </FormItem>
+                                        <FormItem
+                                            label="Time Contribution Multiplier"
+                                            asterisk={true}
+                                            errorMessage={formik.errors.baseTimeWeight}
                                             invalid={formik.touched.baseTimeWeight && !!formik.errors.baseTimeWeight}
-                                        />
-                                    </FormItem>
+                                            extraTooltip="This multiplier is applied to time contribution."
+                                        >
+                                            <Input
+                                                type="text"
+                                                name="baseTimeWeight"
+                                                value={formik.values.baseTimeWeight}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                invalid={formik.touched.baseTimeWeight && !!formik.errors.baseTimeWeight}
+                                            />
+                                        </FormItem>
+                                        <FormItem
+                                            label="Maximum Time Scaling"
+                                            asterisk={true}
+                                            errorMessage={formik.errors.maxTimeScaling}
+                                            invalid={formik.touched.maxTimeScaling && !!formik.errors.maxTimeScaling}
+                                            extraTooltip="This is the maximum scaling that can be applied to time contributions."
+                                        >
+                                            <Input
+                                                type="text"
+                                                name="maxTimeScaling"
+                                                value={formik.values.maxTimeScaling}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                invalid={formik.touched.maxTimeScaling && !!formik.errors.maxTimeScaling}
+                                            />
+                                        </FormItem>
+                                    </div>
+
+
+
 
                                 </>
                                 <div className='text-sm mt-4 items-center text-gray-500 p-1 flex flex-row justify-end'>

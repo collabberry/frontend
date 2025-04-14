@@ -21,15 +21,14 @@ import {
   getWorkContributionDescription,
 } from "./score-helpers";
 import { apiAddAssessment, apiEditAssessment } from "@/services/OrgService";
-import {
-  handleError,
-} from "@/components/collabberry/helpers/ToastNotifications";
 import LottieAnimation from "@/components/collabberry/LottieAnimation";
 import * as animationData from "@/assets/animations/success.json";
 import { refreshAllRounds, refreshCurrentRound } from "@/services/LoadAndDispatchService";
+import { useHandleError } from "@/services/HandleError";
 
 const Assess = () => {
   const dispatch = useDispatch();
+  const handleError = useHandleError();
   const organization = useSelector((state: RootState) => state.auth.org);
   const currentRound = useSelector(
     (state: RootState) => state.auth.rounds.currentRound
@@ -125,7 +124,7 @@ const Assess = () => {
   //       setTeamMemberIndex(nextIncompleteStep);
   //     }
   //   } catch (error: any) {
-  //     handleError(error.response.data.message);
+  //     handleError(error);
   //   }
   // };
 
@@ -152,8 +151,8 @@ const Assess = () => {
         };
         const response = await apiAddAssessment(assessment);
         if (response && response.data && organization.id) {
-          refreshAllRounds(dispatch);
-          refreshCurrentRound(dispatch);
+          refreshAllRounds(dispatch, handleError);
+          refreshCurrentRound(dispatch, handleError);
         }
       }
 

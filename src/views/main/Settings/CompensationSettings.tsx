@@ -1,5 +1,4 @@
 import {
-  handleError,
   handleSuccess,
 } from "@/components/collabberry/helpers/ToastNotifications";
 import {
@@ -25,6 +24,7 @@ import {
 } from "@/components/collabberry/utils/collabberry-constants";
 import { StatisticCard } from "./StatisticCard";
 import { refreshAllRounds, refreshCurrentRound, refreshOrganizationData } from "@/services/LoadAndDispatchService";
+import { useHandleError } from "@/services/HandleError";
 
 const validationSchema = Yup.object().shape({
   compensationStartDay: Yup.mixed().required("Start date is required"),
@@ -86,6 +86,7 @@ const validationSchema = Yup.object().shape({
 
 const CompensationSettings: React.FC<any> = () => {
   const dispatch = useDispatch();
+  const handleError = useHandleError();
   const { isAdmin } = useSelector((state: RootState) => state.auth.user);
   const currentRound = useSelector(
     (state: RootState) => state.auth.rounds.currentRound
@@ -128,16 +129,16 @@ const CompensationSettings: React.FC<any> = () => {
         const response = await apiEditOrganization(body);
         const { data } = response;
         if (data) {
-          refreshOrganizationData(data?.id, dispatch);
-          refreshAllRounds(dispatch);
-          refreshCurrentRound(dispatch);
+          refreshOrganizationData(data?.id, dispatch, handleError);
+          refreshAllRounds(dispatch, handleError);
+          refreshCurrentRound(dispatch, handleError);
         }
 
         handleSuccess(
           "You have successfully edited the settings of your community"
         );
       } catch (error: any) {
-        handleError(error.response.data.message);
+        handleError(error);
       }
     },
   });
