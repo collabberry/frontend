@@ -34,6 +34,12 @@ export const protectedRoutes = [
     component: lazy(() => import("@/views/main/Scores/Scores")),
     authority: [],
   },
+  // {
+  //   key: "admin.assistant",
+  //   path: "/assistant",
+  //   component: lazy(() => import("@/views/main/AgreementAssistant/AgreementAssistant")),
+  //   authority: [],
+  // },
   {
     key: "admin.my-scores",
     path: "/scores/my-scores",

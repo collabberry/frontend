@@ -25,6 +25,16 @@ const navigationConfig: NavigationTree[] = [
         authority: [],
         subMenu: [],
       },
+      // {
+      //   key: "admin.assistant",
+      //   path: "/assistant",
+      //   title: "Agreement Assistant",
+      //   translateKey: "nav.admin.assistant",
+      //   icon: "home",
+      //   type: NAV_ITEM_TYPE_ITEM,
+      //   authority: [],
+      //   subMenu: [],
+      // },
       {
         key: "admin.assistant",
         path: "/assistant",
