@@ -269,7 +269,7 @@ const Team: React.FC = () => {
         return (
 
           <span>
-            {`${((value / totalSupply) * 100).toFixed(2)}%`}
+            {`${((value / totalSupply) || 0 * 100).toFixed(2)}%`}
           </span>
 
 
