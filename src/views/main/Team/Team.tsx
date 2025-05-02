@@ -267,7 +267,7 @@ const Team: React.FC = () => {
         const value = props.getValue() as number;
         return (
           <span>
-            {`${((value / totalSupply) * 100).toFixed(2)}%`}
+            {totalSupply === 0 ? "0%" : `${((value / totalSupply) * 100).toFixed(2)}%`}
           </span>
         );
       },
