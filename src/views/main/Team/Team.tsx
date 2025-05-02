@@ -145,7 +145,7 @@ const Team: React.FC = () => {
         const response = await fetchTotalSupply(organization?.teamPointsContractAddress);
         if (response.status === 'success' && response.data) {
           const { totalSupply } = response.data;
-          const formattedTotalSupply = Math.floor(Number(ethers.formatUnits(totalSupply, 'ether')));
+          const formattedTotalSupply = totalSupply ? Math.floor(Number(ethers.formatUnits(totalSupply, 'ether'))) : 0;
           setTotalSupply(formattedTotalSupply);
           setLoading(false);
         } else {
