@@ -51,7 +51,7 @@ Ensure you have the following installed:
 
     ### Production
     ```
-    # VITE_APP_BASE_URL="https://beta-api.collabberry.xyz"
+    # VITE_APP_BASE_URL=
     # VITE_NODE_ENV="production"
     # VITE_APP_TEAM_POINTS_FACTORY_ADDRESS=
     # VITE_APP_URL=
