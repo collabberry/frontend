@@ -265,16 +265,11 @@ const Team: React.FC = () => {
       accessorKey: "balance",
       cell: (props) => {
         const value = props.getValue() as number;
-
         return (
-
           <span>
-            {`${((value / totalSupply) || 0 * 100).toFixed(2)}%`}
+            {`${((value / totalSupply) * 100).toFixed(2)}%`}
           </span>
-
-
         );
-
       },
     },
     {
