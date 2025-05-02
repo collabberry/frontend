@@ -11,17 +11,19 @@ import { HiInformationCircle } from "react-icons/hi";
 import { refreshAllRounds } from "@/services/LoadAndDispatchService";
 import { MdOutlineAssessment } from "react-icons/md";
 import { BsListStars } from "react-icons/bs";
+import { useHandleError } from "@/services/HandleError";
 
 
 const Scores: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const handleError = useHandleError();
   const { allRounds } = useSelector(
     (state: RootState) => state.auth.rounds
   );
 
   React.useEffect(() => {
-    refreshAllRounds(dispatch);
+    refreshAllRounds(dispatch, handleError);
   }, [dispatch]);
 
 

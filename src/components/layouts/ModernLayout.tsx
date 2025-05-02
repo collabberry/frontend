@@ -20,7 +20,6 @@ const HeaderActionsStart = () => {
 const HeaderActionsEnd = () => {
   return (
     <>
-    
       <UserAccount />
     </>
   );

@@ -40,7 +40,7 @@ const OrganizationCard: React.FC<OrganizationCardProps> = ({
         )
       }
      
-     <div className="flex flex-col md:flex-row">
+     <div className="flex flex-col gap-2">
      <div className="organization-name text-2xl mr-2 text-gray-900">
             {organization.name}
           </div>
