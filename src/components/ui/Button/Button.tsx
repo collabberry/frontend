@@ -11,7 +11,7 @@ import type { ReactNode, ComponentPropsWithRef, MouseEvent } from 'react'
 
 export interface ButtonProps
     extends CommonProps,
-        Omit<ComponentPropsWithRef<'button'>, 'onClick'> {
+    Omit<ComponentPropsWithRef<'button'>, 'onClick'> {
     active?: boolean
     block?: boolean
     color?: string
@@ -21,7 +21,7 @@ export interface ButtonProps
     onClick?: (e: MouseEvent<HTMLButtonElement>) => void
     shape?: TypeAttributes.Shape
     size?: TypeAttributes.Size
-    variant?: 'solid' | 'twoTone' | 'plain' | 'default'
+    variant?: 'solid' | 'twoTone' | 'plain' | 'default' | 'transparent'
 }
 
 type ButtonColor = {
@@ -155,15 +155,30 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
         return getBtnColor(btn)
     }
 
+    const transparentColor = () => {
+        const btn = {
+            bgColor: active
+                ? `bg-gray-200 dark:bg-gray-700`
+                : "bg-transparent border border-transparent",
+
+            textColor: `text-gray-300 dark:text-gray-100`,
+            hoverColor: active
+                ? ""
+                : `hover:bg-gray-100/20 dark:hover:bg-gray-700/20`,
+
+            activeColor: `active:bg-gray-100/40 dark:active:bg-gray-700/40`,
+        }; return getBtnColor(btn);
+    };
+
+
     const getBtnColor = ({
         bgColor,
         hoverColor,
         activeColor,
         textColor,
     }: ButtonColor) => {
-        return `${bgColor} ${
-            disabled || loading ? disabledClass : hoverColor + ' ' + activeColor
-        } ${textColor}`
+        return `${bgColor} ${disabled || loading ? disabledClass : hoverColor + ' ' + activeColor
+            } ${textColor}`
     }
 
     const btnColor = () => {
@@ -174,6 +189,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
                 return twoToneColor()
             case 'plain':
                 return plainColor()
+            case 'transparent':
+                return transparentColor()
             case 'default':
                 return defaultColor()
             default:

@@ -23,6 +23,14 @@ import { refreshOrganizationData } from "@/services/LoadAndDispatchService";
 import { useHandleError } from "@/services/HandleError";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { ethers } from "ethers";
+import { Chart } from "@/components/shared";
+import { COLORS, CUSTOM_COLORS } from "@/constants/chart.constant";
+import { useContractService } from "@/services/ContractsService";
+
+interface ChartData {
+  labels: string[];
+  series: number[];
+}
 
 const Team: React.FC = () => {
   const organization = useSelector((state: RootState) => state.auth.org);
@@ -41,10 +49,17 @@ const Team: React.FC = () => {
   const { isOpen: isAgreementDialogOpen, openDialog: openAgreementDialog, closeDialog: closeAgreementDialog } = useDialog();
   const { isOpen: isViewAgreementDialogOpen, openDialog: openViewAgreementDialog, closeDialog: closeViewAgreementDialog } = useDialog();
   const { isOpen: isEditAgreementDialogOpen, openDialog: openEditAgreementDialog, closeDialog: closeEditAgreementDialog } = useDialog();
+  const [totalSupply, setTotalSupply] = useState(0);
+  const [chartData, setChartData] = useState<ChartData>({
+    labels: [],
+    series: [],
+  });
   const fromDashboard = location.state && location.state.from === "dashboard";
   const [loading, setLoading] = useState(false);
   const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
   const [contributorsWithAdminFlag, setContributorsWithAdminFlag] = useState<Contributor[]>([]);
+  const { fetchTotalSupply, ethersSigner } = useContractService();
+
 
 
   useEffect(() => {
@@ -55,8 +70,17 @@ const Team: React.FC = () => {
           const response = await checkAdminContributors(organization?.teamPointsContractAddress, organization?.contributors || []);
           const admins = response.data.adminContributors;
           const contributorsWithBalance = response.data.contributorsStatusAndBalance;
-          if (response.status === 'success') {
+          const labels = contributorsWithBalance.map((contributor: any) => contributor.username);
+          const series = contributorsWithBalance.map((contributor: any) =>
+            Math.floor(Number(ethers.formatUnits(contributor.balance, 'ether'))) || 0
+          );
 
+          const seriesPercentage = contributorsWithBalance.map((contributor: any) =>
+            (((Math.floor(Number(ethers.formatUnits(contributor.balance, 'ether'))) || 0) / totalSupply) * 100) || 0
+          );
+          setChartData({ labels, series: seriesPercentage });
+          // setChartData({ labels, series });
+          if (response.status === 'success') {
             const adminContributorsWithBalance = organization?.contributors.map((contributor) => {
               const isContractAdmin = admins.some((admin: Contributor) => admin.walletAddress === contributor.walletAddress);
               const contributorWithBalance = contributorsWithBalance.find((c: Contributor) => c.walletAddress === contributor.walletAddress);
@@ -112,6 +136,26 @@ const Team: React.FC = () => {
     };
     fetchOrganization();
   }, [])
+
+
+  useEffect(() => {
+    const fetchSupply = async () => {
+      if (organization?.teamPointsContractAddress && ethersSigner) {
+        setLoading(true);
+        const response = await fetchTotalSupply(organization?.teamPointsContractAddress);
+        if (response.status === 'success' && response.data) {
+          const { totalSupply } = response.data;
+          const formattedTotalSupply = totalSupply ? Math.floor(Number(ethers.formatUnits(totalSupply, 'ether'))) : 0;
+          setTotalSupply(formattedTotalSupply);
+          setLoading(false);
+        } else {
+          setLoading(false);
+
+        }
+      }
+    }
+    fetchSupply();
+  }, [organization.teamPointsContractAddress, ethersSigner]);
 
   const viewAgreement = (contributor: Contributor) => {
     if (contributor && Object.keys(contributor).length > 0) {
@@ -200,20 +244,32 @@ const Team: React.FC = () => {
     },
     {
       header: "TP Balance",
+      cell: (props) => {
+        const data = props.row.original as any;
+        const value = data.balance;
+
+        return (
+          <span>
+            {`${Number(value).toLocaleString("en-US", {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            })}`}
+
+          </span>
+        );
+
+      },
+    },
+    {
+      header: "TP Percentage",
       accessorKey: "balance",
       cell: (props) => {
         const value = props.getValue() as number;
-        if (value) {
-          return (
-            <span>
-              {`${Number(value).toLocaleString("en-US", {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              })}`}
-
-            </span>
-          );
-        }
+        return (
+          <span>
+            {totalSupply === 0 ? "0%" : `${((value / totalSupply) * 100).toFixed(2)}%`}
+          </span>
+        );
       },
     },
     {
@@ -362,14 +418,69 @@ const Team: React.FC = () => {
       </div>
 
       <div className="mb-4 flex justify-between items-start md:items-end flex-col md:flex-row gap-2 md:gap-0">
-        <OrganizationCard
-          organization={organization}
-          onEdit={openEditDialog}
-          onInvite={inviteAction}
-          isAdmin={isAdmin as boolean}
-        />
+        <div className="flex flex-col md:flex-row gap-2">
+          <OrganizationCard
+            organization={organization}
+            onEdit={openEditDialog}
+            onInvite={inviteAction}
+            isAdmin={isAdmin as boolean}
+          />
+          {chartData.labels.length && chartData.series.length && (
+            <Chart
+              className="flex"
+              // customOptions={{ colors: CUSTOM_COLORS, labels: chartData.labels, chart: { offsetX: 0, offsetY: 0, }, plotOptions: { pie: { donut: { size: '60%', labels: { total: { label: '', } } } } }, responsive: [{ breakpoint: 480, options: { chart: { width: 150, height: 150, }, legend: { position: 'bottom', }, }, },], }}
+              customOptions={{
+                colors: CUSTOM_COLORS,
+                labels: chartData.labels,
+                chart: {
+                  offsetX: 0,
+                  offsetY: 0,
+                },
+                plotOptions: {
+                  pie: {
+                    donut: {
+                      size: '60%',
+                      labels: {
+                        total: {
+                          label: '',
+                        }
+                      }
+                    }
+                  }
+                },
+                // Add the formatting options here
+                tooltip: {
+                  y: {
+                    formatter: (value: number) => `${value.toFixed(2)}%`
+                  }
+                },
+                // dataLabels: {
+                //   formatter: (val: number) => `${val.toFixed(2)}%`
+                // },
+                responsive: [
+                  {
+                    breakpoint: 480,
+                    options: {
+                      chart: {
+                        width: 150,
+                        height: 150,
+                      },
+                      legend: {
+                        position: 'bottom',
+                      },
+                    },
+                  },
+                ],
+              }}
+              series={chartData.series}
+              height={125}
+              width={125}
+              type="donut"
+              donutText="TP" />
+          )}
+        </div>
         {isAdmin && (
-          <div className="flex gap-2 flex-col sm:flex-row mx-2">
+          <div className="flex gap-2 flex-row mx-2">
 
             <Tooltip title="Admin Management">
               <Button size="sm"
