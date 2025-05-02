@@ -459,9 +459,9 @@ const Team: React.FC = () => {
                     formatter: (value: number) => `${value.toFixed(2)}%`
                   }
                 },
-                dataLabels: {
-                  formatter: (val: number) => `${val.toFixed(2)}%`
-                },
+                // dataLabels: {
+                //   formatter: (val: number) => `${val.toFixed(2)}%`
+                // },
                 responsive: [
                   {
                     breakpoint: 480,
