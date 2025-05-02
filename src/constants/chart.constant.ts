@@ -37,3 +37,26 @@ export const COLORS_LIGHT = [
     COLOR_6_LIGHT,
     COLOR_7_LIGHT,
 ]
+
+export const CUSTOM_COLORS = [
+    "#6B7AC7", // Blue Yonder
+    "#B14D57", // Rose Taupe
+    "#4A90E2", // Dodger Blue
+    "#50C878", // Emerald
+    "#FFA726", // Carrot Orange
+    "#FDD835", // Dandelion
+    "#EC407A", // Cerise
+    "#9575CD", // Amethyst
+    "#26A69A", // Teal
+    "#FF7043", // Coral
+    "#BA68C8", // Wisteria
+    "#283593", // Dark Blue
+    "#4DD0E1", // Turquoise
+    "#AEEA00", // Lime
+    "#D81B60", // Raspberry
+    "#00ACC1", // Cyan
+    "#FFD54F", // Maize
+    "#5E35B1", // Violet
+    "#9E9D24", // Olive
+    "#90A4AE", // Slate Gray
+    ]
