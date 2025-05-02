@@ -24,7 +24,6 @@
     "admin": {
       "admin": "Admin",
       "admins": "Admin Management",
-      "assistant": "Agreement Assistant",
       "manual-allocation": "Manual Allocation",
       "material-contribution": "Material Contribution"
     }
