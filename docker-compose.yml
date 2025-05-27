@@ -23,7 +23,7 @@ services:
         - VITE_APP_URL=https://app.collabberry.xyz
         - VITE_APP_NETWORK=Arbitrum Sepolia
         - VITE_APP_BLOCK_EXPLORER=https://sepolia.arbiscan.io/tx
-        - VITE_APP_TEAM_POINTS_FACTORY_ADDRESS_CELO="0x0e414560fdEeC039c4636b9392176ddc938b182D"
+        - VITE_APP_TEAM_POINTS_FACTORY_ADDRESS_CELO=0x0e414560fdEeC039c4636b9392176ddc938b182D
     ports:
       - 4100:4100
 
