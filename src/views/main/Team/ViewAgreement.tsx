@@ -17,7 +17,7 @@ import { refreshOrganizationData } from "@/services/LoadAndDispatchService";
 
 
 interface ViewAgreementProps {
-  contributor: any;
+  contributor: Contributor;
   handleClose: () => void;
 }
 
@@ -29,8 +29,6 @@ export const ContributorHeader: React.FC<{ contributor: Contributor, shortAddres
 }) => {
   const { profilePicture, username, walletAddress } = contributor;
   const address = shortAddress ? shortenAddress(walletAddress) : walletAddress;
-
-
 
   return (
     <>
@@ -116,15 +114,14 @@ const ViewAgreement: React.FC<ViewAgreementProps> = ({
 
   const contributorMe = useMemo(() => {
     return organization?.contributors?.find((c: Contributor) => c.id === id);
-  }
-    , [organization, id]);
+  }, [organization, id]);
 
   const isAuthenticatedContributor = useMemo(() => {
     return contributorMe?.id === contributor?.id;
   }, [contributorMe, contributor]);
 
 
-  const comfirmRemoveAgreement = async () => {
+  const confirmRemoveAgreement = async () => {
     if (!isAdmin) {
       handleErrorMessage("Only admins can remove agreements.");
       return;
@@ -156,8 +153,8 @@ const ViewAgreement: React.FC<ViewAgreementProps> = ({
 
         <ConfirmationDialog
           handleDialogClose={closeRemoveAgreementDialog}
-          handleDialogConfirm={() => comfirmRemoveAgreement()}
-          dialogMessage={`Are you sure you want to remove ${contributor?.username} from the organization? This action cannot be undone.`}
+          handleDialogConfirm={() => confirmRemoveAgreement()}
+          dialogMessage={`Are you sure you want to remove ${contributor?.username}'s agreement? This action cannot be undone.`}
           dialogVisible={isRemoveAgreement}
         >
         </ConfirmationDialog>
