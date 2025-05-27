@@ -46,6 +46,7 @@ Ensure you have the following installed:
     VITE_APP_BASE_URL=""
     VITE_NODE_ENV="development"
     VITE_APP_TEAM_POINTS_FACTORY_ADDRESS=
+    VITE_APP_TEAM_POINTS_FACTORY_ADDRESS_CELO=
     VITE_APP_URL=
     VITE_APP_NETWORK="Arbitrum Sepolia"
     VITE_APP_BLOCK_EXPLORER="https://sepolia.arbiscan.io/tx"
@@ -56,6 +57,8 @@ Ensure you have the following installed:
     # VITE_APP_BASE_URL=""
     # VITE_NODE_ENV="production"
     # VITE_APP_TEAM_POINTS_FACTORY_ADDRESS=
+    # VITE_APP_TEAM_POINTS_FACTORY_ADDRESS_CELO=
+
     # VITE_APP_URL=
     # VITE_APP_NETWORK="Arbitrum"
     # VITE_APP_BLOCK_EXPLORER="https://arbiscan.io/tx"
