@@ -48,6 +48,9 @@ import { environment } from "@/api/environment";
 import { ContractResponseStatus } from "@/utils/parseErrorMessage";
 import { shortenTxHash } from "@/components/collabberry/utils/shorten-address";
 import { useHandleError } from "@/services/HandleError";
+import { useChainService } from "@/services/ChainService";
+
+
 
 
 const ValidationStepsSchema = Yup.object().shape({
@@ -58,7 +61,7 @@ const ValidationStepsSchema = Yup.object().shape({
     email: Yup.string().email("Invalid e-mail.").required(fieldRequired),
     telegramHandle: Yup.string().notRequired(),
     image: Yup.mixed().notRequired(),
-    
+
   }),
   step2: Yup.object().shape({
     logo: Yup.mixed().notRequired(),
@@ -128,7 +131,8 @@ const SignUp = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const handleError = useHandleError();
   const organization = useSelector((state: RootState) => state.auth.org);
-  const { network, blockExplorer } = environment;
+  // const { network, blockExplorer } = environment;
+  const { chain, chainError, blockExplorer, network} = useChainService();
   const dispatch = useDispatch();
   const { deployTeamPoints } = useContractService();
   const [txHash, setTxHash] = useState<string | null>(null);
@@ -171,7 +175,7 @@ const SignUp = () => {
 
     if (telegramHandle) {
       data.telegramHandle = telegramHandle;
-    } 
+    }
     try {
       const response = await apiRegisterAccount(data);
       if (response?.data) {
@@ -227,7 +231,7 @@ const SignUp = () => {
 
     try {
       setDialogOpen(true);
-      const contractResponse = await deployTeamPoints(data?.name);
+      const contractResponse = await deployTeamPoints(data?.name, chain?.id);
       if (contractResponse.status === ContractResponseStatus.Success && contractResponse.data?.contractAddress) {
         if (contractResponse.event?.transactionHash) {
           setTxHash(contractResponse.event?.transactionHash);
@@ -239,6 +243,7 @@ const SignUp = () => {
           const orgPostData = {
             ...data,
             teamPointsContractAddress: contractResponse?.data.contractAddress,
+            chainId: chain?.id,
           }
           const response = await apiCreateOrganization(orgPostData);
           if (response?.data) {
@@ -477,37 +482,37 @@ const SignUp = () => {
                 value={formik.values.step1.username}
               />
             </FormItem>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormItem
-              label="Email"
-              asterisk
-              invalid={
-                formik.touched?.step1?.email && !!formik.errors?.step1?.email
-              }
-              errorMessage={formik.errors?.step1?.email}
-            >
-              <Input
-                name="step1.email"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.step1.email}
-              />
-            </FormItem>
-            <FormItem
-              label="Telegram Handle"
-              invalid={
-                formik.touched?.step1?.telegramHandle && !!formik.errors?.step1?.telegramHandle
-              }
-              errorMessage={formik.errors?.step1?.telegramHandle}
-            >
-              <Input
-                name="step1.telegramHandle"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.step1.telegramHandle}
-              />
-            </FormItem>
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormItem
+                label="Email"
+                asterisk
+                invalid={
+                  formik.touched?.step1?.email && !!formik.errors?.step1?.email
+                }
+                errorMessage={formik.errors?.step1?.email}
+              >
+                <Input
+                  name="step1.email"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.step1.email}
+                />
+              </FormItem>
+              <FormItem
+                label="Telegram Handle"
+                invalid={
+                  formik.touched?.step1?.telegramHandle && !!formik.errors?.step1?.telegramHandle
+                }
+                errorMessage={formik.errors?.step1?.telegramHandle}
+              >
+                <Input
+                  name="step1.telegramHandle"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.step1.telegramHandle}
+                />
+              </FormItem>
+            </div>
           </FormContainer>
         );
       case 1:
@@ -526,7 +531,7 @@ const SignUp = () => {
                     <div className="mb-2 text-center text-md flex flex-col items-center">
                       <p>See your transaction on {network}: </p>
                       <a
-                        href={`${blockExplorer}/${txHash}`}
+                        href={`${blockExplorer}/tx/${txHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="ml-1 text-md text-blue-600 underline hover:text-blue-800"
@@ -607,7 +612,7 @@ const SignUp = () => {
 
             <div className='text-sm mt-4 items-center text-gray-500 p-1 flex flex-row justify-end'>
               {/* <FiAlertTriangle className='mr-1'/> */}
-              <p>By submitting this form, you’ll deploy a new Team Points contract. This transaction will require gas fees.</p>
+              <p>By submitting this form, you’ll deploy a new Team Points contract on {network || 'an unsupported Network'}. This transaction will require gas fees.</p>
             </div>
           </>
 
