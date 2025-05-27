@@ -15,7 +15,7 @@ import { SiweMessage } from "siwe";
 import { getAccount } from "wagmi/actions";
 import useAuth from "./utils/hooks/useAuth";
 import { useEffect, useMemo } from "react";
-import { mainnet, polygon, optimism, arbitrum, base, arbitrumSepolia } from "wagmi/chains";
+import { mainnet, polygon, optimism, arbitrum, base, arbitrumSepolia, celo, celoAlfajores } from "wagmi/chains";
 import { useAppSelector } from "./store";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import CustomAvatar from "./components/collabberry/custom-components/CustomRainbowKit/CustomAvatar";
@@ -26,8 +26,8 @@ import { Env, environment } from "./api/environment";
 export const config = getDefaultConfig({
   appName: "Collabberry",
   projectId: "dd33813752fd2f608af1325845cc6abc",
-  syncConnectedChain: true,
-  chains: environment?.env === Env.Production ? [arbitrum] : [arbitrumSepolia],
+  // syncConnectedChain: true,
+  chains: environment?.env === Env.Production ? [arbitrum, celo] : [arbitrumSepolia, celo],
   // ssr: true, // If your dApp uses server side rendering (SSR)
 });
 

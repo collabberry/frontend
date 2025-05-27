@@ -5,17 +5,17 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import { Button, Card, FormContainer, FormItem, Input, InputGroup } from '@/components/ui';
-import { HiArrowSmLeft, HiPlus, HiTrash } from 'react-icons/hi';
+import { HiPlus, HiTrash } from 'react-icons/hi';
 import { ethers } from 'ethers';
 import CustomAvatarAndUsername from '@/components/collabberry/custom-components/CustomRainbowKit/CustomAvatarAndUsername';
 import PlaceholderAvatarAndUsername from '@/components/collabberry/custom-components/CustomRainbowKit/PlaceholderAvatarAndUsername';
 import { useContractService } from '@/services/ContractsService';
-import { environment } from '@/api/environment';
 import SuccessDialog from '@/components/collabberry/custom-components/TransactionSuccessDialog';
 import ErrorDialog from '@/components/collabberry/custom-components/TransactionErrorDialog';
 import LoadingDialog from '@/components/collabberry/custom-components/LoadingDialog';
 import Addon from '@/components/ui/InputGroup/Addon';
 import { useNavigate } from 'react-router-dom';
+import { useChainService } from '@/services/ChainService';
 
 type FormModel = {
     contributors: {
@@ -61,7 +61,8 @@ const ManualAllocation: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [txHash, setTxHash] = useState<string | null>(null);
-    const { network, blockExplorer } = environment;
+    // const { network, blockExplorer } = environment;
+    const { network, blockExplorer} = useChainService()
 
     const handleDialogClose = () => {
         setDialogVisible(false);

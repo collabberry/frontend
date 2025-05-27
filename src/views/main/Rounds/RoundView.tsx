@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import MintStatusTag from "./MintStatusTag";
 import { environment } from "@/api/environment";
 import { useHandleError } from "@/services/HandleError";
+import { useChainService } from "@/services/ChainService";
 
 const RoundView: React.FC = () => {
   const { selectedRound, currentRound } = useSelector(
@@ -42,7 +43,8 @@ const RoundView: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
-  const { network, blockExplorer } = environment;
+  // const { network, blockExplorer } = environment;
+  const { blockExplorer, network } = useChainService();
 
   const goToContributorAssessments = (contributor: any) => {
     const orgContributor = organization?.contributors?.find(
@@ -422,7 +424,7 @@ const RoundView: React.FC = () => {
             {user?.isAdmin && contributors.length && selectedRound?.status === RoundStatus.Completed && selectedRound.txHash ? (<div>
 
               <a
-                href={`${blockExplorer}/${selectedRound.txHash}`}
+                href={`${blockExplorer}/tx/${selectedRound.txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

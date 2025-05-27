@@ -9,12 +9,11 @@ import CustomAvatarAndUsername from "@/components/collabberry/custom-components/
 import PlaceholderAvatarAndUsername from "@/components/collabberry/custom-components/CustomRainbowKit/PlaceholderAvatarAndUsername";
 import { HiPlus, HiTrash } from "react-icons/hi";
 import { shortenAddress } from "@/components/collabberry/utils/shorten-address";
-import { useContractService } from "@/services/ContractsService";
-import { handleErrorMessage } from "@/components/collabberry/helpers/ToastNotifications";
+import { useContractService } from "@/services/ContractsService"
 import SuccessDialog from "@/components/collabberry/custom-components/TransactionSuccessDialog";
 import ErrorDialog from "@/components/collabberry/custom-components/TransactionErrorDialog";
 import LoadingDialog from "@/components/collabberry/custom-components/LoadingDialog";
-import { environment } from "@/api/environment";
+import { useChainService } from "@/services/ChainService";
 
 const formatContributorLabel = (username: string, walletAddress: string) => {
     const shortenedAddress = shortenAddress(walletAddress, 20, 4);
@@ -67,7 +66,8 @@ const MaterialContribution: React.FC = () => {
     const [errrorDialogVisible, setErrorDialogVisible] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [txHash, setTxHash] = useState<string | null>(null);
-    const { network, blockExplorer } = environment;
+    // const { network, blockExplorer } = environment;
+    const { network, blockExplorer } = useChainService()
     const { getMaterialWeight, batchMint, ethersSigner } = useContractService();
 
     const contributorsFromOrg = organization?.contributors || [];

@@ -36,7 +36,7 @@ const SuccessDialog: React.FC<SuccessDialogProps> = ({
                     <div className="mb-2 text-center text-md flex flex-col items-center">
                         <p>See your transaction on {txNetwork}: </p>
                         <a
-                            href={`${blockExplorer}/${txHash}`}
+                            href={`${blockExplorer}/tx/${txHash}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="ml-1 text-md text-blue-600 underline hover:text-blue-800"

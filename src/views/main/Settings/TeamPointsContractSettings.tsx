@@ -9,10 +9,9 @@ import SuccessDialog from '@/components/collabberry/custom-components/Transactio
 import ErrorDialog from '@/components/collabberry/custom-components/TransactionErrorDialog';
 import LoadingDialog from '@/components/collabberry/custom-components/LoadingDialog';
 import { ethers } from 'ethers';
-import { environment } from '@/api/environment';
 import { StatisticCard } from './StatisticCard';
 import { useHandleError } from '@/services/HandleError';
-import { max } from 'lodash';
+import { useChainService } from '@/services/ChainService';
 
 
 const validationSchema = Yup.object().shape({
@@ -61,7 +60,8 @@ const TeamPointsContractSettings: React.FC = () => {
     const [errrorDialogVisible, setErrorDialogVisible] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [txHash, setTxHash] = useState<string | null>(null);
-    const { network, blockExplorer } = environment;
+    // const { network, blockExplorer } = environment;
+    const { network, blockExplorer } = useChainService()
     const { isAdmin } = useSelector((state: RootState) => state.auth.user);
 
     const handleDialogClose = () => {

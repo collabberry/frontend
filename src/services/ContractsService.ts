@@ -31,6 +31,12 @@ function generateSymbol(orgName: string): string {
     return symbol;
 }
 
+export enum SupportedChainId {
+    Celo = 42220,
+    Arbitrum = 42161,
+    ArbitrumSepolia = 421614,
+}
+
 export const getEvent = (logs: any, eventName: string): EventLog => {
     return logs
         .filter((e: any) => e instanceof EventLog)
@@ -48,9 +54,12 @@ export interface ContractResponse {
 
 
 
-const _deployTeamPoints = async (ethersSigner: ethers.JsonRpcSigner | undefined, orgName: string): Promise<ContractResponse> => {
+const _deployTeamPoints = async (ethersSigner: ethers.JsonRpcSigner | undefined, orgName: string, chainId: SupportedChainId): Promise<ContractResponse> => {
     try {
-        const factoryAddress = environment?.teamPointsFactoryAddress;
+        const factoryAddress =
+            chainId === SupportedChainId.Celo
+                ? environment?.teamPointsFactoryAddressCelo
+                : environment?.teamPointsFactoryAddress;
         const symbol = generateSymbol(orgName);
         const trimmedOrgName = orgName.trim();
         const contract = new ethers.Contract(factoryAddress, teamPointsFactoryAbi, ethersSigner);
@@ -466,14 +475,14 @@ export const useContractService = () => {
     const ethersSigner = useEthersSigner();
 
 
-    const deployTeamPoints = async (orgName: string): Promise<ContractResponse> => {
+    const deployTeamPoints = async (orgName: string, chainId: any): Promise<ContractResponse> => {
         if (!ethersSigner || !address) {
             return {
                 message: 'Please connect your wallet',
                 status: ContractResponseStatus.Failed,
             };
         }
-        return await _deployTeamPoints(ethersSigner, orgName);
+        return await _deployTeamPoints(ethersSigner, orgName, chainId);
     };
 
     const fetchTokenDetailsAndAddToWallet = async (contractAddress: string, tokenImage: string) => {
