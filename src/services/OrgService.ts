@@ -15,6 +15,13 @@ export async function apiGetContributorAgreement(contributorId: string) {
   });
 }
 
+export async function apiDeleteContributorAgreement(agreementId: string) {
+  return ApiService.fetchData<any>({
+    url: `/orgs/agreement/${agreementId}`,
+    method: "delete",
+  });
+}
+
 export async function apiActivateRounds(data: any) {
   return ApiService.fetchData<any>({
     url: `/rounds/setIsActive`,

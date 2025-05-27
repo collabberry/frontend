@@ -3,6 +3,11 @@ import { Contributor } from "@/models/Organization.model";
 import React from "react";
 import placeholderIcon from '@/assets/images/placeholder.jpg';
 import { shortenAddress } from "@/components/collabberry/utils/shorten-address";
+import { useDialog } from "@/services/DialogService";
+import ConfirmationDialog from "@/components/collabberry/custom-components/ConfirmationDialog";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { handleErrorMessage } from "@/components/collabberry/helpers/ToastNotifications";
 
 
 interface ViewAgreementProps {
@@ -18,6 +23,8 @@ export const ContributorHeader: React.FC<{ contributor: Contributor, shortAddres
 }) => {
   const { profilePicture, username, walletAddress } = contributor;
   const address = shortAddress ? shortenAddress(walletAddress) : walletAddress;
+
+
 
   return (
     <>
@@ -48,11 +55,42 @@ const AgreementDetails: React.FC<{ contributor: Contributor }> = ({
   contributor,
 }) => {
   const { agreement } = contributor;
+
+  const organization = useSelector((state: RootState) => state.auth.org);
+  const { isAdmin } = useSelector((state: RootState) => state.auth.user);
+
   const { marketRate, roleName, responsibilities, fiatRequested, commitment } =
     agreement || {};
 
+  const { isOpen: isRemoveAgreement, openDialog: openRemoveAgreementDialog, closeDialog: closeRemoveAgreementDialog } = useDialog();
+  const { isOpen: isLoadingDialogOpen, openDialog: openLoadingDialog, closeDialog: closeLoadingDialog } = useDialog();
+
+  const comfirmRemoveAgreement = async () => {
+    if (!isAdmin) {
+      handleErrorMessage("Only admins can remove agreements.");
+      return;
+    }
+    closeRemoveAgreementDialog();
+    openLoadingDialog();
+    setTimeout(() => {
+      closeLoadingDialog();
+      handleErrorMessage("Agreement removed (test timeout).");
+    }, 2000);
+  }
+
   return (
     <>
+      {isAdmin && isRemoveAgreement && (
+
+        <ConfirmationDialog
+          handleDialogClose={closeRemoveAgreementDialog}
+          handleDialogConfirm={() => comfirmRemoveAgreement()}
+          dialogMessage={`Are you sure you want to remove ${contributor?.username} from the organization? This action cannot be undone.`}
+          dialogVisible={isRemoveAgreement}
+        >
+        </ConfirmationDialog>
+
+      )}
       <div className="mt-4 p-4 bg-berrylavender-100 rounded">
         <div className="flex flex-row justify-between font-semibold text-berrylavender-700">
           <p>{`Commitment: ${commitment ? commitment?.toFixed(0) : "Not Set"}%`}</p>
@@ -65,6 +103,16 @@ const AgreementDetails: React.FC<{ contributor: Contributor }> = ({
       </div>
       <div className="max-h-96 overflow-y-scroll">
         <h2 className="text-4xl font-bold mt-4 mb-4">Agreement</h2>
+        {isAdmin && (
+          <Button
+            className="ltr:mr-2 rtl:ml-2"
+            onClick={() => openRemoveAgreementDialog()}
+          >
+            Remove Agreement
+          </Button>
+        )}
+        <div className="flex justify-end mb-4">
+        </div>
         <div className="mb-2">
           <div className="font-bold">Role:</div>
           <div>{roleName}</div>
@@ -76,7 +124,7 @@ const AgreementDetails: React.FC<{ contributor: Contributor }> = ({
       </div>
     </>
   );
-};
+}
 
 const ViewAgreement: React.FC<ViewAgreementProps> = ({
   contributor,
